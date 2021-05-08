@@ -1,0 +1,13 @@
+@echo off
+color 0a
+cd ..
+echo Building for HTML5...
+lime build html5 -clean -final
+echo Building for Android...
+lime build android -clean -final
+echo Building for Windows...
+lime build windows -clean -final
+echo Building for Linux...
+wsl lime build linux -clean -final
+echo Finished!
+pause
