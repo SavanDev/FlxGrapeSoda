@@ -1,0 +1,10 @@
+{
+    "map": "map2",
+    "backColor": "0xFF5080FF",
+    "parallax": "mountain",
+    "parallaxColor": "0xFF005100",
+    "lineHeight": 150,
+    "clouds": true,
+    "music": "50s-bit",
+    "player": "luka"
+}
