@@ -1,7 +1,6 @@
 package;
 
 import flixel.FlxG;
-import sys.thread.Thread;
 #if android
 import flixel.input.android.FlxAndroidKey;
 #else
