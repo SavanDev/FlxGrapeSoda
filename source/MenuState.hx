@@ -14,14 +14,12 @@ import lime.app.Application;
 import lime.system.System;
 #if desktop
 import Discord.State;
-import flixel.input.gamepad.FlxGamepad;
-#end
-#if android
-import flixel.input.android.FlxAndroidKey;
 #end
 
 class MenuState extends FlxState
 {
+	static var hasStarted:Bool = false;
+
 	var map:FlxOgmo3Loader;
 	var tileMap:FlxTilemap;
 	var player:Player;
@@ -33,12 +31,8 @@ class MenuState extends FlxState
 	var versionText:FlxBitmapText;
 	var playTimer:FlxTimer;
 
-	var LOGO_X = FlxG.width / 2 - 63;
-	var LOGO_Y = 20;
-
-	#if desktop
-	var gamepad:FlxGamepad;
-	#end
+	static inline var LOGO_X = 63;
+	static inline var LOGO_Y = 20;
 
 	function entitiesPos(entity:EntityData)
 	{
@@ -82,9 +76,12 @@ class MenuState extends FlxState
 	{
 		super.create();
 
-		#if android
-		FlxG.android.preventDefaultKeys = [FlxAndroidKey.BACK];
-		#end
+		if (!hasStarted)
+		{
+			Input.init();
+			Fonts.loadBitmapFonts();
+			hasStarted = true;
+		}
 
 		#if (desktop && cpp)
 		if (!Discord.hasStarted)
@@ -99,11 +96,8 @@ class MenuState extends FlxState
 			Discord.changePresence(State.Title);
 		#end
 
-		// UI
-		Fonts.loadBitmapFonts();
 		// start!
 		var startText:String;
-
 		#if android
 		startText = "Tap to start!";
 		#else
@@ -112,24 +106,27 @@ class MenuState extends FlxState
 
 		playText = new FlxBitmapText(Fonts.DEFAULT);
 		playText.text = startText;
+		playText.fieldWidth = 200;
 		playText.alignment = CENTER;
 		playText.useTextColor = true;
-		playText.setPosition(FlxG.width / 2 - (playText.getStringWidth(startText) / 2), 65);
+		playText.screenCenter(X);
+		playText.y = 65;
 		add(playText);
 
 		playTimer = new FlxTimer().start(1, playBlink, 0);
 
 		// logo
+		var logoX = FlxG.width / 2 - LOGO_X;
 		logoText1 = new FlxBitmapText(Fonts.PF_ARMA_FIVE);
 		logoText1.text = "Latin American needs...";
-		logoText1.setPosition(LOGO_X, LOGO_Y);
+		logoText1.setPosition(logoX, LOGO_Y);
 
 		logoText2 = new FlxBitmapText(Fonts.PF_ARMA_FIVE_16);
 		logoText2.text = "GRAPE SODA!";
 		logoText2.setBorderStyle(OUTLINE, 0xFF5B315B);
-		logoText2.setPosition(LOGO_X, LOGO_Y + 5);
+		logoText2.setPosition(logoX, LOGO_Y + 5);
 
-		logoSoda = new FlxSprite(LOGO_X + 100, LOGO_Y);
+		logoSoda = new FlxSprite(logoX + 100, LOGO_Y);
 		logoSoda.loadGraphic(Paths.getImage("items/grapesoda"), false, 12, 14);
 		logoSoda.setGraphicSize(24, 28);
 		logoSoda.updateHitbox();
@@ -181,10 +178,6 @@ class MenuState extends FlxState
 		kofi.loadGraphic(Paths.getImage("kofi"));
 		add(kofi);
 
-		#if !FLX_NO_MOUSE
-		FlxG.mouse.visible = false;
-		#end
-
 		// FIXME: Pequeño arreglo temporal. Luego voy a tener que estudiar un poco más el sistema de sonidos.
 		FlxG.sound.defaultSoundGroup.volume = .5;
 	}
@@ -192,36 +185,20 @@ class MenuState extends FlxState
 	override public function update(elapsed:Float)
 	{
 		super.update(elapsed);
+		Input.update();
 
 		#if desktop
-		gamepad = FlxG.gamepads.lastActive;
-		if (gamepad != null)
-			playText.text = "Press START!";
+		if (Input.isGamepadConnected)
+			playText.text = "Press A!";
 		else
 			playText.text = "Press ENTER!";
 		#end
 
-		if (playTimer.time != .1)
-		{
-			var startKey:Bool = false, startAltKey:Bool = false;
+		// Si el jugador aún sigue en la pantalla "Press XXXXX!"
+		if (playTimer.time != .1 && (Input.SELECT || Input.SELECT_ALT))
+			startGame();
 
-			#if android
-			var touch = FlxG.touches.getFirst();
-			if (touch != null)
-				startKey = touch.justPressed;
-			#else
-			startKey = FlxG.keys.justPressed.ENTER;
-			#end
-
-			#if desktop
-			if (gamepad != null)
-				startAltKey = gamepad.pressed.START;
-			#end
-
-			if (startKey || startAltKey)
-				startGame();
-		}
-
+		// Una vez que el jugador se sale de la pantalla, muestra el menú
 		if (player.alive && !player.isOnScreen())
 			showMenu();
 
@@ -230,11 +207,7 @@ class MenuState extends FlxState
 			FlxG.fullscreen = !FlxG.fullscreen;
 		#end
 
-		#if android
-		if (FlxG.android.pressed.BACK)
-		#else
-		if (FlxG.keys.pressed.ESCAPE)
-		#end
-		System.exit(0);
+		if (Input.BACK || Input.BACK_ALT)
+			System.exit(0);
 	}
 }

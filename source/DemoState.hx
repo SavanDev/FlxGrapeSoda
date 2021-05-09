@@ -1,6 +1,8 @@
 package;
 
+#if desktop
 import Discord.State;
+#end
 import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.FlxSprite;
@@ -9,19 +11,12 @@ import flixel.addons.editors.ogmo.FlxOgmo3Loader;
 import flixel.text.FlxBitmapText;
 import flixel.tile.FlxTilemap;
 import flixel.tweens.FlxTween;
-#if desktop
-import flixel.input.gamepad.FlxGamepad;
-#end
 
 class DemoState extends FlxState
 {
 	var player:Player;
 	var floor:FlxTilemap;
 	var grapeSoda:FlxSprite;
-
-	#if android
-	var pad:MobilePad;
-	#end
 
 	function placeEntities(entity:EntityData)
 	{
@@ -61,8 +56,7 @@ class DemoState extends FlxState
 		FlxTween.num(grapeSoda.y, grapeSoda.y + 3, .5, {type: PINGPONG}, (v:Float) -> grapeSoda.y = v);
 
 		#if android
-		pad = new MobilePad();
-		player.mobilePad = pad;
+		var pad = new AndroidPad();
 		add(pad);
 		#end
 
@@ -76,32 +70,21 @@ class DemoState extends FlxState
 	override public function update(elapsed:Float)
 	{
 		super.update(elapsed);
+		Input.update();
 		FlxG.collide(player, floor);
+
 		if (player.x < 0)
 			player.x = 0;
 
 		if (player.x > FlxG.width / 2)
 			player.x = FlxG.width / 2;
 
-		var pauseKey:Bool = false, pauseAltKey:Bool = false;
-
 		#if desktop
-		var gamepad:FlxGamepad = FlxG.gamepads.lastActive;
-		player.gamepad = gamepad;
-		if (gamepad != null)
-			pauseAltKey = gamepad.justPressed.START;
-
 		if (FlxG.keys.justPressed.F4)
 			FlxG.fullscreen = !FlxG.fullscreen;
 		#end
 
-		#if android
-		pauseKey = FlxG.android.justPressed.BACK;
-		#else
-		pauseKey = FlxG.keys.justPressed.ENTER;
-		#end
-
-		if (pauseKey || pauseAltKey)
+		if (Input.PAUSE || Input.PAUSE_ALT)
 			openSubState(new Pause(0x99000000));
 	}
 }

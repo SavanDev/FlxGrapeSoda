@@ -1,6 +1,8 @@
 package;
 
+#if desktop
 import Discord.State;
+#end
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
@@ -102,22 +104,7 @@ class ShopState extends FlxState
 		score = counter;
 		moneyCounter.text = Std.string(score);
 
-		var skipKey:Bool = false;
-		var skipAltKey:Bool = false;
-
-		#if android
-		skipKey = FlxG.touches.getFirst() != null && FlxG.touches.getFirst().justPressed;
-		#else
-		skipKey = FlxG.keys.justPressed.ENTER;
-		#end
-
-		#if desktop
-		var gamepad:FlxGamepad = FlxG.gamepads.lastActive;
-		if (gamepad != null)
-			skipAltKey = gamepad.justPressed.A;
-		#end
-
-		if (skipKey || skipAltKey)
+		if (Input.SELECT || Input.SELECT_ALT)
 		{
 			scoreTween.cancel();
 			moneyCounter.text = Std.string(PlayState.MONEY);
@@ -161,5 +148,11 @@ class ShopState extends FlxState
 				FlxG.switchState(new ReadyState());
 			});
 		}
+	}
+
+	override public function update(elapsed:Float)
+	{
+		super.update(elapsed);
+		Input.update();
 	}
 }

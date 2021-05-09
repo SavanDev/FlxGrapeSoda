@@ -2,16 +2,13 @@ package;
 
 import flixel.FlxG;
 import flixel.FlxSubState;
-import flixel.input.gamepad.FlxGamepad;
 import flixel.text.FlxBitmapText;
 import flixel.util.FlxColor;
-import flixel.util.FlxTimer;
 
 class Pause extends FlxSubState
 {
 	var exited:Bool = false;
 	var options:FlxBitmapText;
-	var canInteract:Bool = false;
 
 	override public function create()
 	{
@@ -38,56 +35,35 @@ class Pause extends FlxSubState
 		options.screenCenter();
 		options.y += 10;
 		add(options);
-
-		new FlxTimer().start(.5, (timer:FlxTimer) -> canInteract = true);
 	}
 
 	override public function update(elapsed:Float)
 	{
 		super.update(elapsed);
-		if (canInteract)
+		Input.update();
+
+		#if desktop
+		if (Input.isGamepadConnected)
+			options.text = "A to continue\nBACK to exit";
+		else
+			options.text = "ENTER to continue\nESCAPE to exit";
+		#end
+
+		if (Input.SELECT || Input.SELECT_ALT)
+			close();
+
+		if ((Input.BACK || Input.BACK_ALT) && !exited)
 		{
-			var continueKey:Bool = false, exitKey:Bool = false;
-			var continueAltKey:Bool = false, exitAltKey:Bool = false;
-
-			#if desktop
-			var gamepad:FlxGamepad = FlxG.gamepads.lastActive;
-			if (gamepad != null)
+			exited = true;
+			FlxG.camera.fade(.5, function()
 			{
-				continueAltKey = gamepad.justPressed.START;
-				exitAltKey = gamepad.justPressed.A;
-				options.text = "START to continue\nA/X to exit";
-			}
-			else
-				options.text = "ENTER to continue\nESCAPE to exit";
-			#end
+				// TODO: Hasta que haya algún sistema de guardado
+				PlayState.MONEY = 0;
+				PlayState.TIME = 0;
+				PlayState.LEVEL = 1;
 
-			#if android
-			var touch = FlxG.touches.getFirst();
-			if (touch != null)
-				continueKey = touch.justPressed;
-			exitKey = FlxG.android.justPressed.BACK;
-			#else
-			continueKey = FlxG.keys.justPressed.ENTER;
-			exitKey = FlxG.keys.justPressed.ESCAPE;
-			#end
-
-			if (continueKey || continueAltKey)
-				close();
-
-			if ((exitKey || exitAltKey) && !exited)
-			{
-				exited = true;
-				FlxG.camera.fade(.5, function()
-				{
-					// TODO: Hasta que haya algún sistema de guardado
-					PlayState.MONEY = 0;
-					PlayState.TIME = 0;
-					PlayState.LEVEL = 1;
-
-					FlxG.switchState(new MenuState());
-				});
-			}
+				FlxG.switchState(new MenuState());
+			});
 		}
 	}
 }

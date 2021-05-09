@@ -2,7 +2,6 @@ package;
 
 import flixel.FlxG;
 import flixel.group.FlxGroup;
-import flixel.input.gamepad.FlxGamepad;
 import flixel.text.FlxBitmapText;
 import flixel.tweens.FlxTween;
 import openfl.utils.Dictionary;
@@ -63,25 +62,7 @@ class Menu extends FlxGroup
 			}
 		}
 		#else
-		var upKey:Bool = FlxG.keys.justPressed.UP,
-			downKey:Bool = FlxG.keys.justPressed.DOWN,
-			selectKey:Bool = FlxG.keys.justPressed.ENTER;
-
-		var upAltKey:Bool = false,
-			downAltKey:Bool = false,
-			selectAltKey:Bool = false;
-
-		#if desktop
-		var gamepad:FlxGamepad = FlxG.gamepads.lastActive;
-		if (gamepad != null)
-		{
-			upAltKey = gamepad.justPressed.DPAD_UP;
-			downAltKey = gamepad.justPressed.DPAD_DOWN;
-			selectAltKey = gamepad.justPressed.A;
-		}
-		#end
-
-		if (upKey || upAltKey)
+		if (Input.UP || Input.UP_ALT)
 		{
 			selectedIndex--;
 			if (selectedIndex < 0)
@@ -90,7 +71,7 @@ class Menu extends FlxGroup
 			cursor.y = optionsText.members[selectedIndex].y;
 			FlxG.sound.play(Paths.getSound("blip"));
 		}
-		if (downKey || downAltKey)
+		if (Input.DOWN || Input.DOWN_ALT)
 		{
 			selectedIndex++;
 			if (selectedIndex >= optionsText.length)
@@ -99,7 +80,7 @@ class Menu extends FlxGroup
 			cursor.y = optionsText.members[selectedIndex].y;
 			FlxG.sound.play(Paths.getSound("blip"));
 		}
-		if (selectKey || selectAltKey)
+		if (Input.SELECT || Input.SELECT_ALT)
 		{
 			if (optionsEvent.exists(selectedIndex))
 			{

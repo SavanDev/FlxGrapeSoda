@@ -17,7 +17,6 @@ import haxe.Json;
 import lime.utils.Assets;
 #if desktop
 import Discord.State;
-import flixel.input.gamepad.FlxGamepad;
 #end
 
 typedef LevelData =
@@ -38,10 +37,6 @@ class PlayState extends FlxState
 	public static var MONEY:Int = 0;
 	public static var TIME:Float = 0;
 
-	#if desktop
-	var _gamepad:FlxGamepad;
-	#end
-
 	// player variables
 	var player:Player;
 	var checkpoint:FlxPoint;
@@ -57,9 +52,6 @@ class PlayState extends FlxState
 	var scenario:FlxGroup;
 
 	// misc
-	#if android
-	var pad:MobilePad;
-	#end
 	var offLimits:Bool = false;
 	var hud:HUD;
 	var finished:Bool = false;
@@ -215,8 +207,7 @@ class PlayState extends FlxState
 		scenario.add(breakBlocks);
 
 		#if android
-		pad = new MobilePad();
-		player.mobilePad = pad;
+		var pad = new AndroidPad();
 		add(pad);
 		#end
 
@@ -243,20 +234,7 @@ class PlayState extends FlxState
 	override public function update(elapsed:Float)
 	{
 		super.update(elapsed);
-		var pauseKey:Bool = false, pauseAltKey:Bool = false;
-
-		#if desktop
-		_gamepad = FlxG.gamepads.lastActive;
-		player.gamepad = _gamepad;
-		if (_gamepad != null)
-			pauseAltKey = _gamepad.justPressed.START;
-		#end
-
-		#if android
-		pauseKey = FlxG.android.justPressed.BACK;
-		#else
-		pauseKey = FlxG.keys.justPressed.ENTER;
-		#end
+		Input.update();
 
 		FlxG.collide(player, walls);
 		FlxG.collide(pickyEnemy, scenario);
@@ -285,7 +263,7 @@ class PlayState extends FlxState
 			FlxG.fullscreen = !FlxG.fullscreen;
 		#end
 
-		if (pauseKey || pauseAltKey)
+		if (Input.PAUSE || Input.PAUSE_ALT)
 			openSubState(new Pause(0x99000000));
 
 		#if (debug && desktop)

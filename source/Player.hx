@@ -3,9 +3,6 @@ package;
 import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.FlxSprite;
-#if desktop
-import flixel.input.gamepad.FlxGamepad;
-#end
 
 class Player extends FlxSprite
 {
@@ -21,16 +18,9 @@ class Player extends FlxSprite
 	var jumpTimer:Float = 0;
 
 	public var isPunching:Bool = false;
-	#if android
-	public var mobilePad:MobilePad;
-	#end
 
 	var touch1_X:Float;
 	var touch2_X:Float;
-
-	#if desktop
-	public var gamepad:FlxGamepad;
-	#end
 
 	function loadSkin()
 	{
@@ -72,37 +62,10 @@ class Player extends FlxSprite
 
 	function movement(elapsed:Float)
 	{
-		var jump:Bool = false,
-			left:Bool = false,
-			right:Bool = false,
-			punch:Bool = false;
-
-		var jumpAlt:Bool = false,
-			leftAlt:Bool = false,
-			rightAlt:Bool = false,
-			punchAlt:Bool = false;
-
-		#if desktop
-		if (gamepad != null)
-		{
-			jumpAlt = gamepad.pressed.A;
-			leftAlt = gamepad.analog.value.LEFT_STICK_X < 0 || gamepad.pressed.DPAD_LEFT;
-			rightAlt = gamepad.analog.value.LEFT_STICK_X > 0 || gamepad.pressed.DPAD_RIGHT;
-			punchAlt = gamepad.pressed.B;
-		}
-		#end
-
-		#if android
-		left = mobilePad.buttonLeft.pressed;
-		right = mobilePad.buttonRight.pressed;
-		jump = mobilePad.buttonA.pressed;
-		punch = mobilePad.buttonB.pressed;
-		#else
-		jump = FlxG.keys.anyPressed([UP, Z]) || jumpAlt;
-		left = FlxG.keys.pressed.LEFT || leftAlt;
-		right = FlxG.keys.pressed.RIGHT || rightAlt;
-		punch = FlxG.keys.anyJustPressed([C, SPACE]) || punchAlt;
-		#end
+		var jump:Bool = Input.JUMP || Input.JUMP_ALT,
+			left:Bool = Input.LEFT || Input.LEFT_ALT,
+			right:Bool = Input.RIGHT || Input.RIGHT_ALT,
+			punch:Bool = Input.PUNCH || Input.PUNCH_ALT;
 
 		if (left && !right)
 		{
@@ -171,9 +134,7 @@ class Player extends FlxSprite
 	override function update(elapsed:Float)
 	{
 		if (canMove && !isPunching)
-		{
 			movement(elapsed);
-		}
 		if (animated)
 			playerAnimation();
 
