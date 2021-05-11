@@ -15,26 +15,26 @@ class ReadyState extends FlxState
 {
 	function startCallback(timer:FlxTimer):Void
 	{
-		if (Assets.exists(Paths.getLevel(PlayState.LEVEL)))
-			FlxG.switchState(new PlayState());
-		else
-			FlxG.switchState(new DemoState());
+		FlxG.switchState(new PlayState());
 	}
 
 	override public function create()
 	{
 		super.create();
 		this.bgColor = 0xFF111111;
+		var levelExists = Assets.exists(Paths.getLevel(PlayState.LEVEL));
 
-		if (Assets.exists(Paths.getLevel(PlayState.LEVEL)))
+		if (levelExists)
 		{
 			var level:PlayerData = Json.parse(Assets.getText(Paths.getLevel(PlayState.LEVEL)));
 			Player.SKIN = Paths.getImage('player/${level.player}');
 		}
+		else
+			PlayState.DEMO_END = true;
 
 		// mostrar nivel
 		var levelText = new FlxBitmapText(Fonts.DEFAULT_16);
-		levelText.text = 'Level ${PlayState.LEVEL}';
+		levelText.text = !PlayState.DEMO_END ? 'Level ${PlayState.LEVEL}' : 'Demo End';
 		levelText.screenCenter();
 		levelText.y -= 35;
 		add(levelText);

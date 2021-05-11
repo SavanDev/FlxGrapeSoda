@@ -1,6 +1,7 @@
 package;
 
 import flixel.FlxG;
+import flixel.FlxSprite;
 import flixel.FlxSubState;
 import flixel.text.FlxBitmapText;
 import flixel.util.FlxColor;
@@ -13,6 +14,13 @@ class Pause extends FlxSubState
 	override public function create()
 	{
 		super.create();
+		// Establece la cámara por defecto de la pausa en "uiCamera"
+		this.cameras = [FlxG.cameras.list[1]];
+
+		// REVIEW: Con esto se arregla el problema del fondo al hacer zoom, pero tendré que buscar como hacerlo correctamente
+		var background:FlxSprite = new FlxSprite(0, 0);
+		background.makeGraphic(FlxG.width, FlxG.height, 0x99000000);
+		add(background);
 
 		var pauseText:FlxBitmapText = new FlxBitmapText(Fonts.DEFAULT_16);
 		pauseText.text = "Paused!";
@@ -61,6 +69,7 @@ class Pause extends FlxSubState
 				PlayState.MONEY = 0;
 				PlayState.TIME = 0;
 				PlayState.LEVEL = 1;
+				PlayState.DEMO_END = false;
 
 				FlxG.switchState(new MenuState());
 			});
