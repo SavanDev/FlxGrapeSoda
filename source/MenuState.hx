@@ -66,8 +66,9 @@ class MenuState extends FlxState
 			FlxG.camera.fade(0xFF111111, () -> FlxG.switchState(new ReadyState()));
 		});
 		menu.addEvent(1, () -> FlxG.openURL("https://ko-fi.com/savandev"));
+		menu.addEvent(2, () -> FlxG.camera.fade(2, () -> FlxG.switchState(new MapEditorState())));
 		#if desktop
-		menu.addEvent(2, () -> System.exit(0));
+		menu.addEvent(3, () -> System.exit(0));
 		#end
 		add(menu);
 	}
