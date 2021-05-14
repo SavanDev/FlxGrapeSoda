@@ -58,7 +58,7 @@ class MenuState extends FlxState
 		// more kills!
 		playText.kill();
 		player.kill();
-		var menu = new Menu(10, 70);
+		var menu = new Menu(10, 60);
 		menu.addEvent(0, () ->
 		{
 			menu.kill();
@@ -66,9 +66,12 @@ class MenuState extends FlxState
 			FlxG.camera.fade(0xFF111111, () -> FlxG.switchState(new ReadyState()));
 		});
 		menu.addEvent(1, () -> FlxG.openURL("https://ko-fi.com/savandev"));
+		#if (desktop && editor)
 		menu.addEvent(2, () -> FlxG.camera.fade(2, () -> FlxG.switchState(new MapEditorState())));
-		#if desktop
 		menu.addEvent(3, () -> System.exit(0));
+		#end
+		#if (desktop && !editor)
+		menu.addEvent(2, () -> System.exit(0));
 		#end
 		add(menu);
 	}

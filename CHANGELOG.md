@@ -6,8 +6,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Gameplay.
-- Levels.
-- Menus.
-- Basic stuff for the game.
+- Everything.
 - Initial public release.

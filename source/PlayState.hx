@@ -103,12 +103,7 @@ class PlayState extends FlxState
 	function playerBreakBlock(player:Player, block:BreakBlock)
 	{
 		if (player.isPunching)
-		{
-			new FlxTimer().start(.25, (timer:FlxTimer) ->
-			{
-				block.hurt(1);
-			});
-		}
+			new FlxTimer().start(.25, (timer:FlxTimer) -> block.hurt(1));
 	}
 
 	function playerHitEnemy(player:Player, picky:Enemy)

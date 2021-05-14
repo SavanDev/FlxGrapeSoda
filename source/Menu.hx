@@ -10,8 +10,10 @@ class Menu extends FlxGroup
 {
 	#if (web || mobile)
 	var options = ['Start', 'Donate'];
-	#else
+	#elseif editor
 	var options = ['Start', 'Donate', 'Map Editor', 'Exit'];
+	#else
+	var options = ['Start', 'Donate', 'Exit'];
 	#end
 	var cursor:FlxBitmapText;
 	var optionsText:FlxTypedGroup<FlxBitmapText>;

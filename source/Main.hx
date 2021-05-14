@@ -11,9 +11,9 @@ class Main extends Sprite
 		super();
 
 		#if android
-		addChild(new FlxGame(250, 144, MenuState));
+		addChild(new FlxGame(250, 144, SavanLogo));
 		#else
-		addChild(new FlxGame(160, 144, MenuState));
+		addChild(new FlxGame(160, 144, SavanLogo));
 		#end
 
 		#if debug
