@@ -1,5 +1,6 @@
 package;
 
+import Paths.DirTarget;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.ui.FlxButton;
 
@@ -20,7 +21,7 @@ class AndroidPad extends FlxTypedGroup<FlxButton>
 		btnJump = new FlxButton(211, 105);
 		btnPunch = new FlxButton(170, 105);
 
-		// TODO: Por ahora sirve xD
+		// Callbacks
 		btnLeft.onDown.callback = () -> Input.LEFT = true;
 		btnRight.onDown.callback = () -> Input.RIGHT = true;
 		btnJump.onDown.callback = () -> Input.JUMP = true;
@@ -31,10 +32,10 @@ class AndroidPad extends FlxTypedGroup<FlxButton>
 		btnJump.onUp.callback = () -> Input.JUMP = false;
 		btnPunch.onUp.callback = () -> Input.PUNCH = false;
 
-		btnLeft.loadGraphic("misc/mobile/mobile_left.png", true, 32, 32);
-		btnRight.loadGraphic("misc/mobile/mobile_right.png", true, 32, 32);
-		btnJump.loadGraphic("misc/mobile/mobile_up.png", true, 32, 32);
-		btnPunch.loadGraphic("misc/mobile/mobile_punch.png", true, 32, 32);
+		btnLeft.loadGraphic(Paths.getImage("mobile_left", DirTarget.Mobile), true, 32, 32);
+		btnRight.loadGraphic(Paths.getImage("mobile_right", DirTarget.Mobile), true, 32, 32);
+		btnJump.loadGraphic(Paths.getImage("mobile_up", DirTarget.Mobile), true, 32, 32);
+		btnPunch.loadGraphic(Paths.getImage("mobile_punch", DirTarget.Mobile), true, 32, 32);
 
 		add(btnLeft);
 		add(btnRight);

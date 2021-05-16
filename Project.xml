@@ -32,9 +32,14 @@
 	<set name="BUILD_DIR" value="export/x86" if="32bit"/>
 
 	<classpath name="source" />
+
 	<assets path="assets" exclude="*.ogg" if="web"/>
 	<assets path="assets" exclude="*.mp3|*.woff" unless="web"/>
-	<assets path="misc/mobile" unless="desktop"/>
+
+	<assets path="editor" rename="assets/editor" if="desktop"/>
+	<assets path="misc/mobile" rename="assets/mobile" unless="desktop"/>
+
+	<assets path="misc/readme.txt" rename="readme.txt" if="desktop"/>
 
 	<!-- _______________________________ Libraries ______________________________ -->
 
@@ -44,7 +49,7 @@
 	<haxelib name="flixel-addons" />
 
 	<!--In case you want to use the ui package-->
-	<!--<haxelib name="flixel-ui" />-->
+	<haxelib name="flixel-ui" />
 
 	<!--In case you want to use nape with flixel-->
 	<!--<haxelib name="nape-haxe4" />-->
