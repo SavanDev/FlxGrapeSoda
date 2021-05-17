@@ -156,7 +156,7 @@ class MenuState extends FlxState
 
 		// mini nivel
 		map = new FlxOgmo3Loader(Paths.getOgmoData(), Paths.getMap("menuMap"));
-		tileMap = map.loadTilemap(Paths.getImage("tileMap"), "Blocks");
+		tileMap = map.loadTilemap(Paths.getImage("legacy/tileMap"), "Blocks");
 		add(tileMap);
 		player = new Player(0, 0, true);
 		map.loadEntities(entitiesPos, "Entities");

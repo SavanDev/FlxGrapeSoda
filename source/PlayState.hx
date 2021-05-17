@@ -159,12 +159,12 @@ class PlayState extends FlxState
 		var map = new FlxOgmo3Loader(Paths.getOgmoData(), Paths.getMap(!DEMO_END ? level.map : "demoEnd"));
 		this.bgColor = !DEMO_END ? FlxColor.fromString(level.backColor) : 0xFF111111;
 
-		var backWalls = map.loadTilemap(Paths.getImage("backTileMap"), "BackBlocks");
+		var backWalls = map.loadTilemap(Paths.getImage("legacy/backTileMap"), "BackBlocks");
 		backWalls.follow();
 		backWalls.setTileProperties(0, FlxObject.NONE);
 		add(backWalls);
 
-		walls = map.loadTilemap(Paths.getImage("tileMap"), "Blocks");
+		walls = map.loadTilemap(Paths.getImage("legacy/tileMap"), "Blocks");
 		walls.follow();
 		walls.setTileProperties(0, FlxObject.NONE);
 		walls.setTileProperties(1, FlxObject.ANY);

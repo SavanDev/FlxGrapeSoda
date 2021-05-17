@@ -199,11 +199,11 @@ class MapEditorState extends FlxState
 			}
 		};
 
-		/*var mapEditorText = new FlxBitmapText();
-			mapEditorText.text = "MAP EDITOR";
-			mapEditorText.x = FlxG.width - mapEditorText.width - 2;
-			mapEditorText.y = FlxG.height - mapEditorText.height - 2;
-			add(mapEditorText); */
+		var mapEditorText = new FlxBitmapText();
+		mapEditorText.text = "MAP EDITOR";
+		mapEditorText.x = FlxG.width - mapEditorText.width - 2;
+		mapEditorText.y = FlxG.height - mapEditorText.height - 2;
+		add(mapEditorText);
 
 		// Map stuff
 		createMap();
@@ -221,7 +221,9 @@ class MapEditorState extends FlxState
 		_sprLayer1.cameras = [uiCamera];
 		_sprLayer0.cameras = [uiCamera];
 		_inputMapX.cameras = [uiCamera];
-		// mapEditorText.cameras = [uiCamera];
+		_inputMapY.cameras = [uiCamera];
+		backgroundInput.cameras = [uiCamera];
+		mapEditorText.cameras = [uiCamera];
 
 		FlxG.camera.bgColor = FlxColor.BLACK;
 	}
