@@ -8,11 +8,20 @@ Made by SavanDev
 ### Controls ###
 ################
 
+### Keyboard ###
+
 Left/Right Arrow - Move
-Up Arrow - Jump
-C - Punch
-ENTER - Pause
+Up Arrow/Z - Jump
+C/Space - Punch
+ENTER - Pause/Skip/Select
 F4 - Fullscreen/Window Mode
+
+### Joystick/Gamepad ###
+
+Left Stick/D-PAD - Move
+A - Jump/Skip/Select
+B - Punch
+Start - Pause
 
 #######################
 ### Special credits ###
