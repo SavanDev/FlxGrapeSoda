@@ -24,16 +24,16 @@ class Paths
 
 	static public function getSound(file:String)
 	{
+		#if web
+		return 'assets/sounds/web/$file.mp3';
+		#else
 		return 'assets/sounds/$file.wav';
+		#end
 	}
 
 	static public function getMusic(file:String)
 	{
-		#if web
 		return 'assets/music/$file.mp3';
-		#else
-		return 'assets/music/$file.ogg';
-		#end
 	}
 
 	static public function getLevel(number:Int)

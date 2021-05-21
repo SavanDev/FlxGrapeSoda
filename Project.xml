@@ -33,8 +33,8 @@
 
 	<classpath name="source" />
 
-	<assets path="assets" exclude="*.ogg" if="web"/>
-	<assets path="assets" exclude="*.mp3|*.woff" unless="web"/>
+	<assets path="assets" exclude="*.wav" if="web"/>
+	<assets path="assets" exclude="*/web/*.mp3" unless="web"/>
 
 	<assets path="editor" rename="assets/editor" if="desktop"/>
 	<assets path="misc/mobile" rename="assets/mobile" unless="desktop"/>
