@@ -50,7 +50,6 @@ class PlayState extends FlxState
 	var breakBlocks:FlxTypedGroup<BreakBlock>;
 	var pickyEnemy:FlxTypedGroup<Enemy>;
 	var flag:Flag;
-
 	var scenario:FlxGroup;
 
 	// misc
@@ -94,24 +93,32 @@ class PlayState extends FlxState
 		offLimits = false;
 	}
 
+	function punchEvent()
+	{
+		var playerDirection = player.facing == FlxObject.RIGHT ? 8 : -8;
+		var punchRay:FlxPoint = new FlxPoint(player.x + playerDirection, player.y);
+		breakBlocks.forEachAlive((block) ->
+		{
+			if (punchRay.inRect(block.getHitbox()))
+				new FlxTimer().start(.25, (timer:FlxTimer) -> block.hurt(1));
+		});
+		pickyEnemy.forEachAlive((picky) ->
+		{
+			if (punchRay.inRect(picky.getHitbox()))
+				picky.kill();
+		});
+	}
+
 	function playerTouchCoin(player:Player, coin:Money)
 	{
 		if (player.alive && player.exists && coin.alive && coin.exists)
 			coin.kill();
 	}
 
-	function playerBreakBlock(player:Player, block:BreakBlock)
-	{
-		if (player.isPunching)
-			new FlxTimer().start(.25, (timer:FlxTimer) -> block.hurt(1));
-	}
-
 	function playerHitEnemy(player:Player, picky:Enemy)
 	{
 		if (player.alive && picky.alive)
 		{
-			if (player.isPunching && (player.facing != picky.facing))
-				picky.kill();
 			if (picky.isTouching(FlxObject.UP))
 			{
 				player.velocity.y = -100;
@@ -141,6 +148,7 @@ class PlayState extends FlxState
 		uiCamera.bgColor = FlxColor.TRANSPARENT;
 
 		var level:LevelData = null;
+		scenario = new FlxGroup();
 
 		if (!DEMO_END)
 		{
@@ -168,7 +176,7 @@ class PlayState extends FlxState
 		walls.follow();
 		walls.setTileProperties(0, FlxObject.NONE);
 		walls.setTileProperties(1, FlxObject.ANY);
-		add(walls);
+		scenario.add(walls);
 
 		var shop = map.loadTilemap(Paths.getImage("shop"), "Shop");
 		shop.follow();
@@ -194,24 +202,22 @@ class PlayState extends FlxState
 			add(flag);
 		}
 
+		// Entities
 		coins = new FlxTypedGroup<Money>();
-		add(coins);
-
 		breakBlocks = new FlxTypedGroup<BreakBlock>();
-		add(breakBlocks);
-
 		pickyEnemy = new FlxTypedGroup<Enemy>();
-		add(pickyEnemy);
-
 		player = new Player();
+		player.punchCallback = punchEvent;
+
+		// Mostrar el nivel
+		scenario.add(breakBlocks);
+		add(scenario);
+
+		add(coins);
+		add(pickyEnemy);
 		add(player);
 
 		map.loadEntities(placeEntities, "Entities");
-
-		scenario = new FlxGroup();
-		scenario.add(walls);
-		scenario.add(pickyEnemy);
-		scenario.add(breakBlocks);
 
 		if (DEMO_END)
 		{
@@ -262,7 +268,7 @@ class PlayState extends FlxState
 		super.update(elapsed);
 		Input.update();
 
-		FlxG.collide(player, walls);
+		FlxG.collide(player, scenario);
 
 		if (player.x < 0)
 			player.x = 0;
@@ -272,7 +278,6 @@ class PlayState extends FlxState
 			FlxG.collide(pickyEnemy, scenario);
 			FlxG.collide(player, pickyEnemy, playerHitEnemy);
 			FlxG.overlap(player, coins, playerTouchCoin);
-			FlxG.collide(player, breakBlocks, playerBreakBlock);
 
 			if (!finished)
 				FlxG.overlap(player, flag, finishLevel);

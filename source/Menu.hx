@@ -4,28 +4,21 @@ import flixel.FlxG;
 import flixel.group.FlxGroup;
 import flixel.text.FlxBitmapText;
 import flixel.tweens.FlxTween;
-import openfl.utils.Dictionary;
 
 class Menu extends FlxGroup
 {
-	#if (web || mobile)
-	var options = ['Start', 'Donate'];
-	#elseif editor
-	var options = ['Start', 'Donate', 'Map Editor', 'Exit'];
-	#else
-	var options = ['Start', 'Donate', 'Exit'];
-	#end
 	var cursor:FlxBitmapText;
+	var options:Array<{text:String, event:Menu->Void}>;
 	var optionsText:FlxTypedGroup<FlxBitmapText>;
-	var optionsEvent:Dictionary<Int, Void->Void>;
 
 	var selectedIndex:Int = 0;
 
-	public function new(x:Float = 0, y:Float = 0)
+	// Bueno... ahora se puede reutilizar
+	public function new(x:Float = 0, y:Float = 0, items:Array<{text:String, event:Menu->Void}>)
 	{
 		super();
 		optionsText = new FlxTypedGroup<FlxBitmapText>();
-		optionsEvent = new Dictionary<Int, Void->Void>();
+		options = items;
 
 		#if !android
 		cursor = new FlxBitmapText();
@@ -35,11 +28,16 @@ class Menu extends FlxGroup
 		FlxTween.num(x, x + 2, .25, {type: PINGPONG}, (v:Float) -> cursor.x = v);
 		#end
 
-		for (i in 0...options.length)
+		for (i in 0...items.length)
 		{
+			#if android
+			var item = new FlxBitmapText(Fonts.DEFAULT);
+			item.setPosition(x, y + (i * 12));
+			#else
 			var item = new FlxBitmapText();
 			item.setPosition(x + 10, y + (i * 10));
-			item.text = options[i];
+			#end
+			item.text = items[i].text;
 			item.useTextColor = true;
 			optionsText.add(item);
 		}
@@ -59,7 +57,7 @@ class Menu extends FlxGroup
 				if (touch.getPosition().inRect(optionsText.members[i].getHitbox()))
 				{
 					selectedIndex = i;
-					optionsEvent.get(selectedIndex)();
+					options[selectedIndex].event(this);
 				}
 			}
 		}
@@ -83,18 +81,7 @@ class Menu extends FlxGroup
 			FlxG.sound.play(Paths.getSound("blip"));
 		}
 		if (Input.SELECT || Input.SELECT_ALT)
-		{
-			if (optionsEvent.exists(selectedIndex))
-			{
-				var event = optionsEvent.get(selectedIndex);
-				event();
-			}
-		}
+			options[selectedIndex].event(this);
 		#end
-	}
-
-	public function addEvent(_index:Int, _event:Void->Void)
-	{
-		optionsEvent.set(_index, _event);
 	}
 }

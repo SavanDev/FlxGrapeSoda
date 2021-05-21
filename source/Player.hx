@@ -13,6 +13,7 @@ class Player extends FlxSprite
 
 	public var canMove:Bool = true;
 	public var animated:Bool = true;
+	public var punchCallback:Void->Void;
 
 	var jumping:Bool = false;
 	var jumpTimer:Float = 0;
@@ -106,7 +107,8 @@ class Player extends FlxSprite
 		{
 			animation.play("punch");
 			isPunching = true;
-			velocity.x = 1;
+			if (punchCallback != null)
+				punchCallback();
 		}
 	}
 

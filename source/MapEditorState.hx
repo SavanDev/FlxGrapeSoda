@@ -1,13 +1,12 @@
 package;
 
 import Paths.DirTarget;
-import flixel.addons.ui.FlxInputText;
-import flixel.addons.ui.FlxUIInputText;
 #if editor
 import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
+import flixel.addons.ui.FlxInputText;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.math.FlxRect;
 import flixel.text.FlxBitmapText;

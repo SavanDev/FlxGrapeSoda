@@ -27,10 +27,10 @@ class AndroidPad extends FlxTypedGroup<FlxButton>
 		btnJump.onDown.callback = () -> Input.JUMP = true;
 		btnPunch.onDown.callback = () -> Input.PUNCH = true;
 
-		btnLeft.onUp.callback = () -> Input.LEFT = false;
-		btnRight.onUp.callback = () -> Input.RIGHT = false;
-		btnJump.onUp.callback = () -> Input.JUMP = false;
-		btnPunch.onUp.callback = () -> Input.PUNCH = false;
+		btnLeft.onOut.callback = () -> Input.LEFT = false;
+		btnRight.onOut.callback = () -> Input.RIGHT = false;
+		btnJump.onOut.callback = () -> Input.JUMP = false;
+		btnPunch.onOut.callback = () -> Input.PUNCH = false;
 
 		btnLeft.loadGraphic(Paths.getImage("mobile_left", DirTarget.Mobile), true, 32, 32);
 		btnRight.loadGraphic(Paths.getImage("mobile_right", DirTarget.Mobile), true, 32, 32);
