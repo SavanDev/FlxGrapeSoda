@@ -43,6 +43,7 @@ class Enemy extends FlxSprite
 
 	override function kill()
 	{
+		PlayState.ENEMIES_DEAD++;
 		allowCollisions = FlxObject.NONE;
 		velocity.x = velocity.y = 0;
 		alive = false;

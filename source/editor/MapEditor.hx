@@ -1,4 +1,4 @@
-package;
+package editor;
 
 import Paths.DirTarget;
 #if editor
@@ -14,7 +14,7 @@ import flixel.tile.FlxTilemap;
 import flixel.util.FlxColor;
 import flixel.util.FlxSpriteUtil;
 
-class MapEditorState extends FlxState
+class MapEditor extends FlxState
 {
 	static inline var TILE_WIDTH:Int = 12;
 	static inline var TILE_HEIGHT:Int = 12;
@@ -135,6 +135,7 @@ class MapEditorState extends FlxState
 	override public function create()
 	{
 		super.create();
+		FlxG.mouse.visible = true;
 		FlxG.sound.music.stop();
 		var uiCamera:FlxCamera = new FlxCamera(0, 0, FlxG.width, FlxG.height);
 		uiCamera.bgColor = FlxColor.TRANSPARENT;
@@ -177,11 +178,11 @@ class MapEditorState extends FlxState
 		add(backgroundInput);
 
 		_inputMapX = new FlxInputText(FlxG.width - 35, 5, 25);
-		_inputMapX.setFormat("assets/editor/fonts/tiny.ttf", 6, FlxColor.BLACK);
+		_inputMapX.setFormat("assets/editor/fonts/Toy.ttf", 8, FlxColor.BLACK);
 		add(_inputMapX);
 
 		_inputMapY = new FlxInputText(FlxG.width - 35, 20, 25);
-		_inputMapY.setFormat("assets/editor/fonts/tiny.ttf", 6, FlxColor.BLACK);
+		_inputMapY.setFormat("assets/editor/fonts/Toy.ttf", 8, FlxColor.BLACK);
 		add(_inputMapY);
 
 		_inputMapX.text = Std.string(MAP_WIDTH);
@@ -198,7 +199,7 @@ class MapEditorState extends FlxState
 			}
 		};
 
-		var mapEditorText = new FlxBitmapText();
+		var mapEditorText = new FlxBitmapText(Fonts.TOY);
 		mapEditorText.text = "MAP EDITOR";
 		mapEditorText.x = FlxG.width - mapEditorText.width - 2;
 		mapEditorText.y = FlxG.height - mapEditorText.height - 2;

@@ -61,7 +61,7 @@ Later, just run "lime test windows -debug" (on Windows) or "lime test linux -deb
 
 ## Special credits
 
-Contains music ©2020 [Joshua McLean](https://joshua-mclean.itch.io)
+- "[__Toy__](https://arcade.itch.io/toy)" font made by [Void](http://frankqbe.tumblr.com/).
+- Music made by [Joshua McLean](https://joshua-mclean.itch.io).
 
-Licensed under Creative Commons Attribution 4.0 International
-https://creativecommons.org/licenses/by/4.0/
+Both licensed under [Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/).

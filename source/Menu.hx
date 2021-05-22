@@ -21,8 +21,8 @@ class Menu extends FlxGroup
 		options = items;
 
 		#if !android
-		cursor = new FlxBitmapText();
-		cursor.setPosition(x, y);
+		cursor = new FlxBitmapText(Fonts.TOY);
+		cursor.setPosition(x, y - 5);
 		cursor.text = ">";
 		add(cursor);
 		FlxTween.num(x, x + 2, .25, {type: PINGPONG}, (v:Float) -> cursor.x = v);
@@ -34,8 +34,8 @@ class Menu extends FlxGroup
 			var item = new FlxBitmapText(Fonts.DEFAULT);
 			item.setPosition(x, y + (i * 12));
 			#else
-			var item = new FlxBitmapText();
-			item.setPosition(x + 10, y + (i * 10));
+			var item = new FlxBitmapText(Fonts.TOY);
+			item.setPosition(x + 10, y - 5 + (i * 10));
 			#end
 			item.text = items[i].text;
 			item.useTextColor = true;

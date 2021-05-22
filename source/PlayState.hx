@@ -10,6 +10,7 @@ import flixel.addons.editors.ogmo.FlxOgmo3Loader;
 import flixel.effects.FlxFlicker;
 import flixel.group.FlxGroup;
 import flixel.math.FlxPoint;
+import flixel.math.FlxRect;
 import flixel.text.FlxBitmapText;
 import flixel.tile.FlxTilemap;
 import flixel.tweens.FlxTween;
@@ -39,6 +40,7 @@ class PlayState extends FlxState
 	public static var MONEY:Int = 0;
 	public static var TIME:Float = 0;
 	public static var DEMO_END:Bool = false;
+	public static var ENEMIES_DEAD:Int = 0;
 
 	// player variables
 	var player:Player;
@@ -95,17 +97,21 @@ class PlayState extends FlxState
 
 	function punchEvent()
 	{
-		var playerDirection = player.facing == FlxObject.RIGHT ? 8 : -8;
-		var punchRay:FlxPoint = new FlxPoint(player.x + playerDirection, player.y);
-		breakBlocks.forEachAlive((block) ->
+		var playerX = (player.facing == FlxObject.LEFT) ? player.x - 3 : player.x;
+		var playerWidth = (player.facing == FlxObject.RIGHT) ? player.width + 3 : player.width;
+		var punchRay:FlxRect = new FlxRect(playerX, player.y, playerWidth, player.height);
+		new FlxTimer().start(.1, (timer:FlxTimer) ->
 		{
-			if (punchRay.inRect(block.getHitbox()))
-				new FlxTimer().start(.25, (timer:FlxTimer) -> block.hurt(1));
-		});
-		pickyEnemy.forEachAlive((picky) ->
-		{
-			if (punchRay.inRect(picky.getHitbox()))
-				picky.kill();
+			breakBlocks.forEachAlive((block) ->
+			{
+				if (punchRay.overlaps(block.getHitbox()))
+					block.hurt(1);
+			});
+			pickyEnemy.forEachAlive((picky) ->
+			{
+				if (punchRay.overlaps(picky.getHitbox()))
+					picky.kill();
+			});
 		});
 	}
 
@@ -129,21 +135,28 @@ class PlayState extends FlxState
 
 	function finishLevel(player:Player, flag:Flag)
 	{
+		FlxG.sound.play(Paths.getSound("finish"));
 		player.canMove = false;
-		player.velocity.x = Player.SPEED / 2;
 		player.facing = FlxObject.RIGHT;
 
 		FlxG.camera.fade(FlxColor.BLACK, 1.5, false, () ->
 		{
 			trace('Level $LEVEL finished!');
+			trace('Time: $TIME');
 			FlxG.switchState(new ShopState());
 		});
+
+		finished = true;
 	}
 
 	// FlxState functions
 	override public function create()
 	{
 		super.create();
+
+		// HACK: Con esto se arregla los bordes de los sprites/tilemap.
+		FlxG.timeScale = 1.03;
+
 		var uiCamera = new FlxCamera(0, 0, FlxG.width, FlxG.height);
 		uiCamera.bgColor = FlxColor.TRANSPARENT;
 
@@ -281,6 +294,8 @@ class PlayState extends FlxState
 
 			if (!finished)
 				FlxG.overlap(player, flag, finishLevel);
+			else
+				player.velocity.x = Player.SPEED / 2;
 
 			if (player.y > walls.height && !offLimits)
 			{

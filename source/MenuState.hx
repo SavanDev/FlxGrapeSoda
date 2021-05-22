@@ -72,10 +72,9 @@ class MenuState extends FlxState
 				text: "Donate",
 				event: (menu) -> FlxG.openURL("https://ko-fi.com/savandev")
 			},
-			#if editor
-			{
+			#if editor {
 				text: "Map Editor",
-				event: (menu) -> FlxG.camera.fade(2, () -> FlxG.switchState(new MapEditorState()))
+				event: (menu) -> FlxG.camera.fade(2, () -> FlxG.switchState(new editor.MapEditor()))
 			},
 			#end
 			#if desktop
@@ -180,14 +179,14 @@ class MenuState extends FlxState
 		FlxG.sound.playMusic(Paths.getMusic("effervesce"));
 
 		// texto de la versión
-		versionText = new FlxBitmapText();
+		versionText = new FlxBitmapText(Fonts.TOY);
 		#if web
 		versionText.text = 'Nightly version';
 		#else
 		versionText.text = 'v${Application.current.meta.get("version")}';
 		#end
 		versionText.alignment = RIGHT;
-		versionText.setPosition(FlxG.width - versionText.getStringWidth(versionText.text) - 10, FlxG.height - 10);
+		versionText.setPosition(FlxG.width - versionText.getStringWidth(versionText.text) - 10, FlxG.height - 15);
 		add(versionText);
 
 		var kofi:FlxSprite = new FlxSprite(5, FlxG.height - 15);
@@ -196,6 +195,8 @@ class MenuState extends FlxState
 
 		// FIXME: Pequeño arreglo temporal. Luego voy a tener que estudiar un poco más el sistema de sonidos.
 		FlxG.sound.defaultSoundGroup.volume = .5;
+
+		FlxG.mouse.visible = false;
 	}
 
 	override public function update(elapsed:Float)

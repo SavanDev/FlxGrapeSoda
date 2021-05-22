@@ -21,13 +21,13 @@ class BackParallax extends FlxGroup
 			backColor.scrollFactor.set(0, 1);
 			add(backColor);
 		}
-		parallax1 = new FlxBackdrop(Back1, 1, 1, true, false);
+		parallax1 = new FlxBackdrop(Back1, .5, 1, true, false);
 		parallax1.y = lineHeight;
 		add(parallax1);
 
 		if (Cloud)
 		{
-			clouds = new FlxBackdrop(Paths.getImage("parallax/nubes"), 1, 1, true, false);
+			clouds = new FlxBackdrop(Paths.getImage("parallax/nubes"), .25, 1, true, false);
 			clouds.y = lineHeight - 45;
 			add(clouds);
 		}

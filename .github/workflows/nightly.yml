@@ -13,7 +13,7 @@ jobs:
       - name: Setup Haxe
         uses: krdlab/setup-haxe@v1.1.5
         with:
-          haxe-version: 4.2.1
+          haxe-version: 4.2.2
 
       - name: Setup HaxeFlixel
         run: | 
@@ -24,13 +24,11 @@ jobs:
 
       - name: Build HTML5
         run: |
-          haxelib run lime build html5
-          mkdir public
-          mv ./export/release/html5/bin/* ./public
+          haxelib run lime build html5 -final
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@4.1.1
         with:
           branch: gh-pages # The branch the action should deploy to.
-          folder: public # The folder the action should deploy.
+          folder: ./export/release/html5/bin # The folder the action should deploy.
       

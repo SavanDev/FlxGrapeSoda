@@ -1,13 +1,13 @@
 import flixel.graphics.frames.FlxBitmapFont;
 import lime.utils.Assets;
 
-// REVIEW: Veré mejor esta implementación más adelante.
 class Fonts
 {
 	public static var PF_ARMA_FIVE:FlxBitmapFont;
 	public static var PF_ARMA_FIVE_16:FlxBitmapFont;
 	public static var DEFAULT:FlxBitmapFont;
 	public static var DEFAULT_16:FlxBitmapFont;
+	public static var TOY:FlxBitmapFont;
 
 	public static function loadBitmapFonts()
 	{
@@ -24,6 +24,10 @@ class Fonts
 		xml16 = Xml.parse(font16);
 		DEFAULT = FlxBitmapFont.fromAngelCode("assets/fonts/Default_0.png", xml8);
 		DEFAULT_16 = FlxBitmapFont.fromAngelCode("assets/fonts/Default16_0.png", xml16);
+
+		font8 = Assets.getText("assets/fonts/Toy.fnt");
+		xml8 = Xml.parse(font8);
+		TOY = FlxBitmapFont.fromAngelCode("assets/fonts/Toy_0.png", xml8);
 
 		trace("Bitmap fonts loaded!");
 	}

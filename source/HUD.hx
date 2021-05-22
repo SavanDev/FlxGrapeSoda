@@ -13,10 +13,13 @@ class HUD extends FlxTypedGroup<FlxSprite>
 	var timeCounter:FlxBitmapText;
 	var moneyIcon:FlxSprite;
 	var timeIcon:FlxSprite;
+	var enemyCounter:FlxBitmapText;
+	var enemyIcon:FlxSprite;
 
 	var timer:Int;
 	var minutes:Int;
 	var seconds:Int;
+	var miliseconds:Int;
 
 	public function new()
 	{
@@ -28,8 +31,10 @@ class HUD extends FlxTypedGroup<FlxSprite>
 		moneyIcon.animation.add("default", [0, 1], 5);
 		moneyIcon.animation.play("default");
 		timeIcon = new FlxSprite(5, 18, Paths.getImage("items/time"));
+		enemyIcon = new FlxSprite(5, 31, Paths.getImage("items/enemy"));
 		add(moneyIcon);
 		add(timeIcon);
+		add(enemyIcon);
 
 		// texto
 		moneyCounter = new FlxBitmapText(Fonts.DEFAULT);
@@ -40,9 +45,15 @@ class HUD extends FlxTypedGroup<FlxSprite>
 		timeCounter = new FlxBitmapText(Fonts.DEFAULT);
 		timeCounter.setPosition(18, 19);
 		timeCounter.setBorderStyle(SHADOW, FlxColor.BLACK, 1, 1);
+		enemyCounter = new FlxBitmapText(Fonts.DEFAULT);
+		enemyCounter.text = Std.string(PlayState.ENEMIES_DEAD);
+		enemyCounter.setPosition(18, 32);
+		enemyCounter.setBorderStyle(SHADOW, FlxColor.BLACK, 1, 1);
+		enemyCounter.useTextColor = true;
 		add(moneyCounter);
 		add(timeCounter);
-		forEach(function(sprite) sprite.scrollFactor.set(0, 0));
+		add(enemyCounter);
+		// forEach(function(sprite) sprite.scrollFactor.set(0, 0));
 	}
 
 	override public function update(elapsed:Float)
@@ -58,15 +69,27 @@ class HUD extends FlxTypedGroup<FlxSprite>
 			});
 		}
 
-		moneyCounter.text = Std.string(PlayState.MONEY);
+		if (enemyCounter.text != Std.string(PlayState.ENEMIES_DEAD))
+		{
+			enemyCounter.textColor = FlxColor.RED;
+			new FlxTimer().start(.5, function(timer:FlxTimer)
+			{
+				enemyCounter.textColor = FlxColor.WHITE;
+			});
+		}
 
-		timer = Math.floor(PlayState.TIME);
-		minutes = Std.int(timer / 60);
-		seconds = timer - (minutes * 60);
+		moneyCounter.text = Std.string(PlayState.MONEY);
+		enemyCounter.text = Std.string(PlayState.ENEMIES_DEAD);
+
+		timer = Math.floor(PlayState.TIME * 100);
+		minutes = Std.int(timer / 100 / 60);
+		seconds = Std.int(timer / 100) - (minutes * 60);
+		miliseconds = timer - ((seconds + (minutes * 60)) * 100);
 
 		var minutesText:String = minutes < 10 ? '0$minutes' : '$minutes';
 		var secondsText:String = seconds < 10 ? '0$seconds' : '$seconds';
+		var milisecondsText:String = miliseconds < 10 ? '0$miliseconds' : '$miliseconds';
 
-		timeCounter.text = '$minutesText:$secondsText';
+		timeCounter.text = '$minutesText:$secondsText.$milisecondsText';
 	}
 }
