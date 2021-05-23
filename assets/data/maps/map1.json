@@ -47,9 +47,9 @@
         {"name": "Coin", "id": 2, "_eid": "44164986", "x": 432, "y": 48, "originX": 0, "originY": 0},
         {"name": "Coin", "id": 3, "_eid": "44164986", "x": 504, "y": 24, "originX": 0, "originY": 0},
         {"name": "Coin", "id": 4, "_eid": "44164986", "x": 792, "y": 84, "originX": 0, "originY": 0},
-        {"name": "Player", "id": 5, "_eid": "59229601", "x": 24, "y": 48, "originX": -2, "originY": -6},
         {"name": "Flag", "id": 6, "_eid": "97247734", "x": 864, "y": 72, "originX": 0, "originY": 0},
-        {"name": "Enemy", "id": 7, "_eid": "14307852", "x": 504, "y": 48, "originX": 0, "originY": 0}
+        {"name": "Enemy", "id": 7, "_eid": "14307852", "x": 504, "y": 48, "originX": 0, "originY": 0},
+        {"name": "Player", "id": 8, "_eid": "59229601", "x": 24, "y": 72, "originX": 0, "originY": 0}
       ]
     },
     {
