@@ -25,16 +25,16 @@ class Player extends FlxSprite
 
 	function loadSkin()
 	{
-		loadGraphic(SKIN, true, 12, 24);
+		loadGraphic(SKIN, true, 13, 20);
 
 		// para las colisiones
 		setSize(8, 18);
-		offset.set(2, 6);
+		offset.set(3, 2);
 
 		// para las animaciones
 		setFacingFlip(FlxObject.LEFT, true, false);
 		setFacingFlip(FlxObject.RIGHT, false, false);
-		animation.add("default", [1], 5);
+		animation.add("default", [1, 2], 3);
 		animation.add("walk", [3, 4, 3, 5], 5);
 		animation.add("jump", [6], 0);
 		animation.add("sad", [9], 0);

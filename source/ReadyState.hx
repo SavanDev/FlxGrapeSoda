@@ -41,7 +41,7 @@ class ReadyState extends FlxState
 
 		// mostrar jugador actual
 		var player = new Player(0, 0, true);
-		player.setGraphicSize(24, 48);
+		player.setGraphicSize(26, 40);
 		player.screenCenter();
 		player.x -= 30;
 		add(player);
