@@ -5,7 +5,20 @@ on:
       - main
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - name: HTML5
+            os: ubuntu-latest
+            platform: html5
+          - name: Linux
+            os: ubuntu-latest
+            platform: linux
+          - name: Windows
+            os: windows-latest
+            platform: windows
+    name: Build for ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2.3.1
@@ -17,18 +30,30 @@ jobs:
 
       - name: Setup HaxeFlixel
         run: | 
-          haxelib install flixel
-          haxelib install openfl
-          haxelib install lime
-          haxelib install flixel-addons
+          haxelib --quiet install flixel
+          haxelib --quiet install openfl
+          haxelib --quiet install lime
+          haxelib --quiet --always run lime setup flixel
+          haxelib --quiet git discord_rpc https://github.com/Aidan63/linc_discord-rpc
 
-      - name: Build HTML5
+      - name: Setup Lime
+        run: haxelib --quiet --always run lime setup
+
+      - name: Build using Lime
         run: |
-          haxelib run lime build html5 -final
+          haxelib run lime build ${{ matrix.platform }} -final
 
       - name: Deploy
+        if: ${{ matrix.platform == 'html5' }}
         uses: JamesIves/github-pages-deploy-action@4.1.1
         with:
           branch: gh-pages # The branch the action should deploy to.
           folder: ./export/release/html5/bin # The folder the action should deploy.
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2.2.2
+        with:
+          name: |
+            ${{ matrix.name }} Nightly
+          path: export/release/${{ matrix.platform }}/bin
       
