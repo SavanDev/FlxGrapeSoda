@@ -313,11 +313,6 @@ class PlayState extends FlxState
 				player.x = FlxG.width / 2;
 		}
 
-		#if desktop
-		if (FlxG.keys.justPressed.F4)
-			FlxG.fullscreen = !FlxG.fullscreen;
-		#end
-
 		if (Input.PAUSE || Input.PAUSE_ALT)
 			openSubState(new Pause());
 

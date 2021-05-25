@@ -17,6 +17,9 @@ jobs:
           - name: Windows
             os: windows-latest
             platform: windows
+          - name: macOS
+            os: macos-latest
+            platform: macos
     name: Build for ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
     steps:
@@ -41,7 +44,7 @@ jobs:
 
       - name: Build using Lime
         run: |
-          haxelib run lime build ${{ matrix.platform }} -final
+          haxelib run lime build ${{ matrix.platform }} -final -Dnightly
 
       - name: Deploy
         if: ${{ matrix.platform == 'html5' }}

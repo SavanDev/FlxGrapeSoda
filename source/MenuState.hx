@@ -58,7 +58,8 @@ class MenuState extends FlxState
 		// more kills!
 		playText.kill();
 		player.kill();
-		var menu = new Menu(10, 60, [
+		var menu = new Menu(10, 60);
+		menu.addPage("main", [
 			{
 				text: "New Game",
 				event: (menu) ->
@@ -77,13 +78,27 @@ class MenuState extends FlxState
 				event: (menu) -> FlxG.camera.fade(2, () -> FlxG.switchState(new editor.MapEditor()))
 			},
 			#end
-			#if desktop
 			{
+				text: "Options",
+				event: (menu) -> menu.gotoPage("options")
+			},
+			#if desktop {
 				text: "Exit",
 				event: (menu) -> System.exit(0)
 			}
 			#end
 		]);
+		menu.addPage("options", [
+			{
+				text: "Full-screen",
+				event: (menu) -> FlxG.fullscreen = !FlxG.fullscreen
+			},
+			{
+				text: "Back",
+				event: (menu) -> menu.gotoPage("main")
+			}
+		]);
+		menu.gotoPage("main");
 		add(menu);
 	}
 
@@ -180,7 +195,7 @@ class MenuState extends FlxState
 
 		// texto de la versión
 		versionText = new FlxBitmapText(Fonts.TOY);
-		#if web
+		#if nightly
 		versionText.text = 'Nightly version';
 		#else
 		versionText.text = 'v${Application.current.meta.get("version")}';
@@ -218,11 +233,6 @@ class MenuState extends FlxState
 		// Una vez que el jugador se sale de la pantalla, muestra el menú
 		if (player.alive && !player.isOnScreen())
 			showMenu();
-
-		#if desktop
-		if (FlxG.keys.justPressed.F4)
-			FlxG.fullscreen = !FlxG.fullscreen;
-		#end
 
 		if (Input.BACK || Input.BACK_ALT)
 			System.exit(0);
