@@ -3,18 +3,17 @@ package;
 import flixel.FlxSprite;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.text.FlxBitmapText;
-import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 
-class HUD extends FlxTypedGroup<FlxSprite>
+class HUD extends FlxTypedGroup<FlxSprite> // No se como mejorar esto por ahora :S
 {
+	var initialY:Int = 5;
+	var spacingY:Int = 13;
+
 	var moneyCounter:FlxBitmapText;
 	var timeCounter:FlxBitmapText;
-	var moneyIcon:FlxSprite;
-	var timeIcon:FlxSprite;
 	var enemyCounter:FlxBitmapText;
-	var enemyIcon:FlxSprite;
 
 	var timer:Int;
 	var minutes:Int;
@@ -26,33 +25,40 @@ class HUD extends FlxTypedGroup<FlxSprite>
 		super();
 
 		// iconos
-		moneyIcon = new FlxSprite(5, 5);
+		var moneyIcon = new FlxSprite(5, initialY);
 		moneyIcon.loadGraphic(Paths.getImage("items/coin"), true, 12, 12);
 		moneyIcon.animation.add("default", [0, 1], 5);
 		moneyIcon.animation.play("default");
-		timeIcon = new FlxSprite(5, 18, Paths.getImage("items/time"));
-		enemyIcon = new FlxSprite(5, 31, Paths.getImage("items/enemy"));
+		var timeIcon = new FlxSprite(5, initialY + spacingY, Paths.getImage("items/time"));
+		var enemyIcon = new FlxSprite(5, initialY + (spacingY * 2), Paths.getImage("items/enemy"));
+		var liveIcon = new FlxSprite(5, initialY + (spacingY * 3), Paths.getImage("items/live"));
 		add(moneyIcon);
 		add(timeIcon);
 		add(enemyIcon);
+		// add(liveIcon);
 
 		// texto
 		moneyCounter = new FlxBitmapText(Fonts.DEFAULT);
 		moneyCounter.text = Std.string(PlayState.MONEY);
-		moneyCounter.setPosition(18, 6);
+		moneyCounter.setPosition(18, initialY + 1);
 		moneyCounter.setBorderStyle(SHADOW, FlxColor.BLACK, 1, 1);
 		moneyCounter.useTextColor = true;
 		timeCounter = new FlxBitmapText(Fonts.DEFAULT);
-		timeCounter.setPosition(18, 19);
+		timeCounter.setPosition(18, initialY + spacingY + 1);
 		timeCounter.setBorderStyle(SHADOW, FlxColor.BLACK, 1, 1);
 		enemyCounter = new FlxBitmapText(Fonts.DEFAULT);
 		enemyCounter.text = Std.string(PlayState.ENEMIES_DEAD);
-		enemyCounter.setPosition(18, 32);
+		enemyCounter.setPosition(18, initialY + (spacingY * 2) + 1);
 		enemyCounter.setBorderStyle(SHADOW, FlxColor.BLACK, 1, 1);
 		enemyCounter.useTextColor = true;
+		var liveCounter = new FlxBitmapText(Fonts.DEFAULT);
+		liveCounter.text = "5";
+		liveCounter.setPosition(18, initialY + (spacingY * 3) + 1);
+		liveCounter.setBorderStyle(SHADOW, FlxColor.BLACK, 1, 1);
 		add(moneyCounter);
 		add(timeCounter);
 		add(enemyCounter);
+		// add(liveCounter);
 		// forEach(function(sprite) sprite.scrollFactor.set(0, 0));
 	}
 

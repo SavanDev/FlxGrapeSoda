@@ -14,6 +14,7 @@ import flixel.math.FlxRect;
 import flixel.text.FlxBitmapText;
 import flixel.tile.FlxTilemap;
 import flixel.tweens.FlxTween;
+import flixel.ui.FlxBar;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import haxe.Json;
@@ -89,29 +90,29 @@ class PlayState extends FlxState
 
 	function respawnPlayer(timer:FlxTimer)
 	{
-		FlxFlicker.flicker(player);
-		player.setPosition(checkpoint.x, checkpoint.y);
-		player.canMove = true;
-		offLimits = false;
+		if (player.alive)
+		{
+			player.setPosition(checkpoint.x, checkpoint.y);
+			player.canMove = true;
+			offLimits = false;
+		}
 	}
 
 	function punchEvent()
 	{
-		var playerX = (player.facing == FlxObject.LEFT) ? player.x - 3 : player.x;
-		var playerWidth = (player.facing == FlxObject.RIGHT) ? player.width + 3 : player.width;
+		var playerX = (player.facing == FlxObject.LEFT) ? player.x - 6 : player.x;
+		var playerWidth = (player.facing == FlxObject.RIGHT) ? player.width + 6 : player.width;
 		var punchRay:FlxRect = new FlxRect(playerX, player.y, playerWidth, player.height);
-		new FlxTimer().start(.1, (timer:FlxTimer) ->
+		breakBlocks.forEachAlive((block) ->
 		{
-			breakBlocks.forEachAlive((block) ->
-			{
-				if (punchRay.overlaps(block.getHitbox()))
-					block.hurt(1);
-			});
-			pickyEnemy.forEachAlive((picky) ->
-			{
-				if (punchRay.overlaps(picky.getHitbox()))
-					picky.kill();
-			});
+			if (punchRay.overlaps(block.getHitbox()))
+				new FlxTimer().start(.25, (timer:FlxTimer) -> block.hurt(1));
+		});
+
+		pickyEnemy.forEachAlive((picky) ->
+		{
+			if (punchRay.overlaps(picky.getHitbox()))
+				picky.kill();
 		});
 	}
 
@@ -130,6 +131,11 @@ class PlayState extends FlxState
 				player.velocity.y = -100;
 				picky.kill();
 			}
+			else
+			{
+				if (!player.isPunching)
+					player.hurt(1);
+			}
 		}
 	}
 
@@ -142,7 +148,6 @@ class PlayState extends FlxState
 		FlxG.camera.fade(FlxColor.BLACK, 1.5, false, () ->
 		{
 			trace('Level $LEVEL finished!');
-			trace('Time: $TIME');
 			FlxG.switchState(new ShopState());
 		});
 
@@ -224,10 +229,10 @@ class PlayState extends FlxState
 
 		// Mostrar el nivel
 		scenario.add(breakBlocks);
+		scenario.add(pickyEnemy);
 		add(scenario);
 
 		add(coins);
-		add(pickyEnemy);
 		add(player);
 
 		map.loadEntities(placeEntities, "Entities");
@@ -289,7 +294,8 @@ class PlayState extends FlxState
 		if (!DEMO_END)
 		{
 			FlxG.collide(pickyEnemy, scenario);
-			FlxG.collide(player, pickyEnemy, playerHitEnemy);
+			if (!player.invencible)
+				FlxG.overlap(player, pickyEnemy, playerHitEnemy);
 			FlxG.overlap(player, coins, playerTouchCoin);
 
 			if (!finished)
@@ -301,6 +307,7 @@ class PlayState extends FlxState
 			{
 				FlxG.camera.shake(.01, .25);
 				player.canMove = false;
+				player.hurt(1);
 				new FlxTimer().start(1, respawnPlayer);
 				offLimits = true;
 			}

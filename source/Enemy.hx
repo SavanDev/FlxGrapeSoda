@@ -21,26 +21,6 @@ class Enemy extends FlxSprite
 		velocity.x = speed;
 	}
 
-	override function update(elapsed:Float)
-	{
-		if (alive)
-		{
-			if (isTouching(FlxObject.RIGHT) && velocity.x >= 0)
-			{
-				facing = FlxObject.LEFT;
-				velocity.x = -speed;
-			}
-
-			if (isTouching(FlxObject.LEFT) && velocity.x <= 0)
-			{
-				facing = FlxObject.RIGHT;
-				velocity.x = speed;
-			}
-		}
-
-		super.update(elapsed);
-	}
-
 	override function kill()
 	{
 		PlayState.ENEMIES_DEAD++;
@@ -58,5 +38,24 @@ class Enemy extends FlxSprite
 			#end
 			exists = false;
 		});
+	}
+
+	override public function update(elapsed:Float)
+	{
+		super.update(elapsed);
+
+		if (alive)
+		{
+			if (isTouching(FlxObject.LEFT))
+				facing = FlxObject.RIGHT;
+
+			if (isTouching(FlxObject.RIGHT))
+				facing = FlxObject.LEFT;
+
+			if (facing == FlxObject.LEFT)
+				velocity.x = -speed;
+			else
+				velocity.x = speed;
+		}
 	}
 }

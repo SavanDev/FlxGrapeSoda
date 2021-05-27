@@ -3,6 +3,8 @@ package;
 import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.FlxSprite;
+import flixel.effects.FlxFlicker;
+import flixel.util.FlxTimer;
 
 class Player extends FlxSprite
 {
@@ -19,9 +21,12 @@ class Player extends FlxSprite
 	var jumpTimer:Float = 0;
 
 	public var isPunching:Bool = false;
+	public var invencible:Bool = false;
 
 	var touch1_X:Float;
 	var touch2_X:Float;
+
+	var respawning:Bool = false;
 
 	function loadSkin()
 	{
@@ -42,11 +47,22 @@ class Player extends FlxSprite
 		animation.add("punch", [12, 13, 14, 14, 13, 12], 12, false);
 	}
 
+	override public function hurt(damage:Float)
+	{
+		velocity.y = -50;
+		velocity.x = facing == FlxObject.LEFT ? -20 : 20;
+		invencible = true;
+		trace("Player Hurt!");
+		super.hurt(damage);
+	}
+
 	public function new(x:Float = 0, y:Float = 0, kinematic:Bool = false)
 	{
 		super(x, y);
 		loadSkin();
 		canMove = !kinematic;
+
+		health = 5; // initial health system
 
 		if (canMove)
 		{
@@ -139,6 +155,18 @@ class Player extends FlxSprite
 			movement(elapsed);
 		if (animated)
 			playerAnimation();
+
+		if (invencible && isTouching(FlxObject.DOWN) && !respawning)
+		{
+			FlxFlicker.flicker(this, 3);
+			respawning = true;
+			new FlxTimer().start(3, (_) ->
+			{
+				invencible = false;
+				respawning = false;
+				trace("Player is back!");
+			});
+		}
 
 		super.update(elapsed);
 	}
