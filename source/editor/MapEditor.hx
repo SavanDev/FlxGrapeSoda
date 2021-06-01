@@ -6,7 +6,6 @@ import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
-import flixel.addons.ui.FlxInputText;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.math.FlxRect;
 import flixel.text.FlxBitmapText;
@@ -19,8 +18,8 @@ class MapEditor extends FlxState
 	static inline var TILE_WIDTH:Int = 12;
 	static inline var TILE_HEIGHT:Int = 12;
 
-	var MAP_WIDTH:Int = 8;
-	var MAP_HEIGHT:Int = 8;
+	public var MAP_WIDTH:Int = 8;
+	public var MAP_HEIGHT:Int = 8;
 
 	var _levelMap:FlxTypedGroup<FlxTilemap>;
 	var _highlightBox:FlxSprite;
@@ -37,10 +36,9 @@ class MapEditor extends FlxState
 	var _offsetTilesY(default, set):Int = 0;
 	var _textPos:FlxBitmapText;
 
-	var _inputMapX:FlxInputText;
-	var _inputMapY:FlxInputText;
-
 	var _exited:Bool = false;
+
+	public var onMenu:Bool = false;
 
 	// Map Editor functions!
 	function set__selectedTile(newTile)
@@ -98,7 +96,7 @@ class MapEditor extends FlxState
 		_tileSelectedSprite.animation.frameIndex = _selectedLayer == 2 ? 0 : _selectedTile;
 	}
 
-	function createMap()
+	public function createMap()
 	{
 		var testMap = [for (i in 0...MAP_WIDTH * MAP_HEIGHT) 0];
 
@@ -131,107 +129,8 @@ class MapEditor extends FlxState
 		_offsetTilesY = 0;
 	}
 
-	// FlxState functions!
-	override public function create()
+	function onEditorUpdate()
 	{
-		super.create();
-		FlxG.mouse.visible = true;
-		FlxG.sound.music.stop();
-		var uiCamera:FlxCamera = new FlxCamera(0, 0, FlxG.width, FlxG.height);
-		uiCamera.bgColor = FlxColor.TRANSPARENT;
-
-		// UI stuff
-		_highlightBorders = new FlxSprite(0, 0);
-		_highlightBorders.makeGraphic(MAP_WIDTH * 12, MAP_HEIGHT * 12, FlxColor.TRANSPARENT);
-		add(_highlightBorders);
-		FlxSpriteUtil.drawRect(_highlightBorders, 0, 0, MAP_WIDTH * 12, MAP_HEIGHT * 12, FlxColor.TRANSPARENT, {color: FlxColor.RED});
-
-		var backgroundBorder = new FlxSprite(0, FlxG.height - 16);
-		backgroundBorder.makeGraphic(FlxG.width, 16, 0xFF0163C6);
-		add(backgroundBorder);
-
-		_tileSelectedSprite = new FlxSprite(2, FlxG.height - 14);
-		_tileSelectedSprite.loadGraphic(Paths.getImage("tilemaps/grass"), true, 12, 12);
-		add(_tileSelectedSprite);
-
-		_textPos = new FlxBitmapText();
-		_textPos.setPosition(16, FlxG.height - 14);
-		_textPos.text = "X: 0\nY: 0";
-		add(_textPos);
-
-		_sprLayer2 = new FlxSprite(FlxG.width - 24, FlxG.height - 25);
-		_sprLayer2.loadGraphic(Paths.getImage("layer0", DirTarget.Editor), true, 8, 9);
-		add(_sprLayer2);
-
-		_sprLayer1 = new FlxSprite(FlxG.width - 16, FlxG.height - 25);
-		_sprLayer1.loadGraphic(Paths.getImage("layer1", DirTarget.Editor), true, 8, 9);
-		_sprLayer1.animation.frameIndex = 1;
-		add(_sprLayer1);
-
-		_sprLayer0 = new FlxSprite(FlxG.width - 8, FlxG.height - 25);
-		_sprLayer0.loadGraphic(Paths.getImage("layer2", DirTarget.Editor), true, 8, 9);
-		_sprLayer0.animation.frameIndex = 1;
-		add(_sprLayer0);
-
-		var backgroundInput = new FlxSprite(FlxG.width - 40, 0);
-		backgroundInput.makeGraphic(40, 35, 0xFF0163C6);
-		add(backgroundInput);
-
-		_inputMapX = new FlxInputText(FlxG.width - 35, 5, 25);
-		_inputMapX.setFormat("assets/editor/fonts/Toy.ttf", 8, FlxColor.BLACK);
-		add(_inputMapX);
-
-		_inputMapY = new FlxInputText(FlxG.width - 35, 20, 25);
-		_inputMapY.setFormat("assets/editor/fonts/Toy.ttf", 8, FlxColor.BLACK);
-		add(_inputMapY);
-
-		_inputMapX.text = Std.string(MAP_WIDTH);
-		_inputMapY.text = Std.string(MAP_HEIGHT);
-
-		_inputMapX.callback = _inputMapY.callback = (text, action) ->
-
-		{
-			if (action == FlxInputText.ENTER_ACTION)
-			{
-				MAP_WIDTH = Std.parseInt(_inputMapX.text);
-				MAP_HEIGHT = Std.parseInt(_inputMapY.text);
-				createMap();
-			}
-		};
-
-		var mapEditorText = new FlxBitmapText(Fonts.TOY);
-		mapEditorText.text = "MAP EDITOR";
-		mapEditorText.x = FlxG.width - mapEditorText.width - 2;
-		mapEditorText.y = FlxG.height - mapEditorText.height - 2;
-		add(mapEditorText);
-
-		// Map stuff
-		createMap();
-
-		_highlightBox = new FlxSprite(0, 0);
-		_highlightBox.makeGraphic(TILE_WIDTH, TILE_HEIGHT, 0x99FF0000);
-		add(_highlightBox);
-
-		// Configurar cámaras
-		FlxG.cameras.add(uiCamera, false);
-		backgroundBorder.cameras = [uiCamera];
-		_tileSelectedSprite.cameras = [uiCamera];
-		_textPos.cameras = [uiCamera];
-		_sprLayer2.cameras = [uiCamera];
-		_sprLayer1.cameras = [uiCamera];
-		_sprLayer0.cameras = [uiCamera];
-		_inputMapX.cameras = [uiCamera];
-		_inputMapY.cameras = [uiCamera];
-		backgroundInput.cameras = [uiCamera];
-		mapEditorText.cameras = [uiCamera];
-
-		FlxG.camera.bgColor = FlxColor.BLACK;
-	}
-
-	override public function update(elapsed:Float)
-	{
-		super.update(elapsed);
-
 		// Selector y función para colocar y sacar
 		var mouseX = Std.int(FlxG.mouse.x / TILE_WIDTH) - _offsetTiles;
 		var mouseY = Std.int(FlxG.mouse.y / TILE_HEIGHT) - _offsetTilesY;
@@ -295,10 +194,102 @@ class MapEditor extends FlxState
 		if (FlxG.keys.justPressed.ESCAPE && !_exited)
 		{
 			_exited = true;
-			FlxG.camera.fade(() -> FlxG.switchState(new MenuState()));
+			FlxG.camera.fade(() ->
+			{
+				FlxG.mouse.visible = false;
+				FlxG.switchState(new MenuState());
+			});
+		}
+
+		// Menu Editor
+		if (FlxG.keys.justPressed.ENTER)
+		{
+			onMenu = true;
+			var subState = new MapEditorSubState();
+			subState.editorState = this;
+			openSubState(subState);
 		}
 
 		_textPos.text = 'X: $mouseX\nY: $mouseY';
+	}
+
+	// FlxState functions!
+	override public function create()
+	{
+		super.create();
+		FlxG.mouse.visible = true;
+		FlxG.sound.music.stop();
+		// persistentUpdate = true;
+		// persistentDraw = true;
+
+		var uiCamera:FlxCamera = new FlxCamera(0, 0, FlxG.width, FlxG.height);
+		uiCamera.bgColor = FlxColor.TRANSPARENT;
+
+		// UI stuff
+		_highlightBorders = new FlxSprite(0, 0);
+		_highlightBorders.makeGraphic(MAP_WIDTH * 12, MAP_HEIGHT * 12, FlxColor.TRANSPARENT);
+		add(_highlightBorders);
+		FlxSpriteUtil.drawRect(_highlightBorders, 0, 0, MAP_WIDTH * 12, MAP_HEIGHT * 12, FlxColor.TRANSPARENT, {color: FlxColor.RED});
+
+		var backgroundBorder = new FlxSprite(0, FlxG.height - 16);
+		backgroundBorder.makeGraphic(FlxG.width, 16, 0xFF0163C6);
+		add(backgroundBorder);
+
+		_tileSelectedSprite = new FlxSprite(2, FlxG.height - 14);
+		_tileSelectedSprite.loadGraphic(Paths.getImage("tilemaps/grass"), true, 12, 12);
+		add(_tileSelectedSprite);
+
+		_textPos = new FlxBitmapText();
+		_textPos.setPosition(16, FlxG.height - 14);
+		_textPos.text = "X: 0\nY: 0";
+		add(_textPos);
+
+		_sprLayer2 = new FlxSprite(FlxG.width - 24, FlxG.height - 25);
+		_sprLayer2.loadGraphic(Paths.getImage("layer0", DirTarget.Editor), true, 8, 9);
+		add(_sprLayer2);
+
+		_sprLayer1 = new FlxSprite(FlxG.width - 16, FlxG.height - 25);
+		_sprLayer1.loadGraphic(Paths.getImage("layer1", DirTarget.Editor), true, 8, 9);
+		_sprLayer1.animation.frameIndex = 1;
+		add(_sprLayer1);
+
+		_sprLayer0 = new FlxSprite(FlxG.width - 8, FlxG.height - 25);
+		_sprLayer0.loadGraphic(Paths.getImage("layer2", DirTarget.Editor), true, 8, 9);
+		_sprLayer0.animation.frameIndex = 1;
+		add(_sprLayer0);
+
+		var mapEditorText = new FlxBitmapText(Fonts.TOY);
+		mapEditorText.text = "MAP EDITOR";
+		mapEditorText.x = FlxG.width - mapEditorText.width - 2;
+		mapEditorText.y = FlxG.height - mapEditorText.height - 2;
+		add(mapEditorText);
+
+		// Map stuff
+		createMap();
+
+		_highlightBox = new FlxSprite(0, 0);
+		_highlightBox.makeGraphic(TILE_WIDTH, TILE_HEIGHT, 0x99FF0000);
+		add(_highlightBox);
+
+		// Configurar cámaras
+		FlxG.cameras.add(uiCamera, false);
+		backgroundBorder.cameras = [uiCamera];
+		_tileSelectedSprite.cameras = [uiCamera];
+		_textPos.cameras = [uiCamera];
+		_sprLayer2.cameras = [uiCamera];
+		_sprLayer1.cameras = [uiCamera];
+		_sprLayer0.cameras = [uiCamera];
+		mapEditorText.cameras = [uiCamera];
+
+		FlxG.camera.bgColor = FlxColor.BLACK;
+	}
+
+	override public function update(elapsed:Float)
+	{
+		super.update(elapsed);
+
+		if (!onMenu)
+			onEditorUpdate();
 	}
 }
 #end

@@ -41,6 +41,8 @@ class SavanLogo extends FlxState
 		logoText.screenCenter();
 		logoText.y += 20;
 		add(logoText);
+
+		FlxG.mouse.visible = false;
 	}
 
 	function nightlyText()

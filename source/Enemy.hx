@@ -8,7 +8,7 @@ import flixel.util.FlxTimer;
 
 class Enemy extends FlxSprite
 {
-	var speed:Float = 35;
+	public var speed:Float = 35;
 
 	public function new(x:Float = 0, y:Float = 0)
 	{
@@ -25,10 +25,9 @@ class Enemy extends FlxSprite
 	{
 		PlayState.ENEMIES_DEAD++;
 		allowCollisions = FlxObject.NONE;
-		velocity.x = velocity.y = 0;
 		alive = false;
+		velocity.x = velocity.y = 0;
 		FlxG.sound.play(Paths.getSound("picky"));
-		velocity.x = 0;
 		animation.play("dead");
 		new FlxTimer().start(.5, function(timer:FlxTimer)
 		{
@@ -38,24 +37,5 @@ class Enemy extends FlxSprite
 			#end
 			exists = false;
 		});
-	}
-
-	override public function update(elapsed:Float)
-	{
-		super.update(elapsed);
-
-		if (alive)
-		{
-			if (isTouching(FlxObject.LEFT))
-				facing = FlxObject.RIGHT;
-
-			if (isTouching(FlxObject.RIGHT))
-				facing = FlxObject.LEFT;
-
-			if (facing == FlxObject.LEFT)
-				velocity.x = -speed;
-			else
-				velocity.x = speed;
-		}
 	}
 }

@@ -78,16 +78,20 @@ class MenuState extends FlxState
 				event: (menu) -> FlxG.camera.fade(2, () -> FlxG.switchState(new editor.MapEditor()))
 			},
 			#end
+			#if !android
 			{
 				text: "Options",
 				event: (menu) -> menu.gotoPage("options")
 			},
-			#if desktop {
+			#end
+			#if desktop
+			{
 				text: "Exit",
 				event: (menu) -> System.exit(0)
 			}
 			#end
 		]);
+		#if !android
 		menu.addPage("options", [
 			{
 				text: "Full-screen",
@@ -98,6 +102,7 @@ class MenuState extends FlxState
 				event: (menu) -> menu.gotoPage("main")
 			}
 		]);
+		#end
 		menu.gotoPage("main");
 		add(menu);
 	}
@@ -210,8 +215,6 @@ class MenuState extends FlxState
 
 		// FIXME: Pequeño arreglo temporal. Luego voy a tener que estudiar un poco más el sistema de sonidos.
 		FlxG.sound.defaultSoundGroup.volume = .5;
-
-		FlxG.mouse.visible = false;
 	}
 
 	override public function update(elapsed:Float)

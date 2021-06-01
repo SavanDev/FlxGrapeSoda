@@ -281,6 +281,11 @@ class PlayState extends FlxState
 		#end
 	}
 
+	public function pleaseCollide(enemy:Enemy, other:FlxObject)
+	{
+		enemy.velocity.x = enemy.isTouching(FlxObject.LEFT) ? enemy.speed : -enemy.speed;
+	}
+
 	override public function update(elapsed:Float)
 	{
 		super.update(elapsed);
@@ -293,7 +298,7 @@ class PlayState extends FlxState
 
 		if (!DEMO_END)
 		{
-			FlxG.collide(pickyEnemy, scenario);
+			FlxG.collide(pickyEnemy, scenario, pleaseCollide);
 			if (!player.invencible)
 				FlxG.overlap(player, pickyEnemy, playerHitEnemy);
 			FlxG.overlap(player, coins, playerTouchCoin);

@@ -6,7 +6,8 @@
 
 Repository of the game _"Latin American needs... GRAPE SODA!"_ created by [SavanDev (me!)](https://twitter.com/dylnavas36).
 
-__For play the nightly version, enter [here!](https://savandev.gitlab.io/chesspawn/games/2021/grapesoda/)__
+### For play the nightly web version, enter [here!](https://savandev.gitlab.io/chesspawn/games/2021/grapesoda/)
+### Nightly Desktop versions [here!](https://github.com/SavanDev/FlxGrapeSoda/actions)
 
 ## Context
 

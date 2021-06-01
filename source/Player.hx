@@ -49,8 +49,8 @@ class Player extends FlxSprite
 
 	override public function hurt(damage:Float)
 	{
-		velocity.y = -50;
-		velocity.x = facing == FlxObject.LEFT ? -20 : 20;
+		velocity.y = -75;
+		velocity.x = facing == FlxObject.LEFT ? -40 : 40;
 		invencible = true;
 		trace("Player Hurt!");
 		super.hurt(damage);

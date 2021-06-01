@@ -3,7 +3,9 @@ package;
 import flixel.FlxG;
 import flixel.group.FlxGroup;
 import flixel.text.FlxBitmapText;
+import flixel.text.FlxText.FlxTextBorderStyle;
 import flixel.tweens.FlxTween;
+import flixel.util.FlxColor;
 import openfl.utils.Dictionary;
 
 class Menu extends FlxGroup
@@ -76,6 +78,7 @@ class Menu extends FlxGroup
 			#end
 			item.text = items[i].text;
 			item.useTextColor = true;
+			item.setBorderStyle(FlxTextBorderStyle.OUTLINE, 0xFF5B315B);
 			optionsText.add(item);
 		}
 	}
@@ -107,6 +110,7 @@ class Menu extends FlxGroup
 			cursor.y = optionsText.members[selectedIndex].y;
 			FlxG.sound.play(Paths.getSound("blip"));
 		}
+
 		if (Input.DOWN || Input.DOWN_ALT)
 		{
 			selectedIndex++;

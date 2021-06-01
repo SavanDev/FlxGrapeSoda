@@ -27,19 +27,20 @@
 
 	<!-- _____________________________ Path Settings ____________________________ -->
 
-	<set name="BUILD_DIR" value="export/debug" if="debug"/>
-	<set name="BUILD_DIR" value="export/release" unless="debug"/>
-	<set name="BUILD_DIR" value="export/x86" if="32bit"/>
+	<set name="BUILD_DIR" value="export/debug" if="debug" />
+	<set name="BUILD_DIR" value="export/release" unless="debug" />
+	<set name="BUILD_DIR" value="export/x86" if="32bit" />
 
 	<classpath name="source" />
 
-	<assets path="assets" exclude="*.wav" if="web"/>
-	<assets path="assets" exclude="*/web/*.mp3" unless="web"/>
+	<assets path="assets" exclude="*.wav" if="web" />
+	<assets path="assets" exclude="*/web/*.mp3" unless="web" />
 
-	<assets path="editor" rename="assets/editor" if="desktop"/>
-	<assets path="misc/mobile" rename="assets/mobile" unless="desktop"/>
+	<assets path="editor" rename="assets/editor" if="desktop" />
+	<assets path="misc/mobile" rename="assets/mobile" unless="desktop" />
 
-	<assets path="misc/readme.txt" rename="readme.txt" if="desktop"/>
+	<assets path="misc/readme.txt" rename="readme.txt" if="desktop" />
+	<assets path="LICENSE" rename="license.txt" />
 
 	<!-- _______________________________ Libraries ______________________________ -->
 
