@@ -1,8 +1,5 @@
 package;
 
-#if desktop
-import Discord.State;
-#end
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
@@ -12,8 +9,12 @@ import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
+import misc.FadeBoy;
+#if desktop
+import Discord.State;
+#end
 
-class ShopState extends FlxState
+class ShopState extends GameBaseState
 {
 	var INITIAL_X:Int;
 	var GRAPESODA_PRICE:Int = 500;
@@ -74,12 +75,15 @@ class ShopState extends FlxState
 		scoreGet.screenCenter(X);
 		scoreGet.alignment = CENTER;
 
-		FlxG.camera.fade(FlxColor.BLACK, 1.5, true, () ->
+		new FlxTimer().start(1.5, (_) ->
 		{
 			player.velocity.x = 0;
 			add(scoreGet);
 			new FlxTimer().start(1.0, moneyCount, 1);
 		});
+
+		var fadeBoy = new FadeBoy();
+		add(fadeBoy);
 
 		FlxG.sound.playMusic(Paths.getMusic("turtle-nap"));
 	}

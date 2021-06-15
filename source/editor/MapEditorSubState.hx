@@ -27,11 +27,7 @@ class MapEditorSubState extends FlxSubState
 			},
 			{
 				text: "Back to Editor",
-				event: (_) ->
-				{
-					editorState.onMenu = false;
-					this.close();
-				}
+				event: (_) -> this.close()
 			}
 		]);
 		menu.gotoPage("default");

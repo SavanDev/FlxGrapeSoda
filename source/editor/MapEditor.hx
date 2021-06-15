@@ -1,7 +1,8 @@
 package editor;
 
-import Paths.DirTarget;
+import misc.FadeBoy;
 #if editor
+import Paths.DirTarget;
 import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -13,155 +14,163 @@ import flixel.tile.FlxTilemap;
 import flixel.util.FlxColor;
 import flixel.util.FlxSpriteUtil;
 
+enum EditorState
+{
+	Tilemap;
+	Entity;
+	Playing;
+}
+
 class MapEditor extends FlxState
 {
 	static inline var TILE_WIDTH:Int = 12;
 	static inline var TILE_HEIGHT:Int = 12;
 
-	public var MAP_WIDTH:Int = 8;
-	public var MAP_HEIGHT:Int = 8;
+	public var MAP_WIDTH:Int = 10;
+	public var MAP_HEIGHT:Int = 10;
 
-	var _levelMap:FlxTypedGroup<FlxTilemap>;
-	var _highlightBox:FlxSprite;
-	var _highlightBorders:FlxSprite;
-	var _tileSelectedSprite:FlxSprite;
+	var levelMap:FlxTypedGroup<FlxTilemap>;
+	var highlightBox:FlxSprite;
+	var highlightBorders:FlxSprite;
+	var tileSelectedSprite:FlxSprite;
 
-	var _sprLayer2:FlxSprite;
-	var _sprLayer1:FlxSprite;
-	var _sprLayer0:FlxSprite;
+	var sprLayer2:FlxSprite;
+	var sprLayer1:FlxSprite;
+	var sprLayer0:FlxSprite;
 
-	var _selectedTile(default, set):Int = 1;
-	var _selectedLayer(default, set):Int = 2;
-	var _offsetTiles(default, set):Int = 0;
-	var _offsetTilesY(default, set):Int = 0;
-	var _textPos:FlxBitmapText;
+	var selectedTile(default, set):Int = 1;
+	var selectedLayer(default, set):Int = 2;
+	var offsetTiles(default, set):Int = 0;
+	var offsetTilesY(default, set):Int = 0;
+	var textPos:FlxBitmapText;
 
-	var _exited:Bool = false;
+	var exited:Bool = false;
+	var editorState:EditorState = Tilemap;
 
-	public var onMenu:Bool = false;
+	var fadeBoy:FadeBoy;
 
 	// Map Editor functions!
-	function set__selectedTile(newTile)
+	function set_selectedTile(_newTile)
 	{
-		_tileSelectedSprite.animation.frameIndex = newTile;
-		return _selectedTile = newTile;
+		tileSelectedSprite.animation.frameIndex = _newTile;
+		return selectedTile = _newTile;
 	}
 
-	function set__selectedLayer(newLayer)
+	function set_selectedLayer(_newLayer)
 	{
-		_selectedLayer = newLayer;
-		_selectedTile = 1;
+		selectedLayer = _newLayer;
+		selectedTile = 1;
 		setLayerTilePreview();
-		return _selectedLayer;
+		return selectedLayer;
 	}
 
-	function set__offsetTiles(newOffset)
+	function set_offsetTiles(_newOffset)
 	{
-		_levelMap.forEach((tilemap) -> tilemap.x = newOffset * 12);
-		_highlightBorders.x = newOffset * 12;
-		return _offsetTiles = newOffset;
+		levelMap.forEach((tilemap) -> tilemap.x = _newOffset * 12);
+		highlightBorders.x = _newOffset * 12;
+		return offsetTiles = _newOffset;
 	}
 
-	function set__offsetTilesY(newOffset)
+	function set_offsetTilesY(_newOffset)
 	{
-		_levelMap.forEach((tilemap) -> tilemap.y = newOffset * 12);
-		_highlightBorders.y = newOffset * 12;
-		return _offsetTilesY = newOffset;
+		levelMap.forEach((tilemap) -> tilemap.y = _newOffset * 12);
+		highlightBorders.y = _newOffset * 12;
+		return offsetTilesY = _newOffset;
 	}
 
 	function setLayerTilePreview()
 	{
 		var path:String = null;
 
-		switch (_selectedLayer)
+		switch (selectedLayer)
 		{
 			case 0:
 				path = Paths.getImage("tilemaps/backgrass");
-				_sprLayer2.animation.frameIndex = 1;
-				_sprLayer1.animation.frameIndex = 1;
-				_sprLayer0.animation.frameIndex = 0;
+				sprLayer2.animation.frameIndex = 1;
+				sprLayer1.animation.frameIndex = 1;
+				sprLayer0.animation.frameIndex = 0;
 			case 1:
 				path = Paths.getImage("tilemaps/objects");
-				_sprLayer2.animation.frameIndex = 1;
-				_sprLayer1.animation.frameIndex = 0;
-				_sprLayer0.animation.frameIndex = 1;
+				sprLayer2.animation.frameIndex = 1;
+				sprLayer1.animation.frameIndex = 0;
+				sprLayer0.animation.frameIndex = 1;
 			case 2:
 				path = Paths.getImage("tilemaps/grass");
-				_sprLayer2.animation.frameIndex = 0;
-				_sprLayer1.animation.frameIndex = 1;
-				_sprLayer0.animation.frameIndex = 1;
+				sprLayer2.animation.frameIndex = 0;
+				sprLayer1.animation.frameIndex = 1;
+				sprLayer0.animation.frameIndex = 1;
 		}
 
-		_tileSelectedSprite.loadGraphic(path, true, 12, 12);
-		_tileSelectedSprite.animation.frameIndex = _selectedLayer == 2 ? 0 : _selectedTile;
+		tileSelectedSprite.loadGraphic(path, true, 12, 12);
+		tileSelectedSprite.animation.frameIndex = selectedLayer == 2 ? 0 : selectedTile;
 	}
 
 	public function createMap()
 	{
 		var testMap = [for (i in 0...MAP_WIDTH * MAP_HEIGHT) 0];
 
-		if (_levelMap != null)
+		if (levelMap != null)
 		{
-			_levelMap.forEach((tilemap) -> tilemap.destroy());
-			_levelMap.clear();
-			_highlightBorders.makeGraphic(MAP_WIDTH * 12, MAP_HEIGHT * 12, FlxColor.TRANSPARENT);
-			FlxSpriteUtil.drawRect(_highlightBorders, 0, 0, MAP_WIDTH * 12, MAP_HEIGHT * 12, FlxColor.TRANSPARENT, {color: FlxColor.RED});
+			levelMap.forEach((tilemap) -> tilemap.destroy());
+			levelMap.clear();
+			highlightBorders.makeGraphic(MAP_WIDTH * 12, MAP_HEIGHT * 12, FlxColor.TRANSPARENT);
+			FlxSpriteUtil.drawRect(highlightBorders, 0, 0, MAP_WIDTH * 12, MAP_HEIGHT * 12, FlxColor.TRANSPARENT, {color: FlxColor.RED});
 		}
 		else
 		{
-			_levelMap = new FlxTypedGroup<FlxTilemap>();
-			add(_levelMap);
+			levelMap = new FlxTypedGroup<FlxTilemap>();
+			add(levelMap);
 		}
 
 		var layer2 = new FlxTilemap();
 		layer2.loadMapFromArray(testMap, MAP_WIDTH, MAP_HEIGHT, Paths.getImage("tilemaps/backgrass"), TILE_WIDTH, TILE_HEIGHT);
-		_levelMap.add(layer2);
+		levelMap.add(layer2);
 
 		var layer1 = new FlxTilemap();
 		layer1.loadMapFromArray(testMap, MAP_WIDTH, MAP_HEIGHT, Paths.getImage("tilemaps/objects"), TILE_WIDTH, TILE_HEIGHT);
-		_levelMap.add(layer1);
+		levelMap.add(layer1);
 
 		var layer0 = new FlxTilemap();
 		layer0.loadMapFromArray(testMap, MAP_WIDTH, MAP_HEIGHT, Paths.getImage("tilemaps/grass"), TILE_WIDTH, TILE_HEIGHT, FULL);
-		_levelMap.add(layer0);
+		levelMap.add(layer0);
 
-		_offsetTiles = 0;
-		_offsetTilesY = 0;
+		offsetTiles = 0;
+		offsetTilesY = 0;
 	}
 
 	function onEditorUpdate()
 	{
 		// Selector y función para colocar y sacar
-		var mouseX = Std.int(FlxG.mouse.x / TILE_WIDTH) - _offsetTiles;
-		var mouseY = Std.int(FlxG.mouse.y / TILE_HEIGHT) - _offsetTilesY;
-		var levelSize = new FlxRect(_offsetTiles * 12, _offsetTilesY * 12, (MAP_WIDTH * 12) - 1, (MAP_HEIGHT * 12) - 1);
+		var mouseX = Std.int(FlxG.mouse.x / TILE_WIDTH) - offsetTiles;
+		var mouseY = Std.int(FlxG.mouse.y / TILE_HEIGHT) - offsetTilesY;
+		var levelSize = new FlxRect(offsetTiles * 12, offsetTilesY * 12, (MAP_WIDTH * 12) - 1, (MAP_HEIGHT * 12) - 1);
 
 		if (FlxG.mouse.getPosition().inRect(levelSize))
 		{
-			_highlightBox.x = Math.floor(FlxG.mouse.x / TILE_WIDTH) * TILE_WIDTH;
-			_highlightBox.y = Math.floor(FlxG.mouse.y / TILE_HEIGHT) * TILE_HEIGHT;
-			_highlightBox.visible = true;
+			highlightBox.x = Math.floor(FlxG.mouse.x / TILE_WIDTH) * TILE_WIDTH;
+			highlightBox.y = Math.floor(FlxG.mouse.y / TILE_HEIGHT) * TILE_HEIGHT;
+			highlightBox.visible = true;
 		}
 		else
-			_highlightBox.visible = false;
+			highlightBox.visible = false;
 
-		if (FlxG.mouse.pressed && _highlightBox.visible)
-			_levelMap.members[_selectedLayer].setTile(mouseX, mouseY, _selectedTile);
-		if (FlxG.mouse.pressedRight && _highlightBox.visible)
-			_levelMap.members[_selectedLayer].setTile(mouseX, mouseY, 0);
+		if (FlxG.mouse.pressed && highlightBox.visible)
+			levelMap.members[selectedLayer].setTile(mouseX, mouseY, selectedTile);
+		if (FlxG.mouse.pressedRight && highlightBox.visible)
+			levelMap.members[selectedLayer].setTile(mouseX, mouseY, 0);
 
 		// Ajustes para el "offset"
 		if (FlxG.keys.pressed.RIGHT)
-			_offsetTiles++;
+			offsetTiles++;
 
 		if (FlxG.keys.pressed.LEFT)
-			_offsetTiles--;
+			offsetTiles--;
 
 		if (FlxG.keys.pressed.UP)
-			_offsetTilesY++;
+			offsetTilesY++;
 
 		if (FlxG.keys.pressed.DOWN)
-			_offsetTilesY--;
+			offsetTilesY--;
 
 		// Zoom
 		if (FlxG.keys.justPressed.PAGEUP)
@@ -171,46 +180,46 @@ class MapEditor extends FlxState
 			FlxG.camera.zoom -= .25;
 
 		// Cambiar "tile" seleccionado
-		if (_selectedLayer != 2)
+		if (selectedLayer != 2)
 		{
-			if (FlxG.mouse.wheel < 0 && _selectedTile < _tileSelectedSprite.animation.frames - 1)
-				_selectedTile++;
+			if (FlxG.mouse.wheel < 0 && selectedTile < tileSelectedSprite.animation.frames - 1)
+				selectedTile++;
 
-			if (FlxG.mouse.wheel > 0 && _selectedTile > 1)
-				_selectedTile--;
+			if (FlxG.mouse.wheel > 0 && selectedTile > 1)
+				selectedTile--;
 		}
 
 		// Cambiar capa
 		if (FlxG.keys.justPressed.ONE)
-			_selectedLayer = 2;
+			selectedLayer = 2;
 
 		if (FlxG.keys.justPressed.TWO)
-			_selectedLayer = 1;
+			selectedLayer = 1;
 
 		if (FlxG.keys.justPressed.THREE)
-			_selectedLayer = 0;
+			selectedLayer = 0;
 
 		// Salir del editor
-		if (FlxG.keys.justPressed.ESCAPE && !_exited)
+		if (FlxG.keys.justPressed.ESCAPE && !exited)
 		{
-			_exited = true;
-			FlxG.camera.fade(() ->
+			exited = true;
+			fadeBoy.callbackOut = () ->
 			{
 				FlxG.mouse.visible = false;
 				FlxG.switchState(new MenuState());
-			});
+			};
+			fadeBoy.fadeOut();
 		}
 
 		// Menu Editor
 		if (FlxG.keys.justPressed.ENTER)
 		{
-			onMenu = true;
 			var subState = new MapEditorSubState();
 			subState.editorState = this;
 			openSubState(subState);
 		}
 
-		_textPos.text = 'X: $mouseX\nY: $mouseY';
+		textPos.text = 'X: $mouseX\nY: $mouseY';
 	}
 
 	// FlxState functions!
@@ -226,37 +235,37 @@ class MapEditor extends FlxState
 		uiCamera.bgColor = FlxColor.TRANSPARENT;
 
 		// UI stuff
-		_highlightBorders = new FlxSprite(0, 0);
-		_highlightBorders.makeGraphic(MAP_WIDTH * 12, MAP_HEIGHT * 12, FlxColor.TRANSPARENT);
-		add(_highlightBorders);
-		FlxSpriteUtil.drawRect(_highlightBorders, 0, 0, MAP_WIDTH * 12, MAP_HEIGHT * 12, FlxColor.TRANSPARENT, {color: FlxColor.RED});
+		highlightBorders = new FlxSprite(0, 0);
+		highlightBorders.makeGraphic(MAP_WIDTH * 12, MAP_HEIGHT * 12, FlxColor.TRANSPARENT);
+		add(highlightBorders);
+		FlxSpriteUtil.drawRect(highlightBorders, 0, 0, MAP_WIDTH * 12, MAP_HEIGHT * 12, FlxColor.TRANSPARENT, {color: FlxColor.RED});
 
 		var backgroundBorder = new FlxSprite(0, FlxG.height - 16);
 		backgroundBorder.makeGraphic(FlxG.width, 16, 0xFF0163C6);
 		add(backgroundBorder);
 
-		_tileSelectedSprite = new FlxSprite(2, FlxG.height - 14);
-		_tileSelectedSprite.loadGraphic(Paths.getImage("tilemaps/grass"), true, 12, 12);
-		add(_tileSelectedSprite);
+		tileSelectedSprite = new FlxSprite(2, FlxG.height - 14);
+		tileSelectedSprite.loadGraphic(Paths.getImage("tilemaps/grass"), true, 12, 12);
+		add(tileSelectedSprite);
 
-		_textPos = new FlxBitmapText();
-		_textPos.setPosition(16, FlxG.height - 14);
-		_textPos.text = "X: 0\nY: 0";
-		add(_textPos);
+		textPos = new FlxBitmapText();
+		textPos.setPosition(16, FlxG.height - 14);
+		textPos.text = "X: 0\nY: 0";
+		add(textPos);
 
-		_sprLayer2 = new FlxSprite(FlxG.width - 24, FlxG.height - 25);
-		_sprLayer2.loadGraphic(Paths.getImage("layer0", DirTarget.Editor), true, 8, 9);
-		add(_sprLayer2);
+		sprLayer2 = new FlxSprite(FlxG.width - 24, FlxG.height - 25);
+		sprLayer2.loadGraphic(Paths.getImage("layer0", DirTarget.Editor), true, 8, 9);
+		add(sprLayer2);
 
-		_sprLayer1 = new FlxSprite(FlxG.width - 16, FlxG.height - 25);
-		_sprLayer1.loadGraphic(Paths.getImage("layer1", DirTarget.Editor), true, 8, 9);
-		_sprLayer1.animation.frameIndex = 1;
-		add(_sprLayer1);
+		sprLayer1 = new FlxSprite(FlxG.width - 16, FlxG.height - 25);
+		sprLayer1.loadGraphic(Paths.getImage("layer1", DirTarget.Editor), true, 8, 9);
+		sprLayer1.animation.frameIndex = 1;
+		add(sprLayer1);
 
-		_sprLayer0 = new FlxSprite(FlxG.width - 8, FlxG.height - 25);
-		_sprLayer0.loadGraphic(Paths.getImage("layer2", DirTarget.Editor), true, 8, 9);
-		_sprLayer0.animation.frameIndex = 1;
-		add(_sprLayer0);
+		sprLayer0 = new FlxSprite(FlxG.width - 8, FlxG.height - 25);
+		sprLayer0.loadGraphic(Paths.getImage("layer2", DirTarget.Editor), true, 8, 9);
+		sprLayer0.animation.frameIndex = 1;
+		add(sprLayer0);
 
 		var mapEditorText = new FlxBitmapText(Fonts.TOY);
 		mapEditorText.text = "MAP EDITOR";
@@ -267,19 +276,24 @@ class MapEditor extends FlxState
 		// Map stuff
 		createMap();
 
-		_highlightBox = new FlxSprite(0, 0);
-		_highlightBox.makeGraphic(TILE_WIDTH, TILE_HEIGHT, 0x99FF0000);
-		add(_highlightBox);
+		highlightBox = new FlxSprite(0, 0);
+		highlightBox.makeGraphic(TILE_WIDTH, TILE_HEIGHT, 0x99FF0000);
+		add(highlightBox);
+
+		// Fade
+		fadeBoy = new FadeBoy();
+		add(fadeBoy);
 
 		// Configurar cámaras
 		FlxG.cameras.add(uiCamera, false);
 		backgroundBorder.cameras = [uiCamera];
-		_tileSelectedSprite.cameras = [uiCamera];
-		_textPos.cameras = [uiCamera];
-		_sprLayer2.cameras = [uiCamera];
-		_sprLayer1.cameras = [uiCamera];
-		_sprLayer0.cameras = [uiCamera];
+		tileSelectedSprite.cameras = [uiCamera];
+		textPos.cameras = [uiCamera];
+		sprLayer2.cameras = [uiCamera];
+		sprLayer1.cameras = [uiCamera];
+		sprLayer0.cameras = [uiCamera];
 		mapEditorText.cameras = [uiCamera];
+		fadeBoy.cameras = [uiCamera];
 
 		FlxG.camera.bgColor = FlxColor.BLACK;
 	}
@@ -288,8 +302,13 @@ class MapEditor extends FlxState
 	{
 		super.update(elapsed);
 
-		if (!onMenu)
-			onEditorUpdate();
+		switch (editorState)
+		{
+			case Tilemap:
+				onEditorUpdate();
+			case Entity:
+			case Playing:
+		}
 	}
 }
 #end

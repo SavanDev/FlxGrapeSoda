@@ -36,11 +36,8 @@
 	<assets path="assets" exclude="*.wav" if="web" />
 	<assets path="assets" exclude="*/web/*.mp3" unless="web" />
 
-	<assets path="editor" rename="assets/editor" if="desktop" />
+	<assets path="editor" rename="assets/editor" if="editor" />
 	<assets path="misc/mobile" rename="assets/mobile" unless="desktop" />
-
-	<assets path="misc/readme.txt" rename="readme.txt" if="desktop" />
-	<assets path="LICENSE" rename="license.txt" />
 
 	<!-- _______________________________ Libraries ______________________________ -->
 
@@ -101,4 +98,6 @@
 	<icon path="misc/icon/icon64.png" size='64'/>
 	<icon path="misc/icon/iconBG.png"/>
 
+	<assets path="misc/readme.txt" rename="readme.txt" if="desktop" />
+	<assets path="LICENSE" rename="license.txt" />
 </project>

@@ -2,33 +2,22 @@ package;
 
 import flixel.FlxG;
 import flixel.FlxSprite;
-import flixel.FlxState;
 import flixel.text.FlxBitmapText;
+import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
+import misc.FadeBoy;
 
-class SavanLogo extends FlxState
+class SavanLogo extends GameBaseState
 {
 	var logo:FlxSprite;
 	var logoText:FlxBitmapText;
+	var fadeBoy:FadeBoy;
 
 	override public function create()
 	{
 		super.create();
+		Fonts.loadBitmapFonts();
 		FlxG.camera.zoom = 2;
-
-		FlxG.camera.fade(1, true, () ->
-		{
-			new FlxTimer().start(1.5, (timer:FlxTimer) ->
-			{
-				FlxG.camera.fade(1, () -> {
-					#if nightly
-					nightlyText();
-					#else
-					FlxG.switchState(new MenuState());
-					#end
-				});
-			});
-		});
 
 		logo = new FlxSprite();
 		logo.loadGraphic(Paths.getImage("SDPixel"));
@@ -36,13 +25,32 @@ class SavanLogo extends FlxState
 		logo.y -= 5;
 		add(logo);
 
-		logoText = new FlxBitmapText(Fonts.PF_ARMA_FIVE_16);
+		logoText = new FlxBitmapText(Fonts.DEFAULT);
 		logoText.text = "SavanDev";
 		logoText.screenCenter();
 		logoText.y += 20;
 		add(logoText);
 
+		fadeBoy = new FadeBoy(FlxColor.BLACK, true, onFadeOut, onFadeIn);
+		add(fadeBoy);
+
+		#if !android
 		FlxG.mouse.visible = false;
+		#end
+	}
+
+	function onFadeOut()
+	{
+		#if nightly
+		nightlyText();
+		#else
+		FlxG.switchState(new MenuState());
+		#end
+	}
+
+	function onFadeIn()
+	{
+		new FlxTimer().start(1.5, (timer:FlxTimer) -> fadeBoy.fadeOut());
 	}
 
 	function nightlyText()
@@ -60,12 +68,8 @@ class SavanLogo extends FlxState
 		warningNightly.screenCenter();
 		add(warningNightly);
 
-		FlxG.camera.fade(1, true, () ->
-		{
-			new FlxTimer().start(4, (_) ->
-			{
-				FlxG.camera.fade(1, () -> FlxG.switchState(new MenuState()));
-			});
-		});
+		fadeBoy.fadeIn();
+		fadeBoy.callbackIn = () -> new FlxTimer().start(4, (_) -> fadeBoy.fadeOut());
+		fadeBoy.callbackOut = () -> FlxG.switchState(new MenuState());
 	}
 }

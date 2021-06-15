@@ -12,14 +12,13 @@ import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import lime.app.Application;
 import lime.system.System;
+import misc.FadeBoy;
 #if desktop
 import Discord.State;
 #end
 
-class MenuState extends FlxState
+class MenuState extends GameBaseState
 {
-	static var hasStarted:Bool = false;
-
 	var map:FlxOgmo3Loader;
 	var tileMap:FlxTilemap;
 	var player:Player;
@@ -30,6 +29,7 @@ class MenuState extends FlxState
 	var playText:FlxBitmapText;
 	var versionText:FlxBitmapText;
 	var playTimer:FlxTimer;
+	var fadeBoy:FadeBoy;
 
 	static inline var LOGO_X = 63;
 	static inline var LOGO_Y = 20;
@@ -66,16 +66,23 @@ class MenuState extends FlxState
 				{
 					menu.kill();
 					FlxG.sound.play(Paths.getSound("select"));
-					FlxG.camera.fade(0xFF111111, () -> FlxG.switchState(new ReadyState()));
+					fadeBoy.callbackOut = () -> FlxG.switchState(new ReadyState());
+					fadeBoy.fadeOut();
 				}
 			},
 			{
 				text: "Donate",
 				event: (menu) -> FlxG.openURL("https://ko-fi.com/savandev")
 			},
-			#if editor {
+			#if editor
+			{
 				text: "Map Editor",
-				event: (menu) -> FlxG.camera.fade(2, () -> FlxG.switchState(new editor.MapEditor()))
+				event: (menu) ->
+				{
+					fadeBoy.color = 0xFF111111;
+					fadeBoy.callbackOut = () -> FlxG.switchState(new editor.MapEditor());
+					fadeBoy.fadeOut();
+				}
 			},
 			#end
 			#if !android
@@ -110,13 +117,6 @@ class MenuState extends FlxState
 	override public function create()
 	{
 		super.create();
-
-		if (!hasStarted)
-		{
-			Input.init();
-			Fonts.loadBitmapFonts();
-			hasStarted = true;
-		}
 
 		#if (desktop && cpp)
 		if (!Discord.hasStarted)
@@ -212,6 +212,9 @@ class MenuState extends FlxState
 		var kofi:FlxSprite = new FlxSprite(5, FlxG.height - 15);
 		kofi.loadGraphic(Paths.getImage("kofi"));
 		add(kofi);
+
+		fadeBoy = new FadeBoy();
+		add(fadeBoy);
 
 		// FIXME: Pequeño arreglo temporal. Luego voy a tener que estudiar un poco más el sistema de sonidos.
 		FlxG.sound.defaultSoundGroup.volume = .5;

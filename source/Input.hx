@@ -38,6 +38,10 @@ class Input
 	{
 		#if android
 		FlxG.android.preventDefaultKeys = [FlxAndroidKey.BACK];
+		#else
+		FlxG.sound.volumeDownKeys = [NUMPADMINUS];
+		FlxG.sound.volumeUpKeys = [NUMPADPLUS];
+		FlxG.sound.muteKeys = [NUMPADZERO];
 		#end
 		trace("Input initialized!");
 	}

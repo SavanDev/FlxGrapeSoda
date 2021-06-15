@@ -19,6 +19,10 @@ import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import haxe.Json;
 import lime.utils.Assets;
+import misc.FadeBoy;
+#if android
+import misc.AndroidPad;
+#end
 #if desktop
 import Discord.State;
 #end
@@ -35,7 +39,7 @@ typedef LevelData =
 	var player:String;
 }
 
-class PlayState extends FlxState
+class PlayState extends GameBaseState
 {
 	public static var LEVEL:Int = 1;
 	public static var MONEY:Int = 0;
@@ -60,6 +64,7 @@ class PlayState extends FlxState
 	var hud:HUD;
 	var finished:Bool = false;
 	var tutorial:FlxTilemap;
+	var fadeBoy:FadeBoy;
 
 	#if (desktop && cpp)
 	// discord
@@ -108,12 +113,6 @@ class PlayState extends FlxState
 			if (punchRay.overlaps(block.getHitbox()))
 				new FlxTimer().start(.25, (timer:FlxTimer) -> block.hurt(1));
 		});
-
-		pickyEnemy.forEachAlive((picky) ->
-		{
-			if (punchRay.overlaps(picky.getHitbox()))
-				picky.kill();
-		});
 	}
 
 	function playerTouchCoin(player:Player, coin:Money)
@@ -132,10 +131,7 @@ class PlayState extends FlxState
 				picky.kill();
 			}
 			else
-			{
-				if (!player.isPunching)
-					player.hurt(1);
-			}
+				player.hurt(1);
 		}
 	}
 
@@ -145,11 +141,13 @@ class PlayState extends FlxState
 		player.canMove = false;
 		player.facing = FlxObject.RIGHT;
 
-		FlxG.camera.fade(FlxColor.BLACK, 1.5, false, () ->
+		fadeBoy.color = FlxColor.BLACK;
+		fadeBoy.callbackOut = () ->
 		{
 			trace('Level $LEVEL finished!');
 			FlxG.switchState(new ShopState());
-		});
+		};
+		new FlxTimer().start(1, (_) -> fadeBoy.fadeOut());
 
 		finished = true;
 	}
@@ -159,10 +157,8 @@ class PlayState extends FlxState
 	{
 		super.create();
 
-		// HACK: Con esto se arregla los bordes de los sprites/tilemap.
-		FlxG.timeScale = 1.03;
-
 		var uiCamera = new FlxCamera(0, 0, FlxG.width, FlxG.height);
+		uiCamera.pixelPerfectRender = true;
 		uiCamera.bgColor = FlxColor.TRANSPARENT;
 
 		var level:LevelData = null;
@@ -274,8 +270,12 @@ class PlayState extends FlxState
 			Discord.changePresence(State.DemoEnd);
 		#end
 
+		fadeBoy = new FadeBoy(0xFF111111);
+		add(fadeBoy);
+
 		FlxG.cameras.add(uiCamera, false);
 		hud.cameras = [uiCamera];
+		fadeBoy.cameras = [uiCamera];
 		#if android
 		pad.cameras = [uiCamera];
 		#end
