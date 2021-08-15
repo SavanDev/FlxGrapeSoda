@@ -9,6 +9,7 @@ import flixel.util.FlxTimer;
 class Enemy extends FlxSprite
 {
 	public var speed:Float = 35;
+	public var direction:Int = 1;
 
 	public function new(x:Float = 0, y:Float = 0)
 	{
@@ -17,8 +18,6 @@ class Enemy extends FlxSprite
 		animation.add("default", [0, 1], 4);
 		animation.add("dead", [2], 0);
 		animation.play("default");
-
-		velocity.x = speed;
 	}
 
 	override function kill()
@@ -37,5 +36,12 @@ class Enemy extends FlxSprite
 			#end
 			exists = false;
 		});
+	}
+
+	override function update(elapsed:Float)
+	{
+		super.update(elapsed);
+		if (alive)
+			velocity.x = speed * direction;
 	}
 }

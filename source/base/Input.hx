@@ -1,7 +1,7 @@
 package;
 
 import flixel.FlxG;
-#if android
+#if mobile
 import flixel.input.android.FlxAndroidKey;
 #else
 import flixel.input.keyboard.FlxKey;
@@ -36,7 +36,7 @@ class Input
 
 	public static function init()
 	{
-		#if android
+		#if mobile
 		FlxG.android.preventDefaultKeys = [FlxAndroidKey.BACK];
 		#else
 		FlxG.sound.volumeDownKeys = [NUMPADMINUS];
@@ -48,7 +48,7 @@ class Input
 
 	public static function update()
 	{
-		#if android
+		#if mobile
 		var firstTouch = FlxG.touches.getFirst();
 		SELECT = firstTouch != null ? firstTouch.justPressed : false;
 		PAUSE = FlxG.android.justPressed.BACK;
@@ -76,10 +76,10 @@ class Input
 			DOWN_ALT = gamepad.justPressed.DPAD_DOWN;
 			LEFT_ALT = gamepad.analog.value.LEFT_STICK_X < 0 || gamepad.pressed.DPAD_LEFT;
 			RIGHT_ALT = gamepad.analog.value.LEFT_STICK_X > 0 || gamepad.pressed.DPAD_RIGHT;
-			JUMP_ALT = gamepad.pressed.A; // Xbox -> A | Play -> Cruz
-			PUNCH_ALT = gamepad.justPressed.B; // Xbox -> B | Play -> Cuadrado
+			JUMP_ALT = gamepad.pressed.A; // Xbox -> A => Cruz
+			PUNCH_ALT = gamepad.justPressed.B; // Xbox -> B => Cuadrado
 			SELECT_ALT = gamepad.justPressed.A;
-			BACK_ALT = gamepad.justPressed.BACK; // Xbox -> Back | Play -> Select
+			BACK_ALT = gamepad.justPressed.BACK; // Xbox -> Back => Select
 			PAUSE_ALT = gamepad.justPressed.START;
 		}
 		else

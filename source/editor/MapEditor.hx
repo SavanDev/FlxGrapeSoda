@@ -1,7 +1,5 @@
-package editor;
+package source.editor;
 
-import misc.FadeBoy;
-#if editor
 import Paths.DirTarget;
 import flixel.FlxCamera;
 import flixel.FlxG;
@@ -46,8 +44,6 @@ class MapEditor extends FlxState
 
 	var exited:Bool = false;
 	var editorState:EditorState = Tilemap;
-
-	var fadeBoy:FadeBoy;
 
 	// Map Editor functions!
 	function set_selectedTile(_newTile)
@@ -203,12 +199,11 @@ class MapEditor extends FlxState
 		if (FlxG.keys.justPressed.ESCAPE && !exited)
 		{
 			exited = true;
-			fadeBoy.callbackOut = () ->
+			FlxG.camera.fade(0x11111111, () ->
 			{
 				FlxG.mouse.visible = false;
 				FlxG.switchState(new MenuState());
-			};
-			fadeBoy.fadeOut();
+			});
 		}
 
 		// Menu Editor
@@ -280,10 +275,6 @@ class MapEditor extends FlxState
 		highlightBox.makeGraphic(TILE_WIDTH, TILE_HEIGHT, 0x99FF0000);
 		add(highlightBox);
 
-		// Fade
-		fadeBoy = new FadeBoy();
-		add(fadeBoy);
-
 		// Configurar cámaras
 		FlxG.cameras.add(uiCamera, false);
 		backgroundBorder.cameras = [uiCamera];
@@ -293,7 +284,6 @@ class MapEditor extends FlxState
 		sprLayer1.cameras = [uiCamera];
 		sprLayer0.cameras = [uiCamera];
 		mapEditorText.cameras = [uiCamera];
-		fadeBoy.cameras = [uiCamera];
 
 		FlxG.camera.bgColor = FlxColor.BLACK;
 	}
@@ -311,4 +301,3 @@ class MapEditor extends FlxState
 		}
 	}
 }
-#end

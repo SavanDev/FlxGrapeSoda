@@ -31,7 +31,7 @@ class Pause extends FlxSubState
 		add(pauseText);
 
 		options = new FlxBitmapText(Fonts.DEFAULT);
-		#if android
+		#if mobile
 		options.text = "Touch to continue\nBACK again to exit";
 		#else
 		options.text = "ENTER to continue\nESCAPE to exit";

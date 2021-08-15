@@ -6,7 +6,7 @@ import flixel.text.FlxBitmapText;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 
-class HUD extends FlxTypedGroup<FlxSprite> // No se como mejorar esto por ahora :S
+class HUD extends FlxTypedGroup<FlxSprite>
 {
 	var initialY:Int = 5;
 	var spacingY:Int = 13;
@@ -14,6 +14,7 @@ class HUD extends FlxTypedGroup<FlxSprite> // No se como mejorar esto por ahora 
 	var moneyCounter:FlxBitmapText;
 	var timeCounter:FlxBitmapText;
 	var enemyCounter:FlxBitmapText;
+	var liveCounter:FlxBitmapText;
 
 	var timer:Int;
 	var minutes:Int;
@@ -35,7 +36,7 @@ class HUD extends FlxTypedGroup<FlxSprite> // No se como mejorar esto por ahora 
 		add(moneyIcon);
 		add(timeIcon);
 		add(enemyIcon);
-		// add(liveIcon);
+		add(liveIcon);
 
 		// texto
 		moneyCounter = new FlxBitmapText(Fonts.DEFAULT);
@@ -51,14 +52,14 @@ class HUD extends FlxTypedGroup<FlxSprite> // No se como mejorar esto por ahora 
 		enemyCounter.setPosition(18, initialY + (spacingY * 2) + 1);
 		enemyCounter.setBorderStyle(SHADOW, FlxColor.BLACK, 1, 1);
 		enemyCounter.useTextColor = true;
-		var liveCounter = new FlxBitmapText(Fonts.DEFAULT);
+		liveCounter = new FlxBitmapText(Fonts.DEFAULT);
 		liveCounter.text = "5";
 		liveCounter.setPosition(18, initialY + (spacingY * 3) + 1);
 		liveCounter.setBorderStyle(SHADOW, FlxColor.BLACK, 1, 1);
 		add(moneyCounter);
 		add(timeCounter);
 		add(enemyCounter);
-		// add(liveCounter);
+		add(liveCounter);
 		// forEach(function(sprite) sprite.scrollFactor.set(0, 0));
 	}
 
@@ -86,6 +87,7 @@ class HUD extends FlxTypedGroup<FlxSprite> // No se como mejorar esto por ahora 
 
 		moneyCounter.text = Std.string(PlayState.MONEY);
 		enemyCounter.text = Std.string(PlayState.ENEMIES_DEAD);
+		liveCounter.text = Std.string(Player.LIVES);
 
 		timer = Math.floor(PlayState.TIME * 100);
 		minutes = Std.int(timer / 100 / 60);

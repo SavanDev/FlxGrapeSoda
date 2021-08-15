@@ -8,9 +8,6 @@
 		or you can set the actual size of your file manually at "FlxPreloaderBase-onUpdate-bytesTotal"-->
 	<app preloader="flixel.system.FlxPreloader" />
 
-	<!--Minimum without FLX_NO_GAMEPAD: 11.8, without FLX_NO_NATIVE_CURSOR: 11.2-->
-	<!--<set name="SWF_VERSION" value="11.8" />-->
-
 	<!-- ____________________________ Window Settings ___________________________ -->
 
 	<!--These window settings apply to all targets-->
@@ -31,13 +28,14 @@
 	<set name="BUILD_DIR" value="export/release" unless="debug" />
 	<set name="BUILD_DIR" value="export/x86" if="32bit" />
 
-	<classpath name="source" />
+	<source name="source/base" />
+	<source name="source/editor" if="editor" />
+	<source name="source/mobile" if="mobile" />
 
-	<assets path="assets" exclude="*.wav" if="web" />
-	<assets path="assets" exclude="*/web/*.mp3" unless="web" />
-
-	<assets path="editor" rename="assets/editor" if="editor" />
-	<assets path="misc/mobile" rename="assets/mobile" unless="desktop" />
+	<assets path="assets/base" rename="assets" exclude="*.wav" if="web" />
+	<assets path="assets/base" rename="assets" exclude="*/web/*.mp3" unless="web" />
+	<assets path="assets/editor" rename="assets" if="editor" />
+	<assets path="assets/mobile" rename="assets" unless="desktop" />
 
 	<!-- _______________________________ Libraries ______________________________ -->
 
@@ -57,18 +55,12 @@
 
 	<!-- ______________________________ Haxedefines _____________________________ -->
 
-	<!--Enable the Flixel core recording system-->
-	<!--<haxedef name="FLX_RECORD" />-->
-
 	<!--Disable the right and middle mouse buttons-->
 	<!--<haxedef name="FLX_NO_MOUSE_ADVANCED" />-->
 
-	<!--Disable the native cursor API on Flash-->
-	<!--<haxedef name="FLX_NO_NATIVE_CURSOR" />-->
-
 	<!--Optimise inputs, be careful you will get null errors if you don't use conditionals in your game-->
-	<haxedef name="FLX_NO_MOUSE" if="android"/>
-	<haxedef name="FLX_NO_KEYBOARD" if="android" />
+	<haxedef name="FLX_NO_MOUSE" if="mobile"/>
+	<haxedef name="FLX_NO_KEYBOARD" if="mobile" />
 	<haxedef name="FLX_NO_TOUCH" if="desktop" />
 	<haxedef name="FLX_NO_GAMEPAD" unless="desktop"/>
 

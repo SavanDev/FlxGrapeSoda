@@ -10,6 +10,7 @@ class Player extends FlxSprite
 {
 	public static inline var SPEED:Float = 75;
 	public static var SKIN:String = Paths.getImage("player/dylan");
+	public static var LIVES:Int = 5;
 	static inline var GRAVITY:Float = 300;
 	static inline var JUMP_POWER:Float = 100;
 
@@ -49,11 +50,14 @@ class Player extends FlxSprite
 
 	override public function hurt(damage:Float)
 	{
-		velocity.y = -75;
-		velocity.x = facing == FlxObject.LEFT ? -40 : 40;
+		if (!invencible)
+		{
+			trace("Player Hurt!");
+			FlxG.sound.play(Paths.getSound("hurt"));
+			LIVES -= Std.int(damage);
+			super.hurt(damage);
+		}
 		invencible = true;
-		trace("Player Hurt!");
-		super.hurt(damage);
 	}
 
 	public function new(x:Float = 0, y:Float = 0, kinematic:Bool = false)
@@ -62,7 +66,7 @@ class Player extends FlxSprite
 		loadSkin();
 		canMove = !kinematic;
 
-		health = 5; // initial health system
+		health = LIVES;
 
 		if (canMove)
 		{
@@ -151,12 +155,14 @@ class Player extends FlxSprite
 
 	override function update(elapsed:Float)
 	{
+		FlxG.watch.add(this, "health");
+
 		if (canMove && !isPunching)
 			movement(elapsed);
 		if (animated)
 			playerAnimation();
 
-		if (invencible && isTouching(FlxObject.DOWN) && !respawning)
+		if (invencible && !respawning)
 		{
 			FlxFlicker.flicker(this, 3);
 			respawning = true;

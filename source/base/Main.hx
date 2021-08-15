@@ -10,7 +10,7 @@ class Main extends Sprite
 	public function new()
 	{
 		super();
-		#if android
+		#if mobile
 		addChild(new FlxGame(250, 144, SavanLogo));
 		#else
 		addChild(new FlxGame(160, 144, SavanLogo));

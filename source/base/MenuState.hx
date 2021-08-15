@@ -2,7 +2,6 @@ package;
 
 import flixel.FlxG;
 import flixel.FlxSprite;
-import flixel.FlxState;
 import flixel.addons.display.FlxBackdrop;
 import flixel.addons.editors.ogmo.FlxOgmo3Loader;
 import flixel.text.FlxBitmapText;
@@ -12,7 +11,8 @@ import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import lime.app.Application;
 import lime.system.System;
-import misc.FadeBoy;
+import source.editor.MapEditor;
+import util.Menu;
 #if desktop
 import Discord.State;
 #end
@@ -29,7 +29,6 @@ class MenuState extends GameBaseState
 	var playText:FlxBitmapText;
 	var versionText:FlxBitmapText;
 	var playTimer:FlxTimer;
-	var fadeBoy:FadeBoy;
 
 	static inline var LOGO_X = 63;
 	static inline var LOGO_Y = 20;
@@ -59,57 +58,63 @@ class MenuState extends GameBaseState
 		playText.kill();
 		player.kill();
 		var menu = new Menu(10, 60);
-		menu.addPage("main", [
+
+		// Main Menu
+		var newGame:MenuItem = {
+			text: "New Game",
+			event: (menu) ->
 			{
-				text: "New Game",
-				event: (menu) ->
-				{
-					menu.kill();
-					FlxG.sound.play(Paths.getSound("select"));
-					fadeBoy.callbackOut = () -> FlxG.switchState(new ReadyState());
-					fadeBoy.fadeOut();
-				}
-			},
-			{
-				text: "Donate",
-				event: (menu) -> FlxG.openURL("https://ko-fi.com/savandev")
-			},
-			#if editor
-			{
-				text: "Map Editor",
-				event: (menu) ->
-				{
-					fadeBoy.color = 0xFF111111;
-					fadeBoy.callbackOut = () -> FlxG.switchState(new editor.MapEditor());
-					fadeBoy.fadeOut();
-				}
-			},
-			#end
-			#if !android
-			{
-				text: "Options",
-				event: (menu) -> menu.gotoPage("options")
-			},
-			#end
-			#if desktop
-			{
-				text: "Exit",
-				event: (menu) -> System.exit(0)
+				menu.kill();
+				FlxG.sound.play(Paths.getSound("select"));
+				FlxG.camera.fade(0xFF111111, () -> FlxG.switchState(new ReadyState()));
 			}
-			#end
-		]);
-		#if !android
-		menu.addPage("options", [
-			{
-				text: "Full-screen",
-				event: (menu) -> FlxG.fullscreen = !FlxG.fullscreen
-			},
-			{
-				text: "Back",
-				event: (menu) -> menu.gotoPage("main")
-			}
-		]);
+		}
+
+		var donate:MenuItem = {
+			text: "Donate",
+			event: (menu) -> FlxG.openURL("https://ko-fi.com/savandev")
+		}
+
+		#if editor
+		var editor:MenuItem = {
+			text: "Map Editor",
+			event: (menu) -> FlxG.camera.fade(0xFF111111, () -> FlxG.switchState(new MapEditor()))
+		}
 		#end
+
+		var options:MenuItem = {
+			text: "Options",
+			event: (menu) -> menu.gotoPage("options")
+		}
+
+		var exit:MenuItem = {
+			text: "Exit",
+			event: (menu) -> System.exit(0)
+		}
+
+		#if desktop
+		menu.addPage("main", [newGame, editor, options, donate, exit]);
+		#elseif (desktop && !editor)
+		menu.addPage("main", [newGame, options, donate, exit]);
+		#elseif (android || web)
+		menu.addPage("main", [newGame, donate]);
+		#end
+
+		// Options Menu
+		var optFullWindow:MenuItem = {
+			text: "Full-screen",
+			event: (menu) -> FlxG.fullscreen = !FlxG.fullscreen
+		}
+
+		var optBack:MenuItem = {
+			text: "Back",
+			event: (menu) -> menu.gotoPage("main")
+		}
+
+		#if desktop
+		menu.addPage("options", [optFullWindow, optBack]);
+		#end
+
 		menu.gotoPage("main");
 		add(menu);
 	}
@@ -133,7 +138,7 @@ class MenuState extends GameBaseState
 
 		// start!
 		var startText:String;
-		#if android
+		#if mobile
 		startText = "Tap to start!";
 		#else
 		startText = "Press ENTER!";
@@ -212,9 +217,6 @@ class MenuState extends GameBaseState
 		var kofi:FlxSprite = new FlxSprite(5, FlxG.height - 15);
 		kofi.loadGraphic(Paths.getImage("kofi"));
 		add(kofi);
-
-		fadeBoy = new FadeBoy();
-		add(fadeBoy);
 
 		// FIXME: Pequeño arreglo temporal. Luego voy a tener que estudiar un poco más el sistema de sonidos.
 		FlxG.sound.defaultSoundGroup.volume = .5;

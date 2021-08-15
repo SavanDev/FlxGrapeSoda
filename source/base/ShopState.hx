@@ -9,7 +9,6 @@ import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
-import misc.FadeBoy;
 #if desktop
 import Discord.State;
 #end
@@ -39,7 +38,7 @@ class ShopState extends GameBaseState
 
 		bgColor = FlxColor.BLACK;
 
-		#if android
+		#if mobile
 		INITIAL_X = 45;
 		#else
 		INITIAL_X = 0;
@@ -75,15 +74,12 @@ class ShopState extends GameBaseState
 		scoreGet.screenCenter(X);
 		scoreGet.alignment = CENTER;
 
-		new FlxTimer().start(1.5, (_) ->
+		FlxG.camera.fade(FlxColor.BLACK, 1.5, true, () ->
 		{
 			player.velocity.x = 0;
 			add(scoreGet);
 			new FlxTimer().start(1.0, moneyCount, 1);
 		});
-
-		var fadeBoy = new FadeBoy();
-		add(fadeBoy);
 
 		FlxG.sound.playMusic(Paths.getMusic("turtle-nap"));
 	}

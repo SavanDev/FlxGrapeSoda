@@ -1,4 +1,4 @@
-package misc;
+package;
 
 import Paths.DirTarget;
 import flixel.group.FlxGroup.FlxTypedGroup;

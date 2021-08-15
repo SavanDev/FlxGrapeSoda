@@ -1,6 +1,7 @@
-package editor;
+package source.editor;
 
 import flixel.FlxSubState;
+import util.Menu;
 
 class MapEditorSubState extends FlxSubState
 {

@@ -5,24 +5,17 @@ import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.FlxSprite;
-import flixel.FlxState;
 import flixel.addons.editors.ogmo.FlxOgmo3Loader;
-import flixel.effects.FlxFlicker;
+import flixel.addons.tile.FlxTilemapExt;
 import flixel.group.FlxGroup;
 import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
 import flixel.text.FlxBitmapText;
-import flixel.tile.FlxTilemap;
 import flixel.tweens.FlxTween;
-import flixel.ui.FlxBar;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import haxe.Json;
 import lime.utils.Assets;
-import misc.FadeBoy;
-#if android
-import misc.AndroidPad;
-#end
 #if desktop
 import Discord.State;
 #end
@@ -52,7 +45,7 @@ class PlayState extends GameBaseState
 	var checkpoint:FlxPoint;
 
 	// map variables
-	var walls:FlxTilemap;
+	var walls:FlxTilemapExt;
 	var coins:FlxTypedGroup<Money>;
 	var breakBlocks:FlxTypedGroup<BreakBlock>;
 	var pickyEnemy:FlxTypedGroup<Enemy>;
@@ -63,8 +56,7 @@ class PlayState extends GameBaseState
 	var offLimits:Bool = false;
 	var hud:HUD;
 	var finished:Bool = false;
-	var tutorial:FlxTilemap;
-	var fadeBoy:FadeBoy;
+	var tutorial:FlxTilemapExt;
 
 	#if (desktop && cpp)
 	// discord
@@ -131,7 +123,10 @@ class PlayState extends GameBaseState
 				picky.kill();
 			}
 			else
+			{
+				trace("Player HIT!");
 				player.hurt(1);
+			}
 		}
 	}
 
@@ -141,13 +136,11 @@ class PlayState extends GameBaseState
 		player.canMove = false;
 		player.facing = FlxObject.RIGHT;
 
-		fadeBoy.color = FlxColor.BLACK;
-		fadeBoy.callbackOut = () ->
+		FlxG.camera.fade(FlxColor.BLACK, 1.5, false, () ->
 		{
 			trace('Level $LEVEL finished!');
 			FlxG.switchState(new ShopState());
-		};
-		new FlxTimer().start(1, (_) -> fadeBoy.fadeOut());
+		});
 
 		finished = true;
 	}
@@ -181,29 +174,29 @@ class PlayState extends GameBaseState
 		var map = new FlxOgmo3Loader(Paths.getOgmoData(), Paths.getMap(!DEMO_END ? level.map : "demoEnd"));
 		this.bgColor = !DEMO_END ? FlxColor.fromString(level.backColor) : 0xFF111111;
 
-		var backWalls = map.loadTilemap(Paths.getImage("legacy/backTileMap"), "BackBlocks");
+		var backWalls = map.loadTilemapExt(Paths.getImage("legacy/backTileMap"), "BackBlocks");
 		backWalls.follow();
 		backWalls.setTileProperties(0, FlxObject.NONE);
 		add(backWalls);
 
-		walls = map.loadTilemap(Paths.getImage("legacy/tileMap"), "Blocks");
+		walls = map.loadTilemapExt(Paths.getImage("legacy/tileMap"), "Blocks");
 		walls.follow();
 		walls.setTileProperties(0, FlxObject.NONE);
 		walls.setTileProperties(1, FlxObject.ANY);
 		scenario.add(walls);
 
-		var shop = map.loadTilemap(Paths.getImage("shop"), "Shop");
+		var shop = map.loadTilemapExt(Paths.getImage("shop"), "Shop");
 		shop.follow();
 		shop.setTileProperties(0, FlxObject.NONE);
 		add(shop);
 
-		#if !android
+		#if !mobile
 		var keysPath:String = Paths.getImage("keys");
 		#if desktop
 		if (FlxG.gamepads.lastActive != null)
 			keysPath = Paths.getImage("keysGamepad");
 		#end
-		tutorial = map.loadTilemap(keysPath, "Keys");
+		tutorial = map.loadTilemapExt(keysPath, "Keys");
 		tutorial.follow();
 		tutorial.setTileProperties(0, FlxObject.NONE);
 		add(tutorial);
@@ -225,11 +218,10 @@ class PlayState extends GameBaseState
 
 		// Mostrar el nivel
 		scenario.add(breakBlocks);
-		scenario.add(pickyEnemy);
 		add(scenario);
-
 		add(coins);
 		add(player);
+		add(pickyEnemy);
 
 		map.loadEntities(placeEntities, "Entities");
 
@@ -248,7 +240,7 @@ class PlayState extends GameBaseState
 			FlxTween.num(grapeSoda.y, grapeSoda.y + 3, .5, {type: PINGPONG}, (v:Float) -> grapeSoda.y = v);
 		}
 
-		#if android
+		#if mobile
 		var pad = new AndroidPad();
 		add(pad);
 		#end
@@ -270,20 +262,16 @@ class PlayState extends GameBaseState
 			Discord.changePresence(State.DemoEnd);
 		#end
 
-		fadeBoy = new FadeBoy(0xFF111111);
-		add(fadeBoy);
-
 		FlxG.cameras.add(uiCamera, false);
 		hud.cameras = [uiCamera];
-		fadeBoy.cameras = [uiCamera];
-		#if android
+		#if mobile
 		pad.cameras = [uiCamera];
 		#end
 	}
 
 	public function pleaseCollide(enemy:Enemy, other:FlxObject)
 	{
-		enemy.velocity.x = enemy.isTouching(FlxObject.LEFT) ? enemy.speed : -enemy.speed;
+		enemy.direction = enemy.justTouched(FlxObject.LEFT) ? 1 : -1;
 	}
 
 	override public function update(elapsed:Float)
@@ -300,7 +288,7 @@ class PlayState extends GameBaseState
 		{
 			FlxG.collide(pickyEnemy, scenario, pleaseCollide);
 			if (!player.invencible)
-				FlxG.overlap(player, pickyEnemy, playerHitEnemy);
+				FlxG.collide(player, pickyEnemy, playerHitEnemy);
 			FlxG.overlap(player, coins, playerTouchCoin);
 
 			if (!finished)
@@ -338,5 +326,8 @@ class PlayState extends GameBaseState
 		if (FlxG.keys.justPressed.PAGEDOWN)
 			FlxG.camera.zoom -= .1;
 		#end
+
+		if (player.health <= 0)
+			openSubState(new GameOver());
 	}
 }

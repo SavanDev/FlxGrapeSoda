@@ -1,17 +1,22 @@
-package;
+package util;
 
 import flixel.FlxG;
 import flixel.group.FlxGroup;
 import flixel.text.FlxBitmapText;
 import flixel.text.FlxText.FlxTextBorderStyle;
 import flixel.tweens.FlxTween;
-import flixel.util.FlxColor;
 import openfl.utils.Dictionary;
+
+typedef MenuItem =
+{
+	var text:String;
+	var event:Menu->Void;
+};
 
 class Menu extends FlxGroup
 {
 	var cursor:FlxBitmapText;
-	var options:Dictionary<String, Array<{text:String, event:Menu->Void}>>; // No me siento bien con esto :S
+	var options:Dictionary<String, Array<MenuItem>>;
 	var optionsText:FlxTypedGroup<FlxBitmapText>;
 
 	var selectedIndex:Int = 0;
@@ -23,12 +28,12 @@ class Menu extends FlxGroup
 	public function new(_x:Float = 0, _y:Float = 0)
 	{
 		super();
-		options = new Dictionary<String, Array<{text:String, event:Menu->Void}>>();
+		options = new Dictionary<String, Array<MenuItem>>();
 		optionsText = new FlxTypedGroup<FlxBitmapText>();
 		x = _x;
 		y = _y;
 
-		#if !android
+		#if !mobile
 		cursor = new FlxBitmapText(Fonts.TOY);
 		cursor.setPosition(x, y - 5);
 		cursor.text = ">";
@@ -39,7 +44,7 @@ class Menu extends FlxGroup
 		add(optionsText);
 	}
 
-	public function addPage(name:String, items:Array<{text:String, event:Menu->Void}>)
+	public function addPage(name:String, items:Array<MenuItem>)
 	{
 		options.set(name, items);
 	}
@@ -61,7 +66,7 @@ class Menu extends FlxGroup
 		optionsText.forEach((item) -> item.destroy());
 		optionsText.clear();
 
-		#if !android
+		#if !mobile
 		cursor.setPosition(x, y - 5);
 		#end
 
@@ -69,7 +74,7 @@ class Menu extends FlxGroup
 
 		for (i in 0...items.length)
 		{
-			#if android
+			#if mobile
 			var item = new FlxBitmapText(Fonts.DEFAULT);
 			item.setPosition(x, y + (i * 12));
 			#else
@@ -87,7 +92,7 @@ class Menu extends FlxGroup
 	{
 		super.update(elapsed);
 
-		#if android
+		#if mobile
 		var touch = FlxG.touches.getFirst();
 		if (touch != null)
 		{
