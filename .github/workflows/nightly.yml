@@ -21,6 +21,7 @@ jobs:
           haxelib --quiet install flixel
           haxelib --quiet install openfl
           haxelib --quiet install lime
+          haxelib --quiet install flixel-addons
 
       - name: Setup Lime
         run: haxelib run lime setup -alias -y
@@ -70,7 +71,12 @@ jobs:
         run: haxelib run lime setup -alias -y
 
       - name: Build using Lime
+        if: ${{ matrix.platform != 'windows' }}
         run: lime build ${{ matrix.platform }} -final -Dnightly
+
+      - name: Build using Lime (Fix)
+        if: ${{ matrix.platform == 'windows' }}
+        run: haxelib run lime build ${{ matrix.platform }} -final -Dnightly
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v2.2.2

@@ -51,7 +51,7 @@
 	<!--<haxelib name="nape-haxe4" />-->
 
 	<!--Discord RPC-->
-	<haxelib name="discord_rpc" if="cpp"/>
+	<haxelib name="discord_rpc" if="desktop"/>
 
 	<!-- ______________________________ Haxedefines _____________________________ -->
 
