@@ -4,13 +4,40 @@ on:
     branches:
       - main
 jobs:
-  build-and-deploy:
+  web:
+    name: Build for HTML5 (Web)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.3.1
+
+      - name: Setup Haxe
+        uses: krdlab/setup-haxe@v1.1.5
+        with:
+          haxe-version: 4.2.3
+
+      - name: Setup HaxeFlixel
+        run: | 
+          haxelib --quiet install flixel
+          haxelib --quiet install openfl
+          haxelib --quiet install lime
+
+      - name: Setup Lime
+        run: haxelib run lime setup -alias -y
+
+      - name: Build using Lime
+        run: lime build html5 -final -Dnightly
+
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@4.1.1
+        with:
+          branch: gh-pages # The branch the action should deploy to.
+          folder: ./export/release/html5/bin # The folder the action should deploy.
+
+  desktop:
     strategy:
       matrix:
         include:
-          - name: HTML5
-            os: ubuntu-latest
-            platform: html5
           - name: Linux
             os: ubuntu-latest
             platform: linux
@@ -29,7 +56,7 @@ jobs:
       - name: Setup Haxe
         uses: krdlab/setup-haxe@v1.1.5
         with:
-          haxe-version: 4.2.2
+          haxe-version: 4.2.3
 
       - name: Setup HaxeFlixel
         run: | 
@@ -40,23 +67,66 @@ jobs:
           haxelib --quiet git discord_rpc https://github.com/Aidan63/linc_discord-rpc
 
       - name: Setup Lime
-        run: haxelib --quiet --always run lime setup
+        run: haxelib run lime setup -alias -y
 
       - name: Build using Lime
-        run: |
-          haxelib run lime build ${{ matrix.platform }} -final -Dnightly
-
-      - name: Deploy
-        if: ${{ matrix.platform == 'html5' }}
-        uses: JamesIves/github-pages-deploy-action@4.1.1
-        with:
-          branch: gh-pages # The branch the action should deploy to.
-          folder: ./export/release/html5/bin # The folder the action should deploy.
+        run: lime build ${{ matrix.platform }} -final -Dnightly
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v2.2.2
         with:
-          name: |
-            ${{ matrix.name }} Nightly
+          name: ${{ matrix.name }}-Nightly
           path: export/release/${{ matrix.platform }}/bin
+  
+  android:
+    name: Build for Android
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.3.1
+
+      - name: Setup Android NDK
+        uses: nttld/setup-ndk@v1
+        id: setup-ndk
+        with:
+          ndk-version: r15c
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: 8
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
+
+      - name: Setup Haxe
+        uses: krdlab/setup-haxe@v1.1.5
+        with:
+          haxe-version: 4.2.3
+
+      - name: Setup HaxeFlixel
+        run: |
+          haxelib --quiet install lime
+          haxelib --quiet install openfl
+          haxelib --quiet install flixel
+          haxelib --quiet install flixel-addons
+
+      - name: Setup Lime
+        run: |
+          haxelib run lime setup -alias -y
+          lime config ANDROID_SDK $ANDROID_HOME
+          lime config ANDROID_NDK_ROOT $ANDROID_NDK_HOME
+          lime config JAVA_HOME $JAVA_HOME
+          lime config ANDROID_SETUP true
+          lime config
+        env:
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+
+      - name: Build APK
+        run: lime build android -final -Dnightly
       
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2.2.2
+        with:
+          name: Android-Nightly
+          path: export/release/android/bin/app/build/outputs/apk/debug/GrapeSoda-debug.apk

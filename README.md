@@ -6,8 +6,9 @@
 
 Repository of the game _"Latin American needs... GRAPE SODA!"_ created by [SavanDev (me!)](https://twitter.com/dylnavas36).
 
-### For play the nightly web version, enter [here!](https://savandev.gitlab.io/chesspawn/games/2021/grapesoda/)
-### Nightly Desktop versions [here!](https://github.com/SavanDev/FlxGrapeSoda/actions)
+## Nightly (Development version)
+
+### [Web](https://savandev.gitlab.io/chesspawn/games/2021/grapesoda/) - [Windows](https://nightly.link/SavanDev/FlxGrapeSoda/workflows/nightly/main/Windows-Nighty.zip) - [Linux](https://nightly.link/SavanDev/FlxGrapeSoda/workflows/nightly/main/Linux-Nighty.zip) - [macOS](https://nightly.link/SavanDev/FlxGrapeSoda/workflows/nightly/main/macOS-Nighty.zip) - [Android](https://nightly.link/SavanDev/FlxGrapeSoda/workflows/nightly/main/Android-Nighty.zip)
 
 ## Context
 
@@ -17,48 +18,7 @@ Repository of the game _"Latin American needs... GRAPE SODA!"_ created by [Savan
 
 ## Build
 
-For compile the game, __first__... you need:
-
-- Install [Haxe](https://haxe.org/download/).
-- Install [HaxeFlixel](https://haxe.org/download/).
-- Install [Git](https://git-scm.com/) (only if you compile for desktop).
-
-Later, you need install this __additional libraries__ (depending your target platform):
-
-### For all platforms
-> haxelib install flixel-addons
-
-### For desktop
-> haxelib install flixel-ui
-
-> haxelib git discord_rpc https://github.com/Aidan63/linc_discord-rpc
-
-Now for finally compiled the game, well... is exactly as [Friday Night Funkin](https://github.com/ninjamuffin99/Funkin#compiling-game) but I detail here anyway.
-
-### Hashlink
-
-- Download [Hashlink](https://github.com/HaxeFoundation/hashlink/releases).
-- Decompress the zip (in a fixed folder).
-- Run "lime setup hl" and follow the steps.
-- In the root game folder, now run "lime test hl -debug".
-
-And that's all.
-
-### Windows/Linux
-
-Detailed explication for [Windows](https://lime.software/docs/advanced-setup/windows/) and [Linux](https://lime.software/docs/advanced-setup/linux/).
-
-Simply... in Windows run:
-
-> lime setup windows
-
-or in Linux:
-
-> lime setup linux
-
-and follow the steps.
-
-Later, just run "lime test windows -debug" (on Windows) or "lime test linux -debug" (on Linux) in the root folder.
+See [Build instructions](./docs/Compiling.md).
 
 ## Special credits
 
