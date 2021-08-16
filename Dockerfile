@@ -1,6 +1,4 @@
-ARG UBUNTU_VERSION=20.04
-ARG SDK=https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip
-ARG NDK=https://dl.google.com/android/repository/android-ndk-r15c-linux-x86_64.zip
+ARG UBUNTU_VERSION=18.04
 
 FROM ubuntu:${UBUNTU_VERSION}
 MAINTAINER SavanDev
@@ -17,7 +15,9 @@ RUN apt-get update -y && apt-get -y install \
     git
 
 # Install Haxe libraries
-RUN haxelib install lime && \
+RUN mkdir -p ./haxelib && \
+	haxelib setup ./haxelib && \
+	haxelib install lime && \
     haxelib install openfl && \
     haxelib install flixel && \
     haxelib run lime setup flixel && \
@@ -25,8 +25,8 @@ RUN haxelib install lime && \
 
 # Download Android tools
 RUN mkdir -p /usr/src/android && \
-    wget ${SDK} -o /usr/src/android/sdk.zip && \
-    wget ${NDK} -o /usr/src/android/ndk.zip
+    wget https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip -o /usr/src/android/sdk.zip && \
+    wget https://dl.google.com/android/repository/android-ndk-r15c-linux-x86_64.zip -o /usr/src/android/ndk.zip
 
 # Unzip SDK
 RUN mkdir -p /usr/src/android/cmdline-tools && \
@@ -47,7 +47,7 @@ RUN mkdir -p /usr/src/android/ndk && \
     rm /usr/src/android/ndk.zip
 
 # Configure Lime
-RUN haxelib run lime setup -alias -y -nocffi && \
+RUN haxelib run lime setup -alias -y && \
     lime config ANDROID_SDK /usr/src/android && \
     lime config ANDROID_NDK_ROOT /usr/src/android/ndk/r15c && \
     lime config JAVA_HOME $(dirname $(dirname $(readlink -f $(which javac)))) && \

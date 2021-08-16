@@ -65,7 +65,7 @@ Then, running "**lime setup linux**" should be enough (needs **sudo**).
 
 > In both, to finish simply use "**lime test linux**" in the root folder.
 
-## Docker
+## Docker (Not recommend yet)
 
 The Dockerfile was made to build Linux and Android more easily. **ONLY WORK ON LINUX**
 
