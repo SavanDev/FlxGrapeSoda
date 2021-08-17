@@ -26,16 +26,28 @@
 
 	<set name="BUILD_DIR" value="export/debug" if="debug" />
 	<set name="BUILD_DIR" value="export/release" unless="debug" />
-	<set name="BUILD_DIR" value="export/x86" if="32bit" />
+	<set name="BUILD_DIR" value="export/x86" if="legacyPC" />
 
 	<source name="source/base" />
-	<source name="source/editor" if="editor" />
-	<source name="source/mobile" if="mobile" />
 
 	<assets path="assets/base" rename="assets" exclude="*.wav" if="web" />
 	<assets path="assets/base" rename="assets" exclude="*/web/*.mp3" unless="web" />
-	<assets path="assets/editor" rename="assets" if="editor" />
-	<assets path="assets/mobile" rename="assets" unless="desktop" />
+
+	<assets path="misc/readme.txt" rename="readme.txt" if="desktop" />
+	<assets path="LICENSE" rename="license.txt" />
+
+	<!-- Map Editor -->
+	<define name="editor" if="desktop" />
+
+	<section if="editor">
+		<source path="source/editor" />
+		<assets path="assets/editor" rename="assets" />
+	</section>
+
+	<section if="mobile">
+		<source path="source/mobile" />
+		<assets path="assets/mobile" rename="assets" />
+	</section>
 
 	<!-- _______________________________ Libraries ______________________________ -->
 
@@ -79,9 +91,6 @@
 	<!--Enable this for Nape release builds for a serious peformance improvement-->
 	<haxedef name="NAPE_RELEASE_BUILD" unless="debug" />
 
-	<!--Map Editor-->
-	<haxedef name="editor" if="desktop"/>
-
 	<!-- _________________________________ Custom _______________________________ -->
 
 	<!--Place custom nodes like icons here (higher priority to override the HaxeFlixel icon)-->
@@ -89,7 +98,5 @@
 	<icon path="misc/icon/icon32.png" size='32'/>
 	<icon path="misc/icon/icon64.png" size='64'/>
 	<icon path="misc/icon/iconBG.png"/>
-
-	<assets path="misc/readme.txt" rename="readme.txt" if="desktop" />
-	<assets path="LICENSE" rename="license.txt" />
+	
 </project>

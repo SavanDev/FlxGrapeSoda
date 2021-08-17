@@ -1,4 +1,4 @@
-package source.editor;
+package;
 
 import Paths.DirTarget;
 import flixel.FlxCamera;

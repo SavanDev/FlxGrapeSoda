@@ -1,4 +1,4 @@
-package source.editor;
+package;
 
 import flixel.FlxSubState;
 import util.Menu;

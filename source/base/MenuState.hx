@@ -11,7 +11,6 @@ import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import lime.app.Application;
 import lime.system.System;
-import source.editor.MapEditor;
 import util.Menu;
 #if desktop
 import Discord.State;

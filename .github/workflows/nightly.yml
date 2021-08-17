@@ -115,7 +115,7 @@ jobs:
           haxelib --quiet install lime
           haxelib --quiet install openfl
           haxelib --quiet install flixel
-          haxelib --quiet install flixel-addons
+          haxelib --quiet --always run lime setup flixel
 
       - name: Setup Lime
         run: |
