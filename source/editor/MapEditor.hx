@@ -1,6 +1,5 @@
 package;
 
-import Paths.DirTarget;
 import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -249,16 +248,16 @@ class MapEditor extends FlxState
 		add(textPos);
 
 		sprLayer2 = new FlxSprite(FlxG.width - 24, FlxG.height - 25);
-		sprLayer2.loadGraphic(Paths.getImage("layer0", DirTarget.Editor), true, 8, 9);
+		sprLayer2.loadGraphic(Paths.getImage("layer0"), true, 8, 9);
 		add(sprLayer2);
 
 		sprLayer1 = new FlxSprite(FlxG.width - 16, FlxG.height - 25);
-		sprLayer1.loadGraphic(Paths.getImage("layer1", DirTarget.Editor), true, 8, 9);
+		sprLayer1.loadGraphic(Paths.getImage("layer1"), true, 8, 9);
 		sprLayer1.animation.frameIndex = 1;
 		add(sprLayer1);
 
 		sprLayer0 = new FlxSprite(FlxG.width - 8, FlxG.height - 25);
-		sprLayer0.loadGraphic(Paths.getImage("layer2", DirTarget.Editor), true, 8, 9);
+		sprLayer0.loadGraphic(Paths.getImage("layer2"), true, 8, 9);
 		sprLayer0.animation.frameIndex = 1;
 		add(sprLayer0);
 

@@ -8,7 +8,7 @@ Repository of the game _"Latin American needs... GRAPE SODA!"_ created by [Savan
 
 ## Nightly (Development version)
 
-### [Web](https://savandev.gitlab.io/chesspawn/games/2021/grapesoda/) - [Windows](https://nightly.link/SavanDev/FlxGrapeSoda/workflows/nightly/main/Windows-Nighty.zip) - [Linux](https://nightly.link/SavanDev/FlxGrapeSoda/workflows/nightly/main/Linux-Nighty.zip) - [macOS](https://nightly.link/SavanDev/FlxGrapeSoda/workflows/nightly/main/macOS-Nighty.zip) - [Android](https://nightly.link/SavanDev/FlxGrapeSoda/workflows/nightly/main/Android-Nighty.zip)
+### [Web](https://savandev.gitlab.io/chesspawn/games/2021/grapesoda/) - [Windows](https://nightly.link/SavanDev/FlxGrapeSoda/workflows/nightly/main/Windows-Nightly.zip) - [Linux](https://nightly.link/SavanDev/FlxGrapeSoda/workflows/nightly/main/Linux-Nightly.zip) - [macOS](https://nightly.link/SavanDev/FlxGrapeSoda/workflows/nightly/main/macOS-Nightly.zip) - [Android](https://nightly.link/SavanDev/FlxGrapeSoda/workflows/nightly/main/Android-Nightly.zip)
 
 ## Context
 

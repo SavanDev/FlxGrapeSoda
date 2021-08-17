@@ -1,25 +1,10 @@
-enum DirTarget
-{
-	Editor;
-	Mobile;
-	Default;
-}
-
 class Paths
 {
 	static inline var OGMO_DATA:String = "maps";
 
-	static public function getImage(file:String, ?dir:DirTarget = Default)
+	static public function getImage(file:String)
 	{
-		switch (dir)
-		{
-			case Editor:
-				return 'assets/editor/images/$file.png';
-			case Mobile:
-				return 'assets/mobile/$file.png';
-			case Default:
-				return 'assets/images/$file.png';
-		}
+		return 'assets/images/$file.png';
 	}
 
 	static public function getSound(file:String)
