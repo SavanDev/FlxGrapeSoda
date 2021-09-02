@@ -12,9 +12,9 @@ Repository of the game _"Latin American needs... GRAPE SODA!"_ created by [Savan
 
 ## Context
 
-> One day, the news reaches you that in your country your favorite drink is going to be withdrawn from the market… grape soda.
+> One day you get the news that your favorite drink is going to be taken off the market in your country... grape soda.
 >
-> Your mission is to try to get the last units left in the stores before it disappears completely… but it will not come cheap.
+> Your mission is to try to get the last remaining units in the stores before it disappears completely... but it won't be cheap.
 
 ## Build
 
