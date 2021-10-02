@@ -36,14 +36,6 @@
 	<assets path="misc/readme.txt" rename="readme.txt" if="desktop" />
 	<assets path="LICENSE" rename="license.txt" />
 
-	<!-- Map Editor -->
-	<define name="editor" if="desktop" />
-
-	<section if="editor">
-		<source path="source/editor" />
-		<assets path="assets/editor" rename="assets" />
-	</section>
-
 	<section if="mobile">
 		<source path="source/mobile" />
 		<assets path="assets/mobile" rename="assets" />

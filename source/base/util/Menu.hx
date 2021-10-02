@@ -5,6 +5,7 @@ import flixel.group.FlxGroup;
 import flixel.text.FlxBitmapText;
 import flixel.text.FlxText.FlxTextBorderStyle;
 import flixel.tweens.FlxTween;
+import flixel.util.FlxColor;
 import openfl.utils.Dictionary;
 
 typedef MenuItem =
@@ -15,7 +16,12 @@ typedef MenuItem =
 
 class Menu extends FlxGroup
 {
+	public var accent:FlxColor = 0xFF5B315B;
+
+	#if !mobile
 	var cursor:FlxBitmapText;
+	#end
+
 	var options:Dictionary<String, Array<MenuItem>>;
 	var optionsText:FlxTypedGroup<FlxBitmapText>;
 
@@ -37,6 +43,7 @@ class Menu extends FlxGroup
 		cursor = new FlxBitmapText(Fonts.TOY);
 		cursor.setPosition(x, y - 5);
 		cursor.text = ">";
+		cursor.setBorderStyle(FlxTextBorderStyle.OUTLINE, accent);
 		add(cursor);
 		FlxTween.num(x, x + 2, .25, {type: PINGPONG}, (v:Float) -> cursor.x = v);
 		#end
@@ -81,11 +88,24 @@ class Menu extends FlxGroup
 			var item = new FlxBitmapText(Fonts.TOY);
 			item.setPosition(x + 10, y - 5 + (i * 10));
 			#end
+
 			item.text = items[i].text;
 			item.useTextColor = true;
-			item.setBorderStyle(FlxTextBorderStyle.OUTLINE, 0xFF5B315B);
+			item.setBorderStyle(FlxTextBorderStyle.OUTLINE, accent);
+
 			optionsText.add(item);
 		}
+	}
+
+	function getOption():FlxBitmapText
+	{
+		return optionsText.members[selectedIndex];
+	}
+
+	public function changeOptionName(newName:String)
+	{
+		options.get(actualPage)[selectedIndex].text = newName;
+		getOption().text = newName;
 	}
 
 	override public function update(elapsed:Float)

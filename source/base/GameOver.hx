@@ -36,6 +36,7 @@ class GameOver extends FlxSubState
 			PlayState.TIME = 0;
 			PlayState.LEVEL = 1;
 			PlayState.DEMO_END = false;
+			Player.LIVES = 5;
 
 			FlxG.switchState(new MenuState());
 		});

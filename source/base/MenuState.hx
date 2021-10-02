@@ -16,7 +16,7 @@ import util.Menu;
 import Discord.State;
 #end
 
-class MenuState extends GameBaseState
+class MenuState extends BaseState
 {
 	var map:FlxOgmo3Loader;
 	var tileMap:FlxTilemap;
@@ -71,15 +71,14 @@ class MenuState extends GameBaseState
 
 		var donate:MenuItem = {
 			text: "Donate",
-			event: (menu) -> FlxG.openURL("https://ko-fi.com/savandev")
+			event: (menu) -> {
+				#if linux
+				Sys.command('xdg-open', ["https://ko-fi.com/savandev"]);
+				#else
+				FlxG.openURL("https://ko-fi.com/savandev");
+				#end
+			}
 		}
-
-		#if editor
-		var editor:MenuItem = {
-			text: "Map Editor",
-			event: (menu) -> FlxG.camera.fade(0xFF111111, () -> FlxG.switchState(new MapEditor()))
-		}
-		#end
 
 		var options:MenuItem = {
 			text: "Options",
@@ -92,17 +91,29 @@ class MenuState extends GameBaseState
 		}
 
 		#if desktop
-		menu.addPage("main", [newGame, editor, options, donate, exit]);
-		#elseif (desktop && !editor)
-		menu.addPage("main", [newGame, options, donate, exit]);
+		menu.addPage("main", [newGame, options, exit]);
 		#elseif (android || web)
 		menu.addPage("main", [newGame, donate]);
 		#end
 
 		// Options Menu
 		var optFullWindow:MenuItem = {
-			text: "Full-screen",
-			event: (menu) -> FlxG.fullscreen = !FlxG.fullscreen
+			text: FlxG.fullscreen ? "Window mode" : "Fullscreen",
+			event: (menu) ->
+			{
+				FlxG.fullscreen = !FlxG.fullscreen;
+				FlxG.save.data.fullScreen = FlxG.fullscreen;
+				menu.changeOptionName(FlxG.fullscreen ? "Window mode" : "Fullscreen");
+			}
+		}
+
+		var optMusicOff:MenuItem = {
+			text: 'Sound: ${FlxG.sound.muted ? "OFF" : "ON"}',
+			event: (menu) ->
+			{
+				FlxG.sound.toggleMuted();
+				menu.changeOptionName('Sound: ${FlxG.sound.muted ? "OFF" : "ON"}');
+			}
 		}
 
 		var optBack:MenuItem = {
@@ -111,7 +122,7 @@ class MenuState extends GameBaseState
 		}
 
 		#if desktop
-		menu.addPage("options", [optFullWindow, optBack]);
+		menu.addPage("options", [optFullWindow, optMusicOff, donate, optBack]);
 		#end
 
 		menu.gotoPage("main");
@@ -224,13 +235,18 @@ class MenuState extends GameBaseState
 	override public function update(elapsed:Float)
 	{
 		super.update(elapsed);
-		Input.update();
 
 		#if desktop
 		if (Input.isGamepadConnected)
+		{
 			playText.text = "Press A!";
+			playText.screenCenter(X);
+		}
 		else
+		{
 			playText.text = "Press ENTER!";
+			playText.screenCenter(X);
+		}
 		#end
 
 		// Si el jugador aún sigue en la pantalla "Press XXXXX!"

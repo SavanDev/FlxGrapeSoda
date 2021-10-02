@@ -49,6 +49,10 @@ class Money extends FlxSprite
 
 		alive = false;
 		FlxG.sound.play(Paths.getSound("coin"));
+
+		if (PlayState.HUD != null)
+			PlayState.HUD.updateMoneyCounter(PlayState.MONEY);
+
 		FlxTween.tween(this, {alpha: 0, y: y - 16}, .33, {
 			ease: FlxEase.circOut,
 			onComplete: function(_)

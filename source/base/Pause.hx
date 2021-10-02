@@ -14,6 +14,7 @@ class Pause extends FlxSubState
 	override public function create()
 	{
 		super.create();
+
 		// Establece la cámara por defecto de la pausa en "uiCamera"
 		this.cameras = [FlxG.cameras.list[1]];
 
@@ -52,9 +53,15 @@ class Pause extends FlxSubState
 
 		#if desktop
 		if (Input.isGamepadConnected)
+		{
 			options.text = "A to continue\nBACK to exit";
+			options.screenCenter(X);
+		}
 		else
+		{
 			options.text = "ENTER to continue\nESCAPE to exit";
+			options.screenCenter(X);
+		}
 		#end
 
 		if (Input.SELECT || Input.SELECT_ALT)
@@ -63,13 +70,14 @@ class Pause extends FlxSubState
 		if ((Input.BACK || Input.BACK_ALT) && !exited)
 		{
 			exited = true;
-			FlxG.camera.fade(.5, function()
+			FlxG.camera.fade(.5, () ->
 			{
 				// TODO: Hasta que haya algún sistema de guardado
 				PlayState.MONEY = 0;
 				PlayState.TIME = 0;
 				PlayState.LEVEL = 1;
 				PlayState.DEMO_END = false;
+				Player.LIVES = 5;
 
 				FlxG.switchState(new MenuState());
 			});

@@ -32,13 +32,14 @@ typedef LevelData =
 	var player:String;
 }
 
-class PlayState extends GameBaseState
+class PlayState extends BaseState
 {
 	public static var LEVEL:Int = 1;
 	public static var MONEY:Int = 0;
 	public static var TIME:Float = 0;
 	public static var DEMO_END:Bool = false;
 	public static var ENEMIES_DEAD:Int = 0;
+	public static var HUD:HUD;
 
 	// player variables
 	var player:Player;
@@ -54,7 +55,6 @@ class PlayState extends GameBaseState
 
 	// misc
 	var offLimits:Bool = false;
-	var hud:HUD;
 	var finished:Bool = false;
 	var tutorial:FlxTilemapExt;
 
@@ -248,8 +248,8 @@ class PlayState extends GameBaseState
 		// preparar el juego
 		FlxG.camera.follow(player, PLATFORMER, 1);
 
-		hud = new HUD();
-		add(hud);
+		HUD = new HUD();
+		add(HUD);
 
 		#if (cpp && desktop)
 		if (!DEMO_END)
@@ -263,7 +263,7 @@ class PlayState extends GameBaseState
 		#end
 
 		FlxG.cameras.add(uiCamera, false);
-		hud.cameras = [uiCamera];
+		HUD.cameras = [uiCamera];
 		#if mobile
 		pad.cameras = [uiCamera];
 		#end
@@ -277,7 +277,6 @@ class PlayState extends GameBaseState
 	override public function update(elapsed:Float)
 	{
 		super.update(elapsed);
-		Input.update();
 
 		FlxG.collide(player, scenario);
 

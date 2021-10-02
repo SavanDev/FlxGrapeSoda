@@ -11,7 +11,7 @@ typedef PlayerData =
 	var player:String;
 }
 
-class ReadyState extends GameBaseState
+class ReadyState extends BaseState
 {
 	function startCallback(timer:FlxTimer):Void
 	{

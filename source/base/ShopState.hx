@@ -2,8 +2,6 @@ package;
 
 import flixel.FlxG;
 import flixel.FlxSprite;
-import flixel.FlxState;
-import flixel.input.gamepad.FlxGamepad;
 import flixel.text.FlxBitmapText;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
@@ -13,7 +11,7 @@ import flixel.util.FlxTimer;
 import Discord.State;
 #end
 
-class ShopState extends GameBaseState
+class ShopState extends BaseState
 {
 	var INITIAL_X:Int;
 	var GRAPESODA_PRICE:Int = 500;
@@ -153,6 +151,5 @@ class ShopState extends GameBaseState
 	override public function update(elapsed:Float)
 	{
 		super.update(elapsed);
-		Input.update();
 	}
 }

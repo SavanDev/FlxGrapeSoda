@@ -55,6 +55,8 @@ class Player extends FlxSprite
 			trace("Player Hurt!");
 			FlxG.sound.play(Paths.getSound("hurt"));
 			LIVES -= Std.int(damage);
+			if (PlayState.HUD != null)
+				PlayState.HUD.updateLivesCounter(LIVES);
 			super.hurt(damage);
 		}
 		invencible = true;

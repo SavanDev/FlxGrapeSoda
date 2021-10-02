@@ -53,7 +53,7 @@ class HUD extends FlxTypedGroup<FlxSprite>
 		enemyCounter.setBorderStyle(SHADOW, FlxColor.BLACK, 1, 1);
 		enemyCounter.useTextColor = true;
 		liveCounter = new FlxBitmapText(Fonts.DEFAULT);
-		liveCounter.text = "5";
+		liveCounter.text = Std.string(Player.LIVES);
 		liveCounter.setPosition(18, initialY + (spacingY * 3) + 1);
 		liveCounter.setBorderStyle(SHADOW, FlxColor.BLACK, 1, 1);
 		add(moneyCounter);
@@ -63,32 +63,28 @@ class HUD extends FlxTypedGroup<FlxSprite>
 		// forEach(function(sprite) sprite.scrollFactor.set(0, 0));
 	}
 
+	public function updateMoneyCounter(number:Int)
+	{
+		moneyCounter.text = Std.string(number);
+		moneyCounter.textColor = 0xFF008300;
+		new FlxTimer().start(.5, (tmr:FlxTimer) -> moneyCounter.textColor = FlxColor.WHITE);
+	}
+
+	public function updateEnemyCounter(number:Int)
+	{
+		enemyCounter.text = Std.string(number);
+		enemyCounter.textColor = FlxColor.RED;
+		new FlxTimer().start(.5, (tmr:FlxTimer) -> enemyCounter.textColor = FlxColor.WHITE);
+	}
+
+	public function updateLivesCounter(number:Int)
+	{
+		liveCounter.text = Std.string(number);
+	}
+
 	override public function update(elapsed:Float)
 	{
 		super.update(elapsed);
-
-		if (moneyCounter.text != Std.string(PlayState.MONEY))
-		{
-			moneyCounter.textColor = 0xFF008300;
-			new FlxTimer().start(.5, function(timer:FlxTimer)
-			{
-				moneyCounter.textColor = FlxColor.WHITE;
-			});
-		}
-
-		if (enemyCounter.text != Std.string(PlayState.ENEMIES_DEAD))
-		{
-			enemyCounter.textColor = FlxColor.RED;
-			new FlxTimer().start(.5, function(timer:FlxTimer)
-			{
-				enemyCounter.textColor = FlxColor.WHITE;
-			});
-		}
-
-		moneyCounter.text = Std.string(PlayState.MONEY);
-		enemyCounter.text = Std.string(PlayState.ENEMIES_DEAD);
-		liveCounter.text = Std.string(Player.LIVES);
-
 		timer = Math.floor(PlayState.TIME * 100);
 		minutes = Std.int(timer / 100 / 60);
 		seconds = Std.int(timer / 100) - (minutes * 60);

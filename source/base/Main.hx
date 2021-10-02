@@ -2,8 +2,8 @@ package;
 
 import flixel.FlxG;
 import flixel.FlxGame;
-import openfl.display.FPS;
 import openfl.display.Sprite;
+import util.FPSMem;
 
 class Main extends Sprite
 {
@@ -18,7 +18,7 @@ class Main extends Sprite
 		Input.init();
 
 		#if debug
-		addChild(new FPS(5, 5, 0xFFFFFF));
+		addChild(new FPSMem(5, 5, 0xFFFFFF));
 		#end
 	}
 }

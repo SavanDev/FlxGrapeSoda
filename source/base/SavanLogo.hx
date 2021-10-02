@@ -5,7 +5,7 @@ import flixel.FlxSprite;
 import flixel.text.FlxBitmapText;
 import flixel.util.FlxTimer;
 
-class SavanLogo extends GameBaseState
+class SavanLogo extends BaseState
 {
 	var logo:FlxSprite;
 	var logoText:FlxBitmapText;
@@ -44,6 +44,15 @@ class SavanLogo extends GameBaseState
 
 		#if !mobile
 		FlxG.mouse.visible = false;
+		#end
+
+		#if desktop
+		FlxG.save.bind("settings");
+
+		if (FlxG.save.data.fullScreen == null)
+			FlxG.save.data.fullScreen = false;
+		else
+			FlxG.fullscreen = FlxG.save.data.fullScreen;
 		#end
 	}
 
