@@ -2,7 +2,7 @@
 <project>
 	<!-- _________________________ Application Settings _________________________ -->
 
-	<app title="Grape Soda!" file="GrapeSoda" main="Main" version="0.1.0" company="SavanDev" package="com.savandev.grapesoda" />
+	<app title="Grape Soda!" file="GrapeSoda" main="Main" version="0.1.5" company="SavanDev" package="com.savandev.grapesoda" />
 
 	<!--The flixel preloader is not accurate in Chrome. You can use it regularly if you embed the swf into a html file
 		or you can set the actual size of your file manually at "FlxPreloaderBase-onUpdate-bytesTotal"-->
@@ -11,7 +11,7 @@
 	<!-- ____________________________ Window Settings ___________________________ -->
 
 	<!--These window settings apply to all targets-->
-	<window width="640" height="576" fps="60" background="#000000" hardware="true" vsync="true" />
+	<window width="1250" height="720" fps="60" background="#000000" hardware="true" vsync="true" />
 
 	<!--HTML5-specific-->
 	<window if="html5" resizable="false" />
@@ -28,19 +28,23 @@
 	<set name="BUILD_DIR" value="export/release" unless="debug" />
 	<set name="BUILD_DIR" value="export/x86" if="legacyPC" />
 
-	<source name="source/base" />
-
-	<assets path="assets/base" rename="assets" exclude="*.wav" if="web" />
-	<assets path="assets/base" rename="assets" exclude="*/web/*.mp3" unless="web" />
-
-	<assets path="misc/readme.txt" rename="readme.txt" if="desktop" />
-	<assets path="LICENSE" rename="license.txt" />
+	<source name="source" />
 
 	<section if="mobile">
-		<source path="source/mobile" />
+		<assets path="assets/base" rename="assets" />
 		<assets path="assets/mobile" rename="assets" />
 	</section>
 
+	<section if="web">
+		<assets path="assets/base" exclude="*.wav|*.ogg" rename="assets" />
+		<assets path="assets/web" rename="assets" />
+	</section>
+
+	<section unless="mobile|web">
+		<assets path="assets/base" rename="assets" />
+		<assets path="misc/readme.txt" rename="readme.txt" if="desktop" />
+		<assets path="LICENSE" rename="license.txt" />
+	</section>
 	<!-- _______________________________ Libraries ______________________________ -->
 
 	<haxelib name="flixel" />

@@ -5,6 +5,7 @@ import flixel.FlxSprite;
 import flixel.FlxSubState;
 import flixel.text.FlxBitmapText;
 import flixel.util.FlxTimer;
+import util.Timer;
 
 class GameOver extends FlxSubState
 {
@@ -33,7 +34,7 @@ class GameOver extends FlxSubState
 		{
 			// TODO: Hasta que haya algún sistema de guardado
 			PlayState.MONEY = 0;
-			PlayState.TIME = 0;
+			Timer.restart();
 			PlayState.LEVEL = 1;
 			PlayState.DEMO_END = false;
 			Player.LIVES = 5;

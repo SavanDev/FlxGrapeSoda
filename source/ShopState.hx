@@ -13,8 +13,8 @@ import Discord.State;
 
 class ShopState extends BaseState
 {
-	var INITIAL_X:Int;
-	var GRAPESODA_PRICE:Int = 500;
+	static final INITIAL_X:Int = 45;
+	static final GRAPESODA_PRICE:Int = 500;
 
 	var player:Player;
 	var cajera:FlxSprite;
@@ -35,12 +35,6 @@ class ShopState extends BaseState
 		#end
 
 		bgColor = FlxColor.BLACK;
-
-		#if mobile
-		INITIAL_X = 45;
-		#else
-		INITIAL_X = 0;
-		#end
 
 		var background = new FlxSprite(INITIAL_X);
 		background.loadGraphic(Paths.getImage("shopInterior"));

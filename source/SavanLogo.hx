@@ -53,6 +53,11 @@ class SavanLogo extends BaseState
 			FlxG.save.data.fullScreen = false;
 		else
 			FlxG.fullscreen = FlxG.save.data.fullScreen;
+
+		if (FlxG.save.data.soundsEnabled == null)
+			FlxG.save.data.soundsEnabled = true;
+		else
+			FlxG.sound.muted = FlxG.save.data.soundsEnabled;
 		#end
 	}
 

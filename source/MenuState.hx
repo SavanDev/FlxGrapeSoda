@@ -4,6 +4,7 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.addons.display.FlxBackdrop;
 import flixel.addons.editors.ogmo.FlxOgmo3Loader;
+import flixel.group.FlxSpriteGroup;
 import flixel.text.FlxBitmapText;
 import flixel.tile.FlxTilemap;
 import flixel.tweens.FlxTween;
@@ -22,9 +23,7 @@ class MenuState extends BaseState
 	var tileMap:FlxTilemap;
 	var player:Player;
 
-	var logoText1:FlxBitmapText;
-	var logoText2:FlxBitmapText;
-	var logoSoda:FlxSprite;
+	var logo:FlxSpriteGroup;
 	var playText:FlxBitmapText;
 	var versionText:FlxBitmapText;
 	var playTimer:FlxTimer;
@@ -56,7 +55,7 @@ class MenuState extends BaseState
 		// more kills!
 		playText.kill();
 		player.kill();
-		var menu = new Menu(10, 60);
+		var menu = new Menu(10, 30);
 
 		// Main Menu
 		var newGame:MenuItem = {
@@ -112,6 +111,7 @@ class MenuState extends BaseState
 			event: (menu) ->
 			{
 				FlxG.sound.toggleMuted();
+				FlxG.save.data.soundsEnabled = FlxG.sound.muted;
 				menu.changeOptionName('Sound: ${FlxG.sound.muted ? "OFF" : "ON"}');
 			}
 		}
@@ -126,7 +126,9 @@ class MenuState extends BaseState
 		#end
 
 		menu.gotoPage("main");
-		add(menu);
+
+		FlxTween.num(logo.x, logo.x + 50, .5, (v) -> logo.x = v);
+		new FlxTimer().start(.5, (tmr) -> add(menu));
 	}
 
 	override public function create()
@@ -167,30 +169,28 @@ class MenuState extends BaseState
 
 		// logo
 		var logoX = FlxG.width / 2 - LOGO_X;
-		logoText1 = new FlxBitmapText(Fonts.PF_ARMA_FIVE);
-		logoText1.text = "Latin American needs...";
-		logoText1.setPosition(logoX, LOGO_Y);
+		logo = new FlxSpriteGroup(logoX, LOGO_Y);
 
-		logoText2 = new FlxBitmapText(Fonts.PF_ARMA_FIVE_16);
+		var logoText1 = new FlxBitmapText(Fonts.PF_ARMA_FIVE);
+		logoText1.text = "Latin American needs...";
+
+		var logoText2 = new FlxBitmapText(Fonts.PF_ARMA_FIVE_16);
 		logoText2.text = "GRAPE SODA!";
 		logoText2.setBorderStyle(OUTLINE, 0xFF5B315B);
-		logoText2.setPosition(logoX, LOGO_Y + 5);
+		logoText2.setPosition(0, 5);
 
-		logoSoda = new FlxSprite(logoX + 100, LOGO_Y);
+		var logoSoda = new FlxSprite(100, 0);
 		logoSoda.loadGraphic(Paths.getImage("items/grapesoda"), false, 12, 14);
 		logoSoda.setGraphicSize(24, 28);
 		logoSoda.updateHitbox();
 		logoSoda.angle = -10;
-		add(logoText1);
-		add(logoText2);
-		add(logoSoda);
 
-		FlxTween.num(LOGO_Y, LOGO_Y + 3, .5, {type: PINGPONG}, (v:Float) ->
-		{
-			logoText1.y = v;
-			logoText2.y = 5 + v;
-			logoSoda.y = v;
-		});
+		logo.add(logoText1);
+		logo.add(logoText2);
+		logo.add(logoSoda);
+		add(logo);
+
+		FlxTween.num(LOGO_Y, LOGO_Y + 3, .5, {type: PINGPONG}, (v:Float) -> logo.y = v);
 
 		// Escenario
 		FlxG.camera.bgColor = 0xFF64A5FF;

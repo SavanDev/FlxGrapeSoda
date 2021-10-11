@@ -1,4 +1,4 @@
-package;
+package mobile;
 
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.ui.FlxButton;

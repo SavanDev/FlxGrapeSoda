@@ -16,8 +16,12 @@ import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import haxe.Json;
 import lime.utils.Assets;
+import util.Timer;
 #if desktop
 import Discord.State;
+#end
+#if mobile
+import mobile.AndroidPad;
 #end
 
 typedef LevelData =
@@ -36,7 +40,6 @@ class PlayState extends BaseState
 {
 	public static var LEVEL:Int = 1;
 	public static var MONEY:Int = 0;
-	public static var TIME:Float = 0;
 	public static var DEMO_END:Bool = false;
 	public static var ENEMIES_DEAD:Int = 0;
 	public static var HUD:HUD;
@@ -133,6 +136,7 @@ class PlayState extends BaseState
 	function finishLevel(player:Player, flag:Flag)
 	{
 		FlxG.sound.play(Paths.getSound("finish"));
+		Timer.stop();
 		player.canMove = false;
 		player.facing = FlxObject.RIGHT;
 
@@ -149,6 +153,9 @@ class PlayState extends BaseState
 	override public function create()
 	{
 		super.create();
+
+		HUD = new HUD();
+		add(HUD);
 
 		var uiCamera = new FlxCamera(0, 0, FlxG.width, FlxG.height);
 		uiCamera.pixelPerfectRender = true;
@@ -168,6 +175,8 @@ class PlayState extends BaseState
 			add(parallax);
 
 			FlxG.sound.playMusic(Paths.getMusic(level.music));
+
+			Timer.start(HUD);
 		}
 
 		// preparar el nivel
@@ -248,9 +257,6 @@ class PlayState extends BaseState
 		// preparar el juego
 		FlxG.camera.follow(player, PLATFORMER, 1);
 
-		HUD = new HUD();
-		add(HUD);
-
 		#if (cpp && desktop)
 		if (!DEMO_END)
 		{
@@ -303,8 +309,6 @@ class PlayState extends BaseState
 				new FlxTimer().start(1, respawnPlayer);
 				offLimits = true;
 			}
-
-			TIME += elapsed;
 		}
 		else
 		{
@@ -313,7 +317,10 @@ class PlayState extends BaseState
 		}
 
 		if (Input.PAUSE || Input.PAUSE_ALT)
+		{
+			Timer.stop();
 			openSubState(new Pause());
+		}
 
 		#if (debug && desktop)
 		if (FlxG.keys.justPressed.L)

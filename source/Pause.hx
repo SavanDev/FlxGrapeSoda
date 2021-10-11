@@ -5,6 +5,7 @@ import flixel.FlxSprite;
 import flixel.FlxSubState;
 import flixel.text.FlxBitmapText;
 import flixel.util.FlxColor;
+import util.Timer;
 
 class Pause extends FlxSubState
 {
@@ -65,7 +66,10 @@ class Pause extends FlxSubState
 		#end
 
 		if (Input.SELECT || Input.SELECT_ALT)
+		{
+			Timer.start();
 			close();
+		}
 
 		if ((Input.BACK || Input.BACK_ALT) && !exited)
 		{
@@ -74,7 +78,7 @@ class Pause extends FlxSubState
 			{
 				// TODO: Hasta que haya algún sistema de guardado
 				PlayState.MONEY = 0;
-				PlayState.TIME = 0;
+				Timer.restart();
 				PlayState.LEVEL = 1;
 				PlayState.DEMO_END = false;
 				Player.LIVES = 5;
