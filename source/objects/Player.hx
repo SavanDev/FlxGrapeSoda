@@ -1,4 +1,4 @@
-package;
+package objects;
 
 import flixel.FlxG;
 import flixel.FlxObject;
@@ -83,8 +83,9 @@ class Player extends FlxSprite
 		y = Y + offset.y;
 	}
 
-	function movement(elapsed:Float)
+	function movement()
 	{
+		var elapsed:Float = FlxG.elapsed;
 		var jump:Bool = Input.JUMP || Input.JUMP_ALT,
 			left:Bool = Input.LEFT || Input.LEFT_ALT,
 			right:Bool = Input.RIGHT || Input.RIGHT_ALT,
@@ -160,7 +161,7 @@ class Player extends FlxSprite
 		FlxG.watch.add(this, "health");
 
 		if (canMove && !isPunching)
-			movement(elapsed);
+			movement();
 		if (animated)
 			playerAnimation();
 

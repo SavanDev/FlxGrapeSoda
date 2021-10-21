@@ -8,6 +8,7 @@ import flixel.text.FlxBitmapText;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
+import objects.Player;
 import util.Timer;
 
 class HUD extends FlxTypedGroup<FlxSprite>

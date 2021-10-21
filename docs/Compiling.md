@@ -64,13 +64,3 @@ On Arch Linux, you first need to enable the [multilib](https://wiki.archlinux.or
 Then, running "**lime setup linux**" should be enough (needs **sudo**).
 
 > In both, to finish simply use "**lime test linux**" in the root folder.
-
-## Docker (Not recommend yet)
-
-The Dockerfile was made to build Linux and Android more easily. **ONLY WORK ON LINUX**
-
-```console
-# docker build -t grapesoda .
-# docker run -v "$PWD":/opt/FlxGrapeSoda grapesoda          # Compile for Android
-# docker run -v "$PWD":/opt/FlxGrapeSoda grapesoda linux    # Compile for Linux
-```

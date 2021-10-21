@@ -5,6 +5,7 @@ import flixel.text.FlxBitmapText;
 import flixel.util.FlxTimer;
 import haxe.Json;
 import lime.utils.Assets;
+import objects.Player;
 
 typedef PlayerData =
 {

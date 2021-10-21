@@ -12,6 +12,7 @@ import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import lime.app.Application;
 import lime.system.System;
+import objects.Player;
 import util.Menu;
 #if desktop
 import Discord.State;

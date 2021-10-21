@@ -5,6 +5,7 @@ import flixel.FlxSprite;
 import flixel.FlxSubState;
 import flixel.text.FlxBitmapText;
 import flixel.util.FlxColor;
+import objects.Player;
 import util.Timer;
 
 class Pause extends FlxSubState

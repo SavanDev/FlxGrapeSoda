@@ -1,6 +1,5 @@
 package;
 
-import Money.Style;
 import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxObject;
@@ -16,6 +15,11 @@ import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import haxe.Json;
 import lime.utils.Assets;
+import objects.BreakBlock;
+import objects.Enemy;
+import objects.Flag;
+import objects.Money;
+import objects.Player;
 import util.Timer;
 #if desktop
 import Discord.State;
@@ -181,7 +185,7 @@ class PlayState extends BaseState
 
 		// preparar el nivel
 		var map = new FlxOgmo3Loader(Paths.getOgmoData(), Paths.getMap(!DEMO_END ? level.map : "demoEnd"));
-		this.bgColor = !DEMO_END ? FlxColor.fromString(level.backColor) : 0xFF111111;
+		bgColor = !DEMO_END ? FlxColor.fromString(level.backColor) : 0xFF111111;
 
 		var backWalls = map.loadTilemapExt(Paths.getImage("legacy/backTileMap"), "BackBlocks");
 		backWalls.follow();

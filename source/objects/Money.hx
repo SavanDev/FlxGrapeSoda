@@ -1,4 +1,4 @@
-package;
+package objects;
 
 import Discord.State;
 import flixel.FlxG;

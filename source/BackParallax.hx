@@ -17,7 +17,7 @@ class BackParallax extends FlxGroup
 		if (Color != null)
 		{
 			backColor = new FlxSprite(0, lineHeight + 55);
-			backColor.makeGraphic(FlxG.width, 32, Color);
+			backColor.makeGraphic(FlxG.width, 50, Color);
 			backColor.scrollFactor.set(0, 1);
 			add(backColor);
 		}

@@ -1,4 +1,4 @@
-package;
+package objects;
 
 import Discord.State;
 import flixel.FlxG;
@@ -32,6 +32,8 @@ class Enemy extends FlxSprite
 		new FlxTimer().start(.5, function(timer:FlxTimer)
 		{
 			PlayState.MONEY += 15;
+			if (PlayState.HUD != null)
+				PlayState.HUD.updateMoneyCounter(PlayState.MONEY);
 			#if (cpp && desktop)
 			Discord.changePresence(State.Level, PlayState.discordPlayer, PlayState.discordTime);
 			#end
