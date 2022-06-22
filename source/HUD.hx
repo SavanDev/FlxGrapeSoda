@@ -17,7 +17,6 @@ class HUD extends FlxTypedGroup<FlxSprite>
 	static final spacingY:Int = 13;
 
 	static final moneyLength:Int = 5;
-	static final totalLives:Int = 5;
 
 	var moneyCounter:FlxBitmapText;
 	var timeCounter:FlxBitmapText;
@@ -55,7 +54,7 @@ class HUD extends FlxTypedGroup<FlxSprite>
 
 		// lives
 		liveBar = new FlxSpriteGroup(8, initialY + 5);
-		for (i in 0...totalLives)
+		for (i in 0...Game.MAX_LIVES)
 		{
 			var live = new FlxSprite(i * 9, 0);
 			live.loadGraphic(Paths.getImage("hud/live"), true, 8, 8);
@@ -76,7 +75,7 @@ class HUD extends FlxTypedGroup<FlxSprite>
 
 	public function updateLivesCounter(number:Int)
 	{
-		for (i in 0...totalLives)
+		for (i in 0...Game.MAX_LIVES)
 		{
 			liveBar.members[i].animation.frameIndex = (i + 1 <= number) ? 0 : 1;
 

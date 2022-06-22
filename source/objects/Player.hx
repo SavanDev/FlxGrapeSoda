@@ -21,7 +21,7 @@ class Player extends FlxSprite
 	static inline var JUMP_POWER:Float = 100;
 
 	public static var CHARACTER:Character = Dylan;
-	public static var LIVES:Int = 5;
+	public static var LIVES:Int = Game.MAX_LIVES;
 	public static var POWERUP:Bool = false;
 
 	public var canMove:Bool = true;

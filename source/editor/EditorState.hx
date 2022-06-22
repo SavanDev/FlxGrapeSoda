@@ -36,6 +36,9 @@ typedef EntityData =
 
 class EditorState extends BaseState
 {
+	static inline var MAX_WIDTH:Int = Game.WIDTH * 7;
+	static inline var SCROLL_SPEED:Int = 3;
+
 	var editorState:EditorMode = Tilemap;
 	var canChangeState:Bool = true;
 
@@ -48,12 +51,8 @@ class EditorState extends BaseState
 	var blackBackground:FlxSprite;
 
 	var levelMap:FlxTypedGroup<FlxTilemap>;
-	var highlightBorders:FlxSprite;
 	var selectedTile(default, set):Int = 1;
 	var selectedLayer(default, set):Int = 2;
-
-	var offsetView(default, set):Int = 0;
-	var totalViews:Int = 0;
 
 	var editorText:FlxText;
 	var backParallax:BackParallax;
@@ -97,17 +96,6 @@ class EditorState extends BaseState
 		return selectedLayer;
 	}
 
-	function set_offsetView(_newOffset)
-	{
-		if (_newOffset <= totalViews && _newOffset >= 0)
-		{
-			levelMap.forEach((tilemap) -> tilemap.x = _newOffset * (Game.MAP_WIDTH * Game.TILE_SIZE));
-			highlightBorders.x = _newOffset * (Game.MAP_WIDTH * Game.TILE_SIZE);
-			return offsetView = _newOffset;
-		}
-		return offsetView;
-	}
-
 	function setLayerTilePreview()
 	{
 		var path:String = null;
@@ -131,7 +119,7 @@ class EditorState extends BaseState
 
 	public function createMap()
 	{
-		var testMap = [for (i in 0...Game.MAP_WIDTH * Game.MAP_HEIGHT) 0];
+		var testMap = [for (i in 0...MAX_WIDTH * Game.MAP_HEIGHT) 0];
 
 		if (levelMap != null)
 		{
@@ -141,8 +129,6 @@ class EditorState extends BaseState
 				tilemap.destroy();
 			});
 			levelMap.clear();
-			highlightBorders.makeGraphic(Game.WIDTH, Game.HEIGHT, FlxColor.TRANSPARENT);
-			FlxSpriteUtil.drawRect(highlightBorders, 0, 0, Game.WIDTH, Game.HEIGHT, FlxColor.TRANSPARENT, {color: FlxColor.RED});
 		}
 		else
 		{
@@ -151,18 +137,16 @@ class EditorState extends BaseState
 		}
 
 		var layer2 = new FlxTilemap();
-		layer2.loadMapFromArray(testMap, Game.MAP_WIDTH, Game.MAP_HEIGHT, Paths.getImage("tilemaps/backgrass"), Game.TILE_SIZE, Game.TILE_SIZE);
+		layer2.loadMapFromArray(testMap, MAX_WIDTH, Game.MAP_HEIGHT, Paths.getImage("tilemaps/backgrass"), Game.TILE_SIZE, Game.TILE_SIZE);
 		levelMap.add(layer2);
 
 		var layer1 = new FlxTilemap();
-		layer1.loadMapFromArray(testMap, Game.MAP_WIDTH, Game.MAP_HEIGHT, Paths.getImage("tilemaps/objects"), Game.TILE_SIZE, Game.TILE_SIZE);
+		layer1.loadMapFromArray(testMap, MAX_WIDTH, Game.MAP_HEIGHT, Paths.getImage("tilemaps/objects"), Game.TILE_SIZE, Game.TILE_SIZE);
 		levelMap.add(layer1);
 
 		var layer0 = new FlxTilemap();
-		layer0.loadMapFromArray(testMap, Game.MAP_WIDTH, Game.MAP_HEIGHT, Paths.getImage("tilemaps/grass"), Game.TILE_SIZE, Game.TILE_SIZE, FULL);
+		layer0.loadMapFromArray(testMap, MAX_WIDTH, Game.MAP_HEIGHT, Paths.getImage("tilemaps/grass"), Game.TILE_SIZE, Game.TILE_SIZE, FULL);
 		levelMap.add(layer0);
-
-		offsetView = 0;
 	}
 
 	/*
@@ -216,11 +200,11 @@ class EditorState extends BaseState
 			backParallax.y--;
 
 		// Ajustes para el "offset"
-		if (FlxG.keys.justPressed.RIGHT)
-			offsetView++;
+		if (FlxG.keys.pressed.RIGHT && FlxG.camera.scroll.x <= MAX_WIDTH - Game.WIDTH)
+			FlxG.camera.scroll.x += SCROLL_SPEED;
 
-		if (FlxG.keys.justPressed.LEFT)
-			offsetView--;
+		if (FlxG.keys.pressed.LEFT && FlxG.camera.scroll.x >= 0)
+			FlxG.camera.scroll.x -= SCROLL_SPEED;
 
 		// Cambiar "tile" seleccionado
 		if (selectedLayer != 2)
@@ -425,11 +409,6 @@ class EditorState extends BaseState
 		add(backParallax);
 
 		// UI stuff
-		highlightBorders = new FlxSprite(0, 0);
-		highlightBorders.makeGraphic(Game.MAP_WIDTH * 12, Game.MAP_HEIGHT * 12, FlxColor.TRANSPARENT);
-		add(highlightBorders);
-		FlxSpriteUtil.drawRect(highlightBorders, 0, 0, Game.MAP_WIDTH * 12, Game.MAP_HEIGHT * 12, FlxColor.TRANSPARENT, {color: FlxColor.RED});
-
 		uiBorder = new FlxSprite(0, FlxG.height - 16);
 		uiBorder.makeGraphic(FlxG.width, 16, 0xFF0163C6);
 		add(uiBorder);
@@ -470,7 +449,7 @@ class EditorState extends BaseState
 		// Selector y función para colocar y sacar
 		mouseX = Std.int(FlxG.mouse.x / Game.TILE_SIZE);
 		mouseY = Std.int(FlxG.mouse.y / Game.TILE_SIZE);
-		levelSize = new FlxRect(0, 0, (Game.WIDTH * (totalViews + 1)) - 1, Game.HEIGHT - 1);
+		levelSize = new FlxRect(0, 0, MAX_WIDTH - 1, Game.HEIGHT - 1);
 
 		switch (editorState)
 		{
@@ -483,7 +462,7 @@ class EditorState extends BaseState
 			default:
 		}
 
-		if (FlxG.mouse.getPosition().inRect(uiBorder.getHitbox()) || FlxG.mouse.getPosition().inRect(sprLayers.getHitbox()))
+		if (FlxG.mouse.getPosition().y >= sprLayers.y)
 		{
 			if (uiBorder.alpha > .5)
 				uiBorder.alpha = sprLayers.alpha -= .1;

@@ -56,7 +56,7 @@ class MenuState extends BaseState
 		playText.kill();
 		player.kill();
 
-		var menu = new Menu(10, 30);
+		var menu = new Menu(10, Game.HEIGHT / 2 - 15);
 
 		// Main Menu
 		var newGame:MenuItem = {
@@ -142,9 +142,10 @@ class MenuState extends BaseState
 		#end
 
 		menu.gotoPage("main");
+		add(menu);
 
-		FlxTween.num(logo.x, logo.x + 50, .5, (v) -> logo.x = v);
-		new FlxTimer().start(.5, (tmr) -> add(menu));
+		// FlxTween.num(logo.x, logo.x + 50, .5, (v) -> logo.x = v);
+		// new FlxTimer().start(.5, (tmr) -> add(menu));
 	}
 
 	override public function create()

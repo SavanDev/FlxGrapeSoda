@@ -267,7 +267,7 @@ class PlayState extends BaseState
 		#end
 
 		// preparar el juego
-		FlxG.camera.follow(player, PLATFORMER);
+		FlxG.camera.follow(player, PLATFORMER, .1);
 
 		#if (cpp && desktop)
 		if (!DEMO_END)
