@@ -29,7 +29,7 @@ class BackParallax extends FlxGroup
 		{
 			colorFondo = color;
 			parallaxRelleno = new FlxSprite(0, horizonte + (parallax.height / 1.5));
-			parallaxRelleno.makeGraphic(Game.WIDTH, Std.int(Game.HEIGHT - parallaxRelleno.y), color);
+			parallaxRelleno.makeGraphic(Game.WIDTH, Std.int((Game.HEIGHT * 1.25) - parallaxRelleno.y), color);
 			parallaxRelleno.scrollFactor.set(0, 1);
 		}
 

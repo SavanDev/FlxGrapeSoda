@@ -52,40 +52,21 @@ class Player extends FlxSprite
 			case Asdonaur:
 				skin = Paths.getImage("player/asdonaur");
 		}
+		loadGraphic(skin, true, 13, 20);
 
-		if (CHARACTER == Dylan && POWERUP)
-		{
-			loadGraphic(Paths.getImage("player/player"), true, 13, 26);
+		// para las colisiones
+		setSize(8, 18);
+		offset.set(3, 2);
 
-			// para las colisiones
-			setSize(9, 24);
-			offset.set(4, 2);
-
-			// para las animaciones
-			setFacingFlip(FlxObject.LEFT, true, false);
-			setFacingFlip(FlxObject.RIGHT, false, false);
-			animation.add("default", [0, 1, 2, 3], 3);
-			animation.add("walk", [10, 11, 12, 13, 14, 15, 16, 17, 18, 19], 8);
-			animation.add("jump", [20], 0);
-		}
-		else
-		{
-			loadGraphic(skin, true, 13, 20);
-
-			// para las colisiones
-			setSize(8, 18);
-			offset.set(3, 2);
-
-			// para las animaciones
-			setFacingFlip(FlxObject.LEFT, true, false);
-			setFacingFlip(FlxObject.RIGHT, false, false);
-			animation.add("default", [1, 2], 3);
-			animation.add("walk", [3, 4, 3, 5], 5);
-			animation.add("jump", [6], 0);
-			animation.add("sad", [9], 0);
-			animation.add("happy", [10], 0);
-			animation.add("punch", [12, 13, 14, 14, 13, 12], 12, false);
-		}
+		// para las animaciones
+		setFacingFlip(FlxObject.LEFT, true, false);
+		setFacingFlip(FlxObject.RIGHT, false, false);
+		animation.add("default", [1, 2], 3);
+		animation.add("walk", [3, 4, 3, 5], 5);
+		animation.add("jump", [6], 0);
+		animation.add("sad", [9], 0);
+		animation.add("happy", [10], 0);
+		animation.add("punch", [12, 13, 14, 14, 13, 12], 12, false);
 	}
 
 	override public function hurt(damage:Float)
