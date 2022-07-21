@@ -42,11 +42,11 @@ class ShopState extends BaseState
 		background.screenCenter(X);
 		add(background);
 
-		player = new Player(10, 116, true);
+		player = new Player(background.x + 10, 116, true);
 		player.velocity.x = Player.SPEED / 2;
 		add(player);
 
-		cajera = new FlxSprite(90, 110);
+		cajera = new FlxSprite(background.x + 90, 110);
 		cajera.loadGraphic(Paths.getImage("cashier"), true, 12, 24);
 		cajera.animation.add("default", [0, 1], 4);
 		cajera.animation.add("angry", [3, 4], 4);

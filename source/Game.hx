@@ -4,7 +4,7 @@ class Game
 {
 	public static inline var PIXEL_PERFECT:Bool = false;
 	public static inline var TILE_SIZE:Int = 12;
-	public static inline var MAP_WIDTH:Int = 12;
+	public static inline var MAP_WIDTH:Int = 21;
 	public static inline var MAP_HEIGHT:Int = 12;
 
 	public static inline var WIDTH:Int = TILE_SIZE * MAP_WIDTH;

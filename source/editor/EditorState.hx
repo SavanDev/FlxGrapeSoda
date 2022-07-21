@@ -11,6 +11,7 @@ import flixel.text.FlxText;
 import flixel.tile.FlxTilemap;
 import flixel.util.FlxColor;
 import flixel.util.FlxSpriteUtil;
+import haxe.Json;
 import openfl.utils.Dictionary;
 import types.Entity;
 
@@ -18,11 +19,13 @@ enum EditorMode
 {
 	Tilemap;
 	Entity;
+	PlayerSelection;
 }
 
 class EditorState extends BaseState
 {
-	static inline var MAX_WIDTH:Int = Game.WIDTH * 7;
+	static inline var UI_ZOOM:Float = .1;
+	static inline var MAX_WIDTH:Int = Game.WIDTH * 6;
 	static inline var SCROLL_SPEED:Int = 3;
 
 	var editorState:EditorMode = Tilemap;
@@ -48,10 +51,16 @@ class EditorState extends BaseState
 	var mouseY:Int;
 	var levelSize:FlxRect;
 
+	// Player selector
+	var selectorText:FlxGroup;
+	var players:FlxSpriteGroup;
+	var playerSelected:String = "dylan";
+
 	// Tilemap
 	var highlightBox:FlxSprite;
 	var tileSelectedSprite:FlxSprite;
 	var textPos:FlxBitmapText;
+	var posBackground:FlxSprite;
 
 	// Entities
 	var currentEntity:FlxSprite;
@@ -63,6 +72,7 @@ class EditorState extends BaseState
 
 	var actualEntity:Int = 0;
 	var levelHasPlayer:Bool = false;
+	var levelHasFlag:Bool = false;
 
 	// Map Editor functions!
 	function set_selectedTile(_newTile)
@@ -145,11 +155,6 @@ class EditorState extends BaseState
 		tileSelectedSprite.loadGraphic(Paths.getImage("tilemaps/grass"), true, 12, 12);
 		tilemapUI.add(tileSelectedSprite);
 
-		textPos = new FlxBitmapText();
-		textPos.setPosition(16, Game.HEIGHT - 14);
-		textPos.text = "X: 0\nY: 0";
-		tilemapUI.add(textPos);
-
 		// Map stuff
 		createMap();
 
@@ -158,7 +163,6 @@ class EditorState extends BaseState
 		tilemapUI.add(highlightBox);
 
 		tileSelectedSprite.cameras = [uiCamera];
-		textPos.cameras = [uiCamera];
 
 		add(tilemapUI);
 	}
@@ -186,13 +190,6 @@ class EditorState extends BaseState
 		if (FlxG.keys.justPressed.NUMPADTWO)
 			backParallax.y--;
 
-		// Ajustes para el "offset"
-		if (FlxG.keys.pressed.RIGHT && FlxG.camera.scroll.x < MAX_WIDTH - Game.WIDTH)
-			FlxG.camera.scroll.x += SCROLL_SPEED;
-
-		if (FlxG.keys.pressed.LEFT && FlxG.camera.scroll.x > 0)
-			FlxG.camera.scroll.x -= SCROLL_SPEED;
-
 		// Cambiar "tile" seleccionado
 		if (selectedLayer != 2)
 		{
@@ -212,8 +209,6 @@ class EditorState extends BaseState
 
 		if (FlxG.keys.justPressed.THREE)
 			selectedLayer = 0;
-
-		textPos.text = 'X: $mouseX\nY: $mouseY';
 		#end
 	}
 
@@ -228,6 +223,7 @@ class EditorState extends BaseState
 
 		currentEntityName = new FlxText(2, Game.HEIGHT - 18);
 		currentEntityName.setFormat("assets/fonts/Toy.ttf", 16);
+		currentEntityName.text = "PLAYER";
 		entityUI.add(currentEntityName);
 
 		loadEntity(currentEntity);
@@ -258,46 +254,67 @@ class EditorState extends BaseState
 			changeEntityPreview();
 		}
 
-		if (FlxG.mouse.justPressed && ((actualEntity == 0 && !levelHasPlayer) || actualEntity != 0))
+		if (FlxG.mouse.justPressed)
 		{
-			var entityPos:FlxPoint = new FlxPoint(currentEntity.x, currentEntity.y);
-			var newEntitySprite:FlxSprite = new FlxSprite(entityPos.x, entityPos.y);
-			var newEntity:Entity = {
-				type: actualEntity,
-				x: entityPos.x,
-				y: entityPos.y
-			};
-
-			loadEntity(newEntitySprite);
-			levelEntities.add(newEntitySprite);
-			entitiesPositions.insert(entitiesPositions.length - 1, newEntity);
-			// con FlxPoint no funciona, por lo que guardemoslo como la suma de sus ejes
-			entitiesDictionary.set(mouseX + mouseY, entitiesPositions.length - 1);
-
-			if (actualEntity == 0 && !levelHasPlayer)
-				levelHasPlayer = true;
+			if (actualEntity == 0 && levelHasPlayer)
+				trace("¡Ya tienes un jugador!");
+			else if (actualEntity == 3 && levelHasFlag)
+				trace("¡Ya tienes una bandera!");
+			else
+				addEntityToMap();
 		}
 
 		if (FlxG.mouse.justPressedRight)
 		{
-			var entityPos:Int = mouseX + mouseY; // ID improvisado
-			if (entitiesDictionary.exists(entityPos))
-			{
-				var entityIndex:Int = entitiesDictionary.get(entityPos);
-				var entity = levelEntities.members[entityIndex];
-				var entityData = entitiesPositions[entityIndex];
-
-				if (entityData.type == 0)
-					levelHasPlayer = false;
-
-				levelEntities.remove(entity);
-				entity.destroy();
-
-				entitiesPositions.remove(entityData);
-				entitiesDictionary.remove(entityPos);
-			}
+			removeEntityToMap();
 		}
 		#end
+	}
+
+	function addEntityToMap()
+	{
+		var entityPos:FlxPoint = new FlxPoint(currentEntity.x, currentEntity.y);
+		var newEntitySprite:FlxSprite = new FlxSprite(entityPos.x, entityPos.y);
+		var newEntity:Entity = {
+			type: actualEntity,
+			x: entityPos.x,
+			y: entityPos.y
+		};
+
+		loadEntity(newEntitySprite);
+		levelEntities.add(newEntitySprite);
+		entitiesPositions.insert(entitiesPositions.length - 1, newEntity);
+		// con FlxPoint no funciona, por lo que guardemoslo como la suma de sus ejes
+		entitiesDictionary.set(mouseX + mouseY, entitiesPositions.length - 1);
+
+		if (actualEntity == 0)
+			levelHasPlayer = true;
+
+		if (actualEntity == 3)
+			levelHasFlag = true;
+	}
+
+	function removeEntityToMap()
+	{
+		var entityPos:Int = mouseX + mouseY; // ID improvisado
+		if (entitiesDictionary.exists(entityPos))
+		{
+			var entityIndex:Int = entitiesDictionary.get(entityPos);
+			var entity = levelEntities.members[entityIndex];
+			var entityData = entitiesPositions[entityIndex];
+
+			if (entityData.type == 0)
+				levelHasPlayer = false;
+
+			if (entityData.type == 3)
+				levelHasFlag = false;
+
+			levelEntities.remove(entity);
+			entity.destroy();
+
+			entitiesPositions.remove(entityData);
+			entitiesDictionary.remove(entityPos);
+		}
 	}
 
 	function changeEntityPreview()
@@ -322,13 +339,6 @@ class EditorState extends BaseState
 		loadEntity(currentEntity);
 	}
 
-	/*
-		Entity ID:
-		0 -> Player
-		1 -> Enemy
-		2 -> Coin
-		3 -> Flag
-	 */
 	function loadEntity(entity:FlxSprite)
 	{
 		switch (actualEntity)
@@ -342,6 +352,142 @@ class EditorState extends BaseState
 			case 3:
 				entity.loadGraphic(Paths.getImage('items/flag'), true, 24, 48);
 		}
+	}
+
+	/*
+		Player selector
+		Entity ID:
+		0 -> Player
+		1 -> Enemy
+		2 -> Coin
+		3 -> Flag
+	 */
+	function onPlayersCreate()
+	{
+		var names = ["dylan", "luka", "watanoge", "asdonaur"];
+		var baseX:Int = 0;
+		players = new FlxSpriteGroup();
+		selectorText = new FlxGroup();
+
+		for (v in names)
+		{
+			var player:FlxSprite = new FlxSprite(baseX);
+			player.loadGraphic(Paths.getImage('skins/$v'), true, 12, 24);
+			player.animation.add("default", [1, 2], 3);
+			player.animation.play("default");
+			players.add(player);
+
+			var playerNumber:FlxBitmapText = new FlxBitmapText();
+			playerNumber.setPosition(baseX + 4, player.y + player.height + 5);
+			playerNumber.text = baseX == 0 ? "1" : '${(baseX / 20) + 1}';
+			players.add(playerNumber);
+
+			baseX += 20;
+		}
+
+		var titleSelector:FlxText = new FlxText(0, 35, "Select a player!");
+		titleSelector.screenCenter(X);
+		players.screenCenter();
+
+		selectorText.add(titleSelector);
+		selectorText.add(players);
+		selectorText.visible = false;
+		add(selectorText);
+
+		selectorText.cameras = [uiCamera];
+	}
+
+	function onPlayersUpdate()
+	{
+		#if desktop
+		if (FlxG.keys.justPressed.ONE)
+		{
+			playerSelected = "dylan";
+			if (actualEntity == 0)
+				loadPlayer(currentEntity);
+
+			canChangeState = true;
+			blackBackground.visible = false;
+			selectorText.visible = false;
+			changeState(Entity);
+		}
+
+		if (FlxG.keys.justPressed.TWO)
+		{
+			playerSelected = "luka";
+			if (actualEntity == 0)
+				loadPlayer(currentEntity);
+
+			canChangeState = true;
+			blackBackground.visible = false;
+			selectorText.visible = false;
+			changeState(Entity);
+		}
+
+		if (FlxG.keys.justPressed.THREE)
+		{
+			playerSelected = "watanoge";
+			if (actualEntity == 0)
+				loadPlayer(currentEntity);
+
+			canChangeState = true;
+			blackBackground.visible = false;
+			selectorText.visible = false;
+			changeState(Entity);
+		}
+
+		if (FlxG.keys.justPressed.FOUR)
+		{
+			playerSelected = "asdonaur";
+			if (actualEntity == 0)
+				loadPlayer(currentEntity);
+
+			canChangeState = true;
+			blackBackground.visible = false;
+			selectorText.visible = false;
+			changeState(Entity);
+		}
+		#end
+	}
+
+	function loadPlayer(sprite:FlxSprite)
+	{
+		trace("TODO: Not implemented yet!");
+	}
+
+	/*
+		Level data generation
+	 */
+	function getEntitiesData()
+	{
+		return Json.stringify(entitiesPositions);
+	}
+
+	function getMapData(layer:Int)
+	{
+		/*
+			0 => layer 2
+			1 => layer 1
+			2 => layer 0
+		 */
+		if (layer >= 0 && layer <= 2)
+		{
+			if (layer != 0)
+				return Json.stringify(levelMap.members[2 - layer].getData());
+			else
+				return Json.stringify(levelMap.members[2 - layer].getData(true));
+		}
+		else
+			return null;
+	}
+
+	function generateJSONLevel()
+	{
+		var result = {
+			layers: [getMapData(0), getMapData(1), getMapData(2)],
+			entities: getEntitiesData()
+		};
+		return Json.stringify(result, "\t");
 	}
 
 	/*
@@ -368,6 +514,17 @@ class EditorState extends BaseState
 		uiBorder.makeGraphic(FlxG.width, 16, 0xFF0163C6);
 		add(uiBorder);
 
+		var infoPositionX:Float = Game.WIDTH / 2 + 30;
+
+		posBackground = new FlxSprite(infoPositionX, Game.HEIGHT - 16);
+		posBackground.makeGraphic(30, 16, 0xFF004D99);
+		add(posBackground);
+
+		textPos = new FlxBitmapText();
+		textPos.setPosition(infoPositionX + 2, Game.HEIGHT - 14);
+		textPos.text = "X: 0\nY: 0";
+		add(textPos);
+
 		onEditorCreate();
 		onEntityCreate();
 
@@ -384,11 +541,19 @@ class EditorState extends BaseState
 		blackBackground.visible = false;
 		add(blackBackground);
 
+		onPlayersCreate();
+
 		// Configurar cámaras
 		uiBorder.cameras = [uiCamera];
 		sprLayers.cameras = [uiCamera];
 		editorText.cameras = [uiCamera];
 		blackBackground.cameras = [uiCamera];
+		posBackground.cameras = [uiCamera];
+		textPos.cameras = [uiCamera];
+
+		/*var repositionUI:Float = (numberZoomed(Game.WIDTH) - Game.WIDTH) / 2 + .01;
+			uiCamera.setPosition(-repositionUI, -repositionUI);
+			uiCamera.zoom -= UI_ZOOM; */
 
 		FlxG.camera.bgColor = 0xFF64A5FF;
 		changeState(Tilemap);
@@ -410,18 +575,19 @@ class EditorState extends BaseState
 				onEditorUpdate();
 			case Entity:
 				onEntityUpdate();
-			default:
+			case PlayerSelection:
+				onPlayersUpdate();
 		}
 
 		if (FlxG.mouse.getPosition().y >= sprLayers.y)
 		{
 			if (uiBorder.alpha > .5)
-				uiBorder.alpha = sprLayers.alpha -= .1;
+				uiBorder.alpha = posBackground.alpha = sprLayers.alpha -= .1;
 		}
 		else
 		{
 			if (uiBorder.alpha < 1)
-				uiBorder.alpha = sprLayers.alpha += .1;
+				uiBorder.alpha = posBackground.alpha = sprLayers.alpha += .1;
 		}
 
 		if (FlxG.keys.justPressed.U)
@@ -434,6 +600,9 @@ class EditorState extends BaseState
 
 			if (FlxG.keys.justPressed.T)
 				changeState(Tilemap);
+
+			if (FlxG.keys.justPressed.P)
+				changeState(PlayerSelection);
 		}
 
 		if (FlxG.keys.justPressed.ESCAPE)
@@ -442,10 +611,25 @@ class EditorState extends BaseState
 			FlxG.switchState(new MenuState());
 		}
 
+		// Ajustes para el "offset"
+		if (FlxG.keys.pressed.RIGHT && FlxG.camera.scroll.x < MAX_WIDTH - Game.WIDTH)
+			FlxG.camera.scroll.x += SCROLL_SPEED;
+
+		if (FlxG.keys.pressed.LEFT && FlxG.camera.scroll.x > 0)
+			FlxG.camera.scroll.x -= SCROLL_SPEED;
+
+		textPos.text = 'X: $mouseX\nY: $mouseY';
+
+		#if debug
+		// TESTING ONLY
+		if (FlxG.keys.justPressed.K)
+			trace(generateJSONLevel());
+
 		FlxG.watch.addQuick("Mouse X", mouseX);
 		FlxG.watch.addQuick("Mouse Y", mouseY);
 		FlxG.watch.addQuick("Mouse Sel. X", mouseX * Game.TILE_SIZE);
 		FlxG.watch.addQuick("Mouse Sel. Y", mouseY * Game.TILE_SIZE);
+		#end
 		#end
 	}
 
@@ -456,6 +640,7 @@ class EditorState extends BaseState
 			case Tilemap:
 				tilemapUI.visible = true;
 				entityUI.visible = false;
+				highlightBox.visible = true;
 				setLayerTilePreview();
 				editorText.text = "LEVEL EDITOR";
 			case Entity:
@@ -463,8 +648,18 @@ class EditorState extends BaseState
 				entityUI.visible = true;
 				sprLayers.animation.frameIndex = 3;
 				editorText.text = "ENTITY EDITOR";
-			default:
+			case PlayerSelection:
+				blackBackground.visible = true;
+				selectorText.visible = true;
+				canChangeState = false;
+				highlightBox.visible = false;
 		}
 		editorState = state;
+	}
+
+	function numberZoomed<T:Float & Int>(num:T):Dynamic
+	{
+		var realZoomConvertion = 1 + UI_ZOOM;
+		return Std.isOfType(num, Int) ? Std.int(num * realZoomConvertion) : num * realZoomConvertion;
 	}
 }

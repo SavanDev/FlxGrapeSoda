@@ -56,7 +56,7 @@ class MenuState extends BaseState
 		playText.kill();
 		player.kill();
 
-		var menu = new Menu(10, Game.HEIGHT / 2 - 15);
+		var menu = new Menu(10, 30);
 
 		// Main Menu
 		var newGame:MenuItem = {
@@ -142,10 +142,10 @@ class MenuState extends BaseState
 		#end
 
 		menu.gotoPage("main");
-		add(menu);
+		// add(menu);
 
-		// FlxTween.num(logo.x, logo.x + 50, .5, (v) -> logo.x = v);
-		// new FlxTimer().start(.5, (tmr) -> add(menu));
+		FlxTween.num(logo.x, logo.x + 50, .5, (v) -> logo.x = v);
+		new FlxTimer().start(.5, (tmr) -> add(menu));
 	}
 
 	override public function create()
@@ -232,7 +232,7 @@ class MenuState extends BaseState
 
 		// texto de la versión
 		versionText = new FlxBitmapText(Fonts.TOY);
-		versionText.text = 'v${Application.current.meta.get("version")}';
+		versionText.text = 'Alpha v${Application.current.meta.get("version")}';
 		versionText.alignment = RIGHT;
 		versionText.setPosition(FlxG.width - versionText.getStringWidth(versionText.text) - 10, FlxG.height - 15);
 		add(versionText);
