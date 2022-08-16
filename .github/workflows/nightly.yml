@@ -85,7 +85,7 @@ jobs:
           path: export/release/${{ matrix.platform }}/bin
   
   android:
-    name: Build for Android
+    name: Build for Android test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
