@@ -17,7 +17,6 @@ class HUD extends FlxTypedGroup<FlxSprite>
 	static final spacingY:Int = 13;
 
 	static final moneyLength:Int = 5;
-	static final totalLives:Int = 5;
 
 	var moneyCounter:FlxBitmapText;
 	var timeCounter:FlxBitmapText;
@@ -55,7 +54,7 @@ class HUD extends FlxTypedGroup<FlxSprite>
 
 		// lives
 		liveBar = new FlxSpriteGroup(8, initialY + 5);
-		for (i in 0...totalLives)
+		for (i in 0...Game.MAX_LIVES)
 		{
 			var live = new FlxSprite(i * 9, 0);
 			live.loadGraphic(Paths.getImage("hud/live"), true, 8, 8);
@@ -76,12 +75,9 @@ class HUD extends FlxTypedGroup<FlxSprite>
 
 	public function updateLivesCounter(number:Int)
 	{
-		for (i in 0...totalLives)
+		for (i in 0...Game.MAX_LIVES)
 		{
-			if (i + 1 <= number)
-				liveBar.members[i].animation.frameIndex = 0;
-			else
-				liveBar.members[i].animation.frameIndex = 1;
+			liveBar.members[i].animation.frameIndex = (i + 1 <= number) ? 0 : 1;
 
 			// Esto es un lio... pero funciona
 			new FlxTimer().start(.1 * i, (tmr) ->
@@ -111,11 +107,8 @@ class HUD extends FlxTypedGroup<FlxSprite>
 		timeCounter.text = '$minutesText:$secondsText';
 	}
 
-	function writeZeros(left:Int) // Cobo, yo te banco!
+	function writeZeros(left:Int)
 	{
-		if (left > 0)
-			return "0" + writeZeros(left - 1);
-		else
-			return "0";
+		return (left > 0) ? "0" + writeZeros(left - 1) : "0";
 	}
 }

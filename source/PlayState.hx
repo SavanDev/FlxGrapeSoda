@@ -1,6 +1,5 @@
 package;
 
-import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.FlxSprite;
@@ -161,10 +160,6 @@ class PlayState extends BaseState
 		HUD = new HUD();
 		add(HUD);
 
-		var uiCamera = new FlxCamera(0, 0, FlxG.width, FlxG.height);
-		uiCamera.pixelPerfectRender = true;
-		uiCamera.bgColor = FlxColor.TRANSPARENT;
-
 		var level:LevelData = null;
 		scenario = new FlxGroup();
 
@@ -185,7 +180,7 @@ class PlayState extends BaseState
 
 		// preparar el nivel
 		var map = new FlxOgmo3Loader(Paths.getOgmoData(), Paths.getMap(!DEMO_END ? level.map : "demoEnd"));
-		bgColor = !DEMO_END ? FlxColor.fromString(level.backColor) : 0xFF111111;
+		FlxG.camera.bgColor = !DEMO_END ? FlxColor.fromString(level.backColor) : 0xFF111111;
 
 		var backWalls = map.loadTilemapExt(Paths.getImage("legacy/backTileMap"), "BackBlocks");
 		backWalls.follow();
@@ -206,7 +201,7 @@ class PlayState extends BaseState
 		#if !mobile
 		var keysPath:String = Paths.getImage("keys");
 		#if desktop
-		if (FlxG.gamepads.lastActive != null)
+		if (Input.isGamepadConnected)
 			keysPath = Paths.getImage("keysGamepad");
 		#end
 		tutorial = map.loadTilemapExt(keysPath, "Keys");
@@ -259,7 +254,7 @@ class PlayState extends BaseState
 		#end
 
 		// preparar el juego
-		FlxG.camera.follow(player, PLATFORMER, 1);
+		FlxG.camera.follow(player, PLATFORMER, .1);
 
 		#if (cpp && desktop)
 		if (!DEMO_END)
@@ -272,7 +267,6 @@ class PlayState extends BaseState
 			Discord.changePresence(State.DemoEnd);
 		#end
 
-		FlxG.cameras.add(uiCamera, false);
 		HUD.cameras = [uiCamera];
 		#if mobile
 		pad.cameras = [uiCamera];
@@ -323,7 +317,8 @@ class PlayState extends BaseState
 		if (Input.PAUSE || Input.PAUSE_ALT)
 		{
 			Timer.stop();
-			openSubState(new Pause());
+			persistentUpdate = false;
+			openSubState(new substates.Pause());
 		}
 
 		#if (debug && desktop)
@@ -338,6 +333,6 @@ class PlayState extends BaseState
 		#end
 
 		if (player.health <= 0)
-			openSubState(new GameOver());
+			openSubState(new substates.GameOver());
 	}
 }

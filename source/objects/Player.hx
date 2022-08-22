@@ -10,7 +10,7 @@ class Player extends FlxSprite
 {
 	public static inline var SPEED:Float = 75;
 	public static var SKIN:String = Paths.getImage("player/dylan");
-	public static var LIVES:Int = 5;
+	public static var LIVES:Int = Game.MAX_LIVES;
 	static inline var GRAVITY:Float = 300;
 	static inline var JUMP_POWER:Float = 100;
 

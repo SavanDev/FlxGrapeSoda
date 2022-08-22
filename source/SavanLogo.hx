@@ -3,85 +3,50 @@ package;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.text.FlxBitmapText;
+import flixel.tweens.FlxTween;
 import flixel.util.FlxTimer;
 
 class SavanLogo extends BaseState
 {
-	var logo:FlxSprite;
-	var logoText:FlxBitmapText;
+	static inline var WAIT_TIME:Int = 3;
 
 	override public function create()
 	{
 		super.create();
-		Fonts.loadBitmapFonts();
+		Game.initialize();
 		FlxG.camera.zoom = 2;
 
-		FlxG.camera.fade(1, true, () ->
+		var letter = new FlxSprite(Paths.getImage("logo/SDPixel2"));
+		letter.screenCenter();
+		letter.y -= 5;
+
+		var logo = new FlxSprite(letter.x, letter.y, Paths.getImage("logo/SDPixel"));
+		var sdText = new FlxBitmapText(Fonts.DEFAULT);
+		sdText.text = "SavanDev";
+		sdText.screenCenter();
+		sdText.y += 20;
+
+		add(logo);
+		add(letter);
+		add(sdText);
+
+		letter.visible = false;
+		logo.alpha = 0;
+		sdText.alpha = 0;
+
+		new FlxTimer().start(.5, (_) ->
 		{
-			new FlxTimer().start(1.5, (timer:FlxTimer) ->
+			letter.visible = true;
+			new FlxTimer().start(1, (_) ->
 			{
-				FlxG.camera.fade(1, () -> {
-					#if nightly
-					nightlyText();
-					#else
-					FlxG.switchState(new MenuState());
-					#end
-				});
+				FlxTween.num(0, 1, WAIT_TIME - 2, {onComplete: (_) -> new FlxTimer().start(2, nextScene)}, (v) -> logo.alpha = sdText.alpha = v);
 			});
 		});
-
-		logo = new FlxSprite();
-		logo.loadGraphic(Paths.getImage("SDPixel"));
-		logo.screenCenter();
-		logo.y -= 5;
-		add(logo);
-
-		logoText = new FlxBitmapText(Fonts.DEFAULT);
-		logoText.text = "SavanDev";
-		logoText.screenCenter();
-		logoText.y += 20;
-		add(logoText);
-
-		#if !mobile
-		FlxG.mouse.visible = false;
-		#end
-
-		#if desktop
-		FlxG.save.bind("settings");
-
-		if (FlxG.save.data.fullScreen == null)
-			FlxG.save.data.fullScreen = false;
-		else
-			FlxG.fullscreen = FlxG.save.data.fullScreen;
-
-		if (FlxG.save.data.soundsEnabled == null)
-			FlxG.save.data.soundsEnabled = true;
-		else
-			FlxG.sound.muted = FlxG.save.data.soundsEnabled;
-		#end
 	}
 
-	function nightlyText()
+	function nextScene(timer:FlxTimer)
 	{
-		remove(logo);
-		remove(logoText);
-
-		FlxG.camera.zoom = 1;
-
-		var warningNightly = new FlxBitmapText(Fonts.TOY);
-		warningNightly.autoSize = false;
-		warningNightly.fieldWidth = FlxG.width - 25;
-		warningNightly.text = "WARNING:\nThe game is in an early stage of its development and many items may not yet be implemented/completed.";
-		warningNightly.alignment = CENTER;
-		warningNightly.screenCenter();
-		add(warningNightly);
-
-		FlxG.camera.fade(1, true, () ->
-		{
-			new FlxTimer().start(4, (_) ->
-			{
-				FlxG.camera.fade(1, () -> FlxG.switchState(new MenuState()));
-			});
-		});
+		trace("Let's go!");
+		FlxG.switchState(new MenuState());
 	}
 }

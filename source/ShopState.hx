@@ -14,7 +14,6 @@ import Discord.State;
 
 class ShopState extends BaseState
 {
-	static final INITIAL_X:Int = 45;
 	static final GRAPESODA_PRICE:Int = 500;
 
 	var player:Player;
@@ -35,17 +34,19 @@ class ShopState extends BaseState
 		Discord.changePresence(State.Shop);
 		#end
 
-		bgColor = FlxColor.BLACK;
+		FlxG.camera.bgColor = FlxColor.BLACK;
 
-		var background = new FlxSprite(INITIAL_X);
+		var background = new FlxSprite();
 		background.loadGraphic(Paths.getImage("shopInterior"));
+		background.y = Game.HEIGHT - background.height;
+		background.screenCenter(X);
 		add(background);
 
-		player = new Player(INITIAL_X, 116, true);
+		player = new Player(background.x + 10, 116, true);
 		player.velocity.x = Player.SPEED / 2;
 		add(player);
 
-		cajera = new FlxSprite(INITIAL_X + 88, 110);
+		cajera = new FlxSprite(background.x + 90, 110);
 		cajera.loadGraphic(Paths.getImage("cashier"), true, 12, 24);
 		cajera.animation.add("default", [0, 1], 4);
 		cajera.animation.add("angry", [3, 4], 4);

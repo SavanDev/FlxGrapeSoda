@@ -6,8 +6,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Game base (initial release).
-- Live system.
-- Basic enemy.
-- 2 levels.
-- Android support.
+- Initial release.

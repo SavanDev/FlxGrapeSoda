@@ -32,7 +32,8 @@ class Input
 	public static var PAUSE_ALT:Bool;
 
 	// Detección de Gamepad
-	public static var isGamepadConnected:Bool;
+	public static var isGamepadConnected:Bool = false;
+	public static var detectGamepad:Bool = true;
 
 	public static function init()
 	{
@@ -65,22 +66,27 @@ class Input
 		PAUSE = FlxG.keys.justPressed.ENTER;
 		#end
 
-		#if desktop
-		// Solamente tengo un humilde joystick genérico, así que trataré mostrar lo mejor que pueda los controles.
-		// Al parecer, en HaxeFlixel viene con el esquema del Xbox.
-		var gamepad = FlxG.gamepads.lastActive;
-		if (gamepad != null)
+		#if !FLX_NO_GAMEPAD
+		if (detectGamepad)
 		{
-			isGamepadConnected = true;
-			UP_ALT = gamepad.justPressed.DPAD_UP;
-			DOWN_ALT = gamepad.justPressed.DPAD_DOWN;
-			LEFT_ALT = gamepad.analog.value.LEFT_STICK_X < 0 || gamepad.pressed.DPAD_LEFT;
-			RIGHT_ALT = gamepad.analog.value.LEFT_STICK_X > 0 || gamepad.pressed.DPAD_RIGHT;
-			JUMP_ALT = gamepad.pressed.A; // Xbox -> A => Cruz
-			PUNCH_ALT = gamepad.justPressed.B; // Xbox -> B => Cuadrado
-			SELECT_ALT = gamepad.justPressed.A;
-			BACK_ALT = gamepad.justPressed.BACK; // Xbox -> Back => Select
-			PAUSE_ALT = gamepad.justPressed.START;
+			// Solamente tengo un humilde joystick genérico, así que trataré mostrar lo mejor que pueda los controles.
+			// Al parecer, en HaxeFlixel viene con el esquema del Xbox.
+			var gamepad = FlxG.gamepads.lastActive;
+			if (gamepad != null)
+			{
+				isGamepadConnected = true;
+				UP_ALT = gamepad.justPressed.DPAD_UP;
+				DOWN_ALT = gamepad.justPressed.DPAD_DOWN;
+				LEFT_ALT = gamepad.analog.value.LEFT_STICK_X < 0 || gamepad.pressed.DPAD_LEFT;
+				RIGHT_ALT = gamepad.analog.value.LEFT_STICK_X > 0 || gamepad.pressed.DPAD_RIGHT;
+				JUMP_ALT = gamepad.pressed.A; // Xbox -> A => Cruz
+				PUNCH_ALT = gamepad.justPressed.B; // Xbox -> B => Cuadrado
+				SELECT_ALT = gamepad.justPressed.A;
+				BACK_ALT = gamepad.justPressed.BACK; // Xbox -> Back => Select
+				PAUSE_ALT = gamepad.justPressed.START;
+			}
+			else
+				isGamepadConnected = false;
 		}
 		else
 			isGamepadConnected = false;

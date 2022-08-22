@@ -53,9 +53,9 @@ class MenuState extends BaseState
 
 	function showMenu()
 	{
-		// more kills!
 		playText.kill();
 		player.kill();
+
 		var menu = new Menu(10, 30);
 
 		// Main Menu
@@ -90,12 +90,6 @@ class MenuState extends BaseState
 			event: (menu) -> System.exit(0)
 		}
 
-		#if desktop
-		menu.addPage("main", [newGame, options, exit]);
-		#elseif (android || web)
-		menu.addPage("main", [newGame, donate]);
-		#end
-
 		// Options Menu
 		var optFullWindow:MenuItem = {
 			text: FlxG.fullscreen ? "Window mode" : "Fullscreen",
@@ -117,13 +111,29 @@ class MenuState extends BaseState
 			}
 		}
 
+		var optGamepad:MenuItem = {
+			text: 'Gamepad: ${FlxG.save.data.detectGamepad ? "ON" : "OFF"}',
+			event: (menu) ->
+			{
+				FlxG.save.data.detectGamepad = !FlxG.save.data.detectGamepad;
+				Input.detectGamepad = FlxG.save.data.detectGamepad;
+				menu.changeOptionName('Gamepad: ${FlxG.save.data.detectGamepad ? "ON" : "OFF"}');
+			}
+		}
+
 		var optBack:MenuItem = {
 			text: "Back",
 			event: (menu) -> menu.gotoPage("main")
 		}
 
 		#if desktop
-		menu.addPage("options", [optFullWindow, optMusicOff, donate, optBack]);
+		menu.addPage("main", [newGame, options, donate, exit]);
+		menu.addPage("options", [optFullWindow, optMusicOff, optGamepad, optBack]);
+		#elseif web
+		menu.addPage("main", [newGame, options, donate]);
+		menu.addPage("options", [optFullWindow, optMusicOff, optBack]);
+		#elseif android
+		menu.addPage("main", [newGame, donate]);
 		#end
 
 		menu.gotoPage("main");
@@ -216,11 +226,7 @@ class MenuState extends BaseState
 
 		// texto de la versión
 		versionText = new FlxBitmapText(Fonts.TOY);
-		#if nightly
-		versionText.text = 'Nightly version';
-		#else
-		versionText.text = 'v${Application.current.meta.get("version")}';
-		#end
+		versionText.text = 'Alpha v${Application.current.meta.get("version")}';
 		versionText.alignment = RIGHT;
 		versionText.setPosition(FlxG.width - versionText.getStringWidth(versionText.text) - 10, FlxG.height - 15);
 		add(versionText);
@@ -258,7 +264,7 @@ class MenuState extends BaseState
 		if (player.alive && !player.isOnScreen())
 			showMenu();
 
-		if (Input.BACK || Input.BACK_ALT)
-			System.exit(0);
+		/*if (Input.BACK || Input.BACK_ALT)
+			System.exit(0); */
 	}
 }

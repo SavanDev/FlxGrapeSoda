@@ -22,7 +22,7 @@ class ReadyState extends BaseState
 	override public function create()
 	{
 		super.create();
-		this.bgColor = 0xFF111111;
+		FlxG.camera.bgColor = 0xFF111111;
 		var levelExists = Assets.exists(Paths.getLevel(PlayState.LEVEL));
 
 		if (levelExists)
