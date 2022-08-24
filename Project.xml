@@ -20,7 +20,7 @@
 	<window if="desktop" orientation="landscape" fullscreen="false" resizable="false" />
 
 	<!--Mobile-specific-->
-	<window if="mobile" orientation="landscape" fullscreen="true" width="1280" height="720" resizable="false"/>
+	<window if="mobile" orientation="landscape" fullscreen="true" resizable="false"/>
 
 	<!-- _____________________________ Path Settings ____________________________ -->
 
