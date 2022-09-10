@@ -77,9 +77,13 @@ class ComicState extends BaseState
 		if (comic.music != null)
 			FlxG.sound.playMusic(Paths.getMusic(comic.music));
 
+		#if !mobile
 		var skipString:String = "Press ENTER to skip!";
 		if (Input.isGamepadConnected)
 			skipString = "Press A to skip!";
+		#else
+		var skipString:String = "Tap to skip!";
+		#end
 
 		var skipText:FlxText = new FlxText(8, skipString);
 		skipText.y = Game.HEIGHT - skipText.height - (Game.TILE_SIZE / 2);
