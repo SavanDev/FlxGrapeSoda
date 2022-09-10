@@ -1,14 +1,14 @@
 ![Logo](./misc/icon/iconBG.png)
 
-# Latin American needs... GRAPE SODA!
+# Latin America needs... GRAPE SODA!
 
 [![nightly](https://github.com/SavanDev/FlxGrapeSoda/actions/workflows/nightly.yml/badge.svg)](https://github.com/SavanDev/FlxGrapeSoda/actions/workflows/nightly.yml)
 
-Repository of the game _"Latin American needs... GRAPE SODA!"_ created by [SavanDev (me!)](https://twitter.com/dylnavas36).
+Repository of the game _"Latin America needs... GRAPE SODA!"_ created by [SavanDev (me!)](https://twitter.com/dylnavas36).
 
 ## Nightly (Development version)
 
-### [Web](https://savandev.gitlab.io/chesspawn/games/2021/grapesoda/) - [Windows](https://nightly.link/SavanDev/FlxGrapeSoda/workflows/nightly/main/Windows-Nightly.zip) - [Linux](https://nightly.link/SavanDev/FlxGrapeSoda/workflows/nightly/main/Linux-Nightly.zip) - [macOS](https://nightly.link/SavanDev/FlxGrapeSoda/workflows/nightly/main/macOS-Nightly.zip) - [Android](https://nightly.link/SavanDev/FlxGrapeSoda/workflows/nightly/main/Android-Nightly.zip)
+### [Web](https://savandev.github.io/games/2021/grapesoda/) - [Windows](https://nightly.link/SavanDev/FlxGrapeSoda/workflows/nightly/main/Windows-Nightly.zip) - [Linux](https://nightly.link/SavanDev/FlxGrapeSoda/workflows/nightly/main/Linux-Nightly.zip) - [macOS](https://nightly.link/SavanDev/FlxGrapeSoda/workflows/nightly/main/macOS-Nightly.zip) - [Android](https://nightly.link/SavanDev/FlxGrapeSoda/workflows/nightly/main/Android-Nightly.zip)
 
 ## Context
 
