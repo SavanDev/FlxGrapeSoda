@@ -3,6 +3,8 @@ package states;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
+import flixel.group.FlxSpriteGroup.FlxTypedSpriteGroup;
+import flixel.group.FlxSpriteGroup;
 import flixel.text.FlxText;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
@@ -13,12 +15,13 @@ import lime.utils.Assets;
 typedef ComicFile =
 {
 	var music:Null<String>;
+	// var bgColor:Null<String>;
 	var states:Array<ComicJSON>;
 }
 
 typedef ComicJSON =
 {
-	var pos:String;
+	var pos:Null<String>;
 	var image:String;
 	var width:Null<Int>;
 	var height:Null<Int>;
@@ -35,9 +38,7 @@ class ComicState extends BaseState
 	var finalState:Class<FlxState>;
 
 	var comic:ComicFile;
-	var imgLeft:FlxSprite;
-	var imgCenter:FlxSprite;
-	var imgRight:FlxSprite;
+	var imgComics:FlxSpriteGroup;
 	var imgFull:FlxSprite;
 
 	var comicState:Int = 0;
@@ -54,24 +55,24 @@ class ComicState extends BaseState
 	{
 		super.create();
 
-		imgLeft = new FlxSprite(Game.TILE_SIZE, Game.TILE_SIZE);
-		imgCenter = new FlxSprite();
-		imgRight = new FlxSprite();
-		imgFull = new FlxSprite();
+		FlxG.camera.fade(.5, true);
 
-		imgLeft.visible = false;
-		imgRight.visible = false;
-		imgCenter.visible = false;
+		/*var background:FlxSprite = new FlxSprite();
+			background.loadGraphic(Paths.getImage("cutscenes/comic-background"));
+			background.alpha = .75;
+			add(background); */
+
+		imgComics = new FlxSpriteGroup();
+		imgComics.setPosition(Game.TILE_SIZE, Game.TILE_SIZE);
+
+		imgFull = new FlxSprite();
 		imgFull.visible = false;
 
-		add(imgLeft);
-		add(imgCenter);
-		add(imgRight);
+		add(imgComics);
 		add(imgFull);
 
 		// start comic
 		comic = Json.parse(Assets.getText('assets/data/cutscenes/$comicName.json'));
-		trace(comic);
 		new FlxTimer().start(2, readComic, 0);
 
 		if (comic.music != null)
@@ -93,48 +94,24 @@ class ComicState extends BaseState
 		new FlxTimer().start(3, (_) -> FlxTween.num(1, 0, 2, (v) -> skipText.alpha = v));
 	}
 
-	function showLeftComic(image:String, width:Int = 0, height:Int = 0, ?anim:Array<Int>, frameSpeed:Int = 2, loop:Bool = true)
+	function showNormalComic(image:String, width:Int = 0, height:Int = 0, ?anim:Array<Int>, frameSpeed:Int = 2, loop:Bool = true)
 	{
-		imgLeft.loadGraphic(Paths.getImage(image), anim != null, width, height);
-		if (anim != null)
-		{
-			imgLeft.animation.add("default", anim, frameSpeed, loop);
-			imgLeft.animation.play("default");
-		}
-		FlxTween.num(0, 1, .5, (v) -> imgLeft.alpha = v);
-		imgLeft.visible = true;
-	}
+		var imgComic = new FlxSprite();
 
-	function showCenterComic(image:String, width:Int = 0, height:Int = 0, ?anim:Array<Int>, frameSpeed:Int = 2, loop:Bool = true)
-	{
-		imgCenter.loadGraphic(Paths.getImage(image), anim != null, width, height);
-		imgCenter.setPosition(imgLeft.x + imgLeft.width + Game.TILE_SIZE, Game.TILE_SIZE);
-		if (anim != null)
+		if (imgComics.length > 0)
 		{
-			imgCenter.animation.add("default", anim, frameSpeed, loop);
-			imgCenter.animation.play("default");
+			var lastComic = imgComics.members[imgComics.length - 1];
+			imgComic.setPosition(lastComic.x + lastComic.width);
 		}
-		FlxTween.num(0, 1, .5, (v) -> imgCenter.alpha = v);
-		imgCenter.visible = true;
-		FlxTween.num(1, .5, .5, (v) -> imgLeft.alpha = v);
-		if (imgLeft.animation.name != null)
-			imgLeft.animation.stop();
-	}
 
-	function showRightComic(image:String, width:Int = 0, height:Int = 0, ?anim:Array<Int>, frameSpeed:Int = 2, loop:Bool = true)
-	{
-		imgRight.loadGraphic(Paths.getImage(image), anim != null, width, height);
-		imgRight.setPosition(imgCenter.x + imgCenter.width + Game.TILE_SIZE, Game.TILE_SIZE);
+		imgComic.loadGraphic(Paths.getImage(image), anim != null, width, height);
 		if (anim != null)
 		{
-			imgRight.animation.add("default", anim, frameSpeed, loop);
-			imgRight.animation.play("default");
+			imgComic.animation.add("default", anim, frameSpeed, loop);
+			imgComic.animation.play("default");
 		}
-		FlxTween.num(0, 1, .5, (v) -> imgRight.alpha = v);
-		imgRight.visible = true;
-		FlxTween.num(1, .5, .5, (v) -> imgCenter.alpha = v);
-		if (imgCenter.animation.name != null)
-			imgCenter.animation.stop();
+		FlxTween.num(0, 1, .5, (v) -> imgComic.alpha = v);
+		imgComics.add(imgComic);
 	}
 
 	function showFullComic(image:String, width:Int = 0, height:Int = 0, ?anim:Array<Int>, frameSpeed:Int = 2, loop:Bool = true)
@@ -146,9 +123,7 @@ class ComicState extends BaseState
 			imgFull.animation.add("default", anim, frameSpeed, loop);
 			imgFull.animation.play("default");
 		}
-		imgRight.alpha = .5;
-		if (imgRight.animation.name != null)
-			imgRight.animation.stop();
+		FlxTween.num(1, .75, .5, (v) -> imgComics.alpha = v);
 	}
 
 	function playSound(sound:String)
@@ -159,14 +134,10 @@ class ComicState extends BaseState
 
 	function hideComics()
 	{
-		imgLeft.visible = false;
-		imgCenter.visible = false;
-		imgRight.visible = false;
-		imgFull.visible = false;
+		imgComics.forEach((comicVignette) -> comicVignette.destroy());
+		imgComics.clear();
 
-		imgLeft.alpha = 1;
-		imgCenter.alpha = 1;
-		imgRight.alpha = 1;
+		imgFull.visible = false;
 		imgFull.alpha = 1;
 	}
 
@@ -183,20 +154,14 @@ class ComicState extends BaseState
 		var page = comic.states[comicState];
 		switch (page.pos)
 		{
-			case "left":
-				showLeftComic(page.image, page.width != null ? page.width : 0, page.height != null ? page.height : 0, page.frames,
-					page.speed != null ? page.speed : 2, page.loop != null ? page.loop : true);
-			case "center":
-				showCenterComic(page.image, page.width != null ? page.width : 0, page.height != null ? page.height : 0, page.frames,
-					page.speed != null ? page.speed : 2, page.loop != null ? page.loop : true);
-			case "right":
-				showRightComic(page.image, page.width != null ? page.width : 0, page.height != null ? page.height : 0, page.frames,
-					page.speed != null ? page.speed : 2, page.loop != null ? page.loop : true);
 			case "full":
 				showFullComic(page.image, page.width != null ? page.width : 0, page.height != null ? page.height : 0, page.frames,
 					page.speed != null ? page.speed : 2, page.loop != null ? page.loop : true);
 			case "hide":
 				hideComics();
+			default:
+				showNormalComic(page.image, page.width != null ? page.width : 0, page.height != null ? page.height : 0, page.frames,
+					page.speed != null ? page.speed : 2, page.loop != null ? page.loop : true);
 		}
 
 		if (page.time != null)

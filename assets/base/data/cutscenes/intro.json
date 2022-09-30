@@ -2,18 +2,15 @@
     "music": "bip-bop",
     "states": [
         {
-            "pos": "left",
             "image": "cutscenes/SodaCutscene0"
         },
         {
-            "pos": "center",
             "image": "cutscenes/SodaCutscene1",
             "width": 60,
             "height": 120,
             "frames": [0, 1]
         },
         {
-            "pos": "right",
             "image": "cutscenes/SodaCutscene2",
             "width": 60,
             "height": 120,
@@ -28,14 +25,12 @@
             "pos": "hide"
         },
         {
-            "pos": "left",
             "image": "cutscenes/SodaCutscene4",
             "width": 60,
             "height": 120,
             "frames": [0, 1]
         },
         {
-            "pos": "center",
             "image": "cutscenes/SodaCutscene5",
             "width": 84,
             "height": 120,
@@ -44,7 +39,6 @@
             "time": 3
         },
         {
-            "pos": "right",
             "image": "cutscenes/SodaCutscene6",
             "width": 60,
             "height": 120,
