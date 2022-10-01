@@ -1,0 +1,49 @@
+{
+    "music": "bip-bop",
+    "states": [
+        {
+            "image": "cutscenes/SodaCutscene0"
+        },
+        {
+            "image": "cutscenes/SodaCutscene1",
+            "width": 60,
+            "height": 120,
+            "frames": [0, 1]
+        },
+        {
+            "image": "cutscenes/SodaCutscene2",
+            "width": 60,
+            "height": 120,
+            "frames": [0, 1]
+        },
+        {
+            "pos": "full",
+            "image": "cutscenes/SodaCutscene3",
+            "sound": "failed"
+        },
+        {
+            "pos": "hide"
+        },
+        {
+            "image": "cutscenes/SodaCutscene4",
+            "width": 60,
+            "height": 120,
+            "frames": [0, 1]
+        },
+        {
+            "image": "cutscenes/SodaCutscene5",
+            "width": 84,
+            "height": 120,
+            "frames": [0, 1, 2],
+            "loop": false,
+            "time": 3
+        },
+        {
+            "image": "cutscenes/SodaCutscene6",
+            "width": 60,
+            "height": 120,
+            "frames": [0, 1, 2],
+            "time": 4
+        }
+    ]
+}
