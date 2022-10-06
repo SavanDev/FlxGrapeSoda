@@ -19,6 +19,7 @@ import objects.Enemy;
 import objects.Flag;
 import objects.Money;
 import objects.Player;
+import states.CharacterState;
 import util.Timer;
 #if desktop
 import Discord.State;
@@ -324,6 +325,9 @@ class PlayState extends BaseState
 		#if (debug && desktop)
 		if (FlxG.keys.justPressed.L)
 			finishLevel(player, flag);
+
+		if (FlxG.keys.justPressed.EIGHT)
+			FlxG.switchState(new CharacterState());
 
 		if (FlxG.keys.justPressed.PAGEUP)
 			FlxG.camera.zoom += .1;

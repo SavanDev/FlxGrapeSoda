@@ -35,7 +35,7 @@ class MenuState extends BaseState
 	function entitiesPos(entity:EntityData)
 	{
 		if (entity.name == "Player")
-			player.setPosition(FlxG.width / 2, entity.y);
+			player.setPosition(FlxG.width / 2, entity.y - 4);
 	}
 
 	function playBlink(timer:FlxTimer)

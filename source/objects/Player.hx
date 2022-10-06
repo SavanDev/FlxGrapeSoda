@@ -6,13 +6,22 @@ import flixel.FlxSprite;
 import flixel.effects.FlxFlicker;
 import flixel.util.FlxTimer;
 
+enum Character
+{
+	Dylan;
+	Luka;
+	Watanoge;
+	Asdonaur;
+}
+
 class Player extends FlxSprite
 {
 	public static inline var SPEED:Float = 75;
-	public static var SKIN:String = Paths.getImage("player/dylan");
-	public static var LIVES:Int = Game.MAX_LIVES;
 	static inline var GRAVITY:Float = 300;
 	static inline var JUMP_POWER:Float = 100;
+
+	public static var CHARACTER:Character = Dylan;
+	public static var LIVES:Int = Game.MAX_LIVES;
 
 	public var canMove:Bool = true;
 	public var animated:Bool = true;
@@ -24,18 +33,29 @@ class Player extends FlxSprite
 	public var isPunching:Bool = false;
 	public var invencible:Bool = false;
 
-	var touch1_X:Float;
-	var touch2_X:Float;
-
 	var respawning:Bool = false;
+	var coyoteTime:Float = 0;
 
-	function loadSkin()
+	function loadSkin(character:Character)
 	{
-		loadGraphic(SKIN, true, 13, 20);
+		var skin:String;
+
+		switch (character)
+		{
+			case Dylan:
+				skin = Paths.getImage("skins/dylan");
+			case Luka:
+				skin = Paths.getImage("skins/luka");
+			case Watanoge:
+				skin = Paths.getImage("skins/watanoge");
+			case Asdonaur:
+				skin = Paths.getImage("skins/asdonaur");
+		}
+		loadGraphic(skin, true, 12, 24);
 
 		// para las colisiones
 		setSize(8, 18);
-		offset.set(3, 2);
+		offset.set(3, 6);
 
 		// para las animaciones
 		setFacingFlip(FlxObject.LEFT, true, false);
@@ -43,9 +63,9 @@ class Player extends FlxSprite
 		animation.add("default", [1, 2], 3);
 		animation.add("walk", [3, 4, 3, 5], 5);
 		animation.add("jump", [6], 0);
-		animation.add("sad", [9], 0);
-		animation.add("happy", [10], 0);
-		animation.add("punch", [12, 13, 14, 14, 13, 12], 12, false);
+		animation.add("sad", [7], 0);
+		animation.add("sadness", [8], 0);
+		animation.add("punch", [9, 10, 11, 11, 10, 9], 12, false);
 	}
 
 	override public function hurt(damage:Float)
@@ -65,7 +85,7 @@ class Player extends FlxSprite
 	public function new(x:Float = 0, y:Float = 0, kinematic:Bool = false)
 	{
 		super(x, y);
-		loadSkin();
+		loadSkin(CHARACTER);
 		canMove = !kinematic;
 
 		health = LIVES;
@@ -107,16 +127,23 @@ class Player extends FlxSprite
 		if (jumping && !jump)
 			jumping = false;
 
-		if (jump && jumpTimer == -1 && isTouching(FlxObject.DOWN))
+		if (jump && jumpTimer == -1 && coyoteTime <= .2)
 			FlxG.sound.play(Paths.getSound("jump"));
 
+		// coyote time
+		if (isTouching(FlxObject.DOWN))
+			coyoteTime = 0;
+		else
+			coyoteTime += elapsed;
+
 		// reinicia el tiempo de salto al tocar el suelo
-		if (isTouching(FlxObject.DOWN) && !jumping)
+		if (coyoteTime <= .2 && !jumping)
 			jumpTimer = 0;
 
 		if (jumpTimer >= 0 && jump)
 		{
 			jumping = true;
+			coyoteTime = 1;
 			jumpTimer += elapsed;
 		}
 		else

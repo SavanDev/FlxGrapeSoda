@@ -42,7 +42,17 @@ class ReadyState extends BaseState
 				FlxG.switchState(new ComicState(level.cutscene, ReadyState));
 			}
 
-			Player.SKIN = Paths.getImage('player/${level.player}');
+			switch (level.player)
+			{
+				case "dylan":
+					Player.CHARACTER = Dylan;
+				case "luka":
+					Player.CHARACTER = Luka;
+				case "watanoge":
+					Player.CHARACTER = Watanoge;
+				case "asdonaur":
+					Player.CHARACTER = Asdonaur;
+			}
 		}
 		else
 			PlayState.DEMO_END = true;
@@ -58,7 +68,7 @@ class ReadyState extends BaseState
 
 			// mostrar jugador actual
 			var player = new Player(0, 0, true);
-			player.setGraphicSize(26, 40);
+			player.setGraphicSize(24, 48);
 			player.screenCenter();
 			player.x -= 30;
 			add(player);
