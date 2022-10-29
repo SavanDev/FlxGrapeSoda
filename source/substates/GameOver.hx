@@ -37,7 +37,6 @@ class GameOver extends FlxSubState
 			PlayState.MONEY = 0;
 			Timer.restart();
 			PlayState.LEVEL = 1;
-			PlayState.DEMO_END = false;
 			Player.LIVES = 5;
 
 			FlxG.switchState(new MenuState());

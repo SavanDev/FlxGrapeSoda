@@ -29,6 +29,9 @@
 	<set name="BUILD_DIR" value="export/x86" if="legacyPC" />
 
 	<source name="source" />
+	
+	<!-- Legacy files -->
+	<assets path="assets/legacy" rename="assets" />
 
 	<section if="mobile">
 		<assets path="assets/base" rename="assets" />
@@ -42,7 +45,8 @@
 
 	<section unless="mobile|web">
 		<assets path="assets/base" rename="assets" />
-		<assets path="misc/readme.txt" rename="readme.txt" if="desktop" />
+		<assets path="misc/readme.txt" rename="readme.txt" />
+		<assets path="assets/editor" rename="assets" />
 		<assets path="LICENSE" rename="license.txt" />
 	</section>
 	<!-- _______________________________ Libraries ______________________________ -->

@@ -54,14 +54,12 @@ class ReadyState extends BaseState
 					Player.CHARACTER = Asdonaur;
 			}
 		}
-		else
-			PlayState.DEMO_END = true;
 
 		if (!loadCutscene)
 		{
 			// mostrar nivel
 			var levelText = new FlxBitmapText(Fonts.DEFAULT_16);
-			levelText.text = !PlayState.DEMO_END ? 'Level ${PlayState.LEVEL}' : 'Demo End';
+			levelText.text = 'Level ${PlayState.LEVEL}';
 			levelText.screenCenter();
 			levelText.y -= 35;
 			add(levelText);

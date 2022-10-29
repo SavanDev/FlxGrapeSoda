@@ -70,7 +70,7 @@ class Discord
 		DiscordRpc.shutdown();
 	}
 
-	public static function changePresence(_state:State, ?player:String, ?initialTime:Float)
+	public static function changePresence(_state:State, ?player:Int, ?initialTime:Float)
 	{
 		switch (_state)
 		{
@@ -84,7 +84,7 @@ class Discord
 				DiscordRpc.presence({
 					details: 'Playing Level ${PlayState.LEVEL}',
 					state: 'Coins: ${PlayState.MONEY}',
-					largeImageKey: 'icon$player',
+					largeImageKey: 'icon', // 'icon$player',
 					startTimestamp: Std.int(initialTime / 1000)
 				});
 			case Shop:

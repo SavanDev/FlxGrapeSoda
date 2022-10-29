@@ -1,36 +1,50 @@
-import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.addons.display.FlxBackdrop;
 import flixel.group.FlxGroup;
-import flixel.system.FlxAssets.FlxGraphicAsset;
-import flixel.util.FlxColor;
 
 class BackParallax extends FlxGroup
 {
 	var clouds:FlxBackdrop;
-	var backColor:FlxSprite;
-	var parallax1:FlxBackdrop;
 
-	public function new(Back1:FlxGraphicAsset, lineHeight:Int = 65, ?Color:FlxColor = FlxColor.TRANSPARENT, Cloud:Bool = false)
+	// Overworld
+	var overworldBack:FlxSprite;
+	var overworld:FlxBackdrop;
+
+	// City
+	var city1:FlxBackdrop;
+	var city2:FlxBackdrop;
+
+	public function new(type:Int = 0, showClouds:Bool = true)
 	{
 		super();
-		if (Color != null)
-		{
-			backColor = new FlxSprite(0, lineHeight + 55);
-			backColor.makeGraphic(FlxG.width, 50, Color);
-			backColor.scrollFactor.set(0, 1);
-			add(backColor);
-		}
-		parallax1 = new FlxBackdrop(Back1, .5, 1, true, false);
-		parallax1.y = lineHeight;
-		add(parallax1);
+		city2 = new FlxBackdrop(Paths.getImage('parallax/city2'), .1, 0, true, false);
+		city2.setGraphicSize(Std.int(city2.width * 2));
+		city2.y = Game.HEIGHT - city2.height;
+		add(city2);
 
-		if (Cloud)
-		{
-			clouds = new FlxBackdrop(Paths.getImage("parallax/nubes"), .25, 1, true, false);
-			clouds.y = lineHeight - 45;
-			add(clouds);
-		}
+		clouds = new FlxBackdrop(Paths.getImage("parallax/clouds"), .25, 0, true, false);
+		clouds.y = 17;
+		add(clouds);
+
+		overworldBack = new FlxSprite();
+		overworldBack.makeGraphic(Game.WIDTH, Std.int(Game.HEIGHT - overworldBack.y), 0xFF005100);
+		overworldBack.scrollFactor.set();
+		add(overworldBack);
+
+		overworld = new FlxBackdrop(Paths.getImage('parallax/mountain'), .5, 0, true, false);
+		overworld.y = 65;
+		overworldBack.y = overworld.y + 52;
+		add(overworld);
+
+		city1 = new FlxBackdrop(Paths.getImage('parallax/city1'), .3, 0, true, false);
+		city1.setGraphicSize(Std.int(city1.width * 2));
+		city1.y = Game.HEIGHT - city1.height;
+		add(city1);
+
+		setBackgroundType(type);
+
+		if (!showClouds)
+			clouds.visible = false;
 	}
 
 	override public function update(elapsed:Float)
@@ -38,5 +52,23 @@ class BackParallax extends FlxGroup
 		super.update(elapsed);
 		if (clouds != null)
 			clouds.x += elapsed * 2;
+	}
+
+	public function setBackgroundType(type:Int)
+	{
+		switch (type)
+		{
+			case 0:
+				overworld.visible = overworldBack.visible = true;
+				city1.visible = city2.visible = false;
+			case 1:
+				overworld.visible = overworldBack.visible = false;
+				city1.visible = city2.visible = true;
+		}
+	}
+
+	public function toggleClouds()
+	{
+		clouds.visible = !clouds.visible;
 	}
 }

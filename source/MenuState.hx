@@ -69,6 +69,15 @@ class MenuState extends BaseState
 			}
 		}
 
+		var editor:MenuItem = {
+			text: "Editor",
+			event: (menu) ->
+			{
+				menu.kill();
+				FlxG.camera.fade(0xFF111111, () -> FlxG.switchState(new editor.EditorState()));
+			}
+		}
+
 		var donate:MenuItem = {
 			text: "Donate",
 			event: (menu) -> {
@@ -127,7 +136,7 @@ class MenuState extends BaseState
 		}
 
 		#if desktop
-		menu.addPage("main", [newGame, options, donate, exit]);
+		menu.addPage("main", [newGame, editor, options, donate, exit]);
 		menu.addPage("options", [optFullWindow, optMusicOff, optGamepad, optBack]);
 		#elseif web
 		menu.addPage("main", [newGame, options, donate]);
@@ -191,7 +200,7 @@ class MenuState extends BaseState
 		logoText2.setPosition(0, 5);
 
 		var logoSoda = new FlxSprite(100, 0);
-		logoSoda.loadGraphic(Paths.getImage("items/grapesoda"), false, 12, 14);
+		logoSoda.loadGraphic(Paths.getImage("menu/grapeSodaLogo"), false, 12, 14);
 		logoSoda.setGraphicSize(24, 28);
 		logoSoda.updateHitbox();
 		logoSoda.angle = -10;
@@ -213,7 +222,7 @@ class MenuState extends BaseState
 
 		// mini nivel
 		map = new FlxOgmo3Loader(Paths.getOgmoData(), Paths.getMap("menuMap"));
-		tileMap = map.loadTilemap(Paths.getImage("legacy/tileMap"), "Blocks");
+		tileMap = map.loadTilemap(Paths.getImage("map/tileMap"), "Blocks");
 		add(tileMap);
 		player = new Player(0, 0, true);
 		map.loadEntities(entitiesPos, "Entities");
