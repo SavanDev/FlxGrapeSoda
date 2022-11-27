@@ -216,7 +216,7 @@ class MenuState extends BaseState
 		FlxG.camera.bgColor = 0xFF64A5FF;
 
 		// fondo
-		var parallax = new FlxBackdrop(Paths.getImage("parallax/mountain"), 1, 1, true, false);
+		var parallax = new FlxBackdrop(Paths.getImage("parallax/mountain"), X, 0, 0);
 		parallax.y = 65;
 		add(parallax);
 

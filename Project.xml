@@ -47,6 +47,7 @@
 		<assets path="assets/base" rename="assets" />
 		<assets path="misc/readme.txt" rename="readme.txt" />
 		<assets path="assets/editor" rename="assets" />
+		<assets path="exampleMaps" rename="maps" />
 		<assets path="LICENSE" rename="license.txt" />
 	</section>
 	<!-- _______________________________ Libraries ______________________________ -->

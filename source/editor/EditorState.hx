@@ -109,7 +109,7 @@ class EditorState extends BaseState
 	var posBackground:FlxSprite;
 
 	// Entities
-	var currentEntity:FlxSprite;
+	var currentEntity:FlxSpriteEditor;
 	var currentEntityName:FlxText;
 
 	var levelEntities:FlxTypedGroup<FlxSpriteEditor>;
@@ -207,6 +207,14 @@ class EditorState extends BaseState
 		{
 			name: "Back",
 			button: BtnEsc
+		},
+		{
+			name: "Load",
+			button: BtnX
+		},
+		{
+			name: "Save",
+			button: BtnS
 		}
 	];
 
@@ -248,7 +256,7 @@ class EditorState extends BaseState
 
 	public function createMap()
 	{
-		var testMap = [for (i in 0...MAX_WIDTH * Game.MAP_HEIGHT) 0];
+		var blankMap = [for (i in 0...MAX_WIDTH * Game.MAP_HEIGHT) 0];
 
 		if (levelMap != null)
 		{
@@ -266,15 +274,15 @@ class EditorState extends BaseState
 		}
 
 		var layer2 = new FlxTilemap();
-		layer2.loadMapFromArray(testMap, MAX_WIDTH, Game.MAP_HEIGHT, Paths.getImage("tilemaps/backtiles"), Game.TILE_SIZE, Game.TILE_SIZE);
+		layer2.loadMapFromArray(blankMap, MAX_WIDTH, Game.MAP_HEIGHT, Paths.getImage("tilemaps/backtiles"), Game.TILE_SIZE, Game.TILE_SIZE);
 		levelMap.add(layer2);
 
 		var layer1 = new FlxTilemap();
-		layer1.loadMapFromArray(testMap, MAX_WIDTH, Game.MAP_HEIGHT, Paths.getImage("tilemaps/objects"), Game.TILE_SIZE, Game.TILE_SIZE);
+		layer1.loadMapFromArray(blankMap, MAX_WIDTH, Game.MAP_HEIGHT, Paths.getImage("tilemaps/objects"), Game.TILE_SIZE, Game.TILE_SIZE);
 		levelMap.add(layer1);
 
 		var layer0 = new FlxTilemap();
-		layer0.loadMapFromArray(testMap, MAX_WIDTH, Game.MAP_HEIGHT, Paths.getImage("tilemaps/grass"), Game.TILE_SIZE, Game.TILE_SIZE, FULL);
+		layer0.loadMapFromArray(blankMap, MAX_WIDTH, Game.MAP_HEIGHT, Paths.getImage("tilemaps/grass"), Game.TILE_SIZE, Game.TILE_SIZE, FULL);
 		levelMap.add(layer0);
 
 		levelEntities = new FlxTypedGroup<FlxSpriteEditor>();
@@ -351,7 +359,7 @@ class EditorState extends BaseState
 		entityUI = new FlxGroup();
 		entitiesPositions = new Array<String>();
 
-		currentEntity = new FlxSprite();
+		currentEntity = new FlxSpriteEditor(actualEntity);
 		currentEntity.alpha = .75;
 		entityUI.add(currentEntity);
 
@@ -359,8 +367,6 @@ class EditorState extends BaseState
 		currentEntityName.setFormat("assets/fonts/Toy.ttf", 16);
 		currentEntityName.text = "PLAYER";
 		entityUI.add(currentEntityName);
-
-		loadEntity(currentEntity);
 
 		currentEntityName.cameras = [uiCamera];
 
@@ -399,12 +405,11 @@ class EditorState extends BaseState
 	function addEntityToMap()
 	{
 		var entityPos:String = '$mouseX-$mouseY';
-		var newEntitySprite:FlxSpriteEditor = new FlxSpriteEditor(currentEntity.x, currentEntity.y, actualEntity);
+		var newEntityCopy = new FlxSpriteEditor(currentEntity.getEntityType(), currentEntity.x, currentEntity.y);
 
 		if (!entitiesPositions.contains(entityPos))
 		{
-			loadEntity(newEntitySprite);
-			levelEntities.add(newEntitySprite);
+			levelEntities.add(newEntityCopy);
 			entitiesPositions.push(entityPos);
 
 			if (actualEntity == 0)
@@ -454,29 +459,7 @@ class EditorState extends BaseState
 			case 3:
 				currentEntityName.text = "FLAG";
 		}
-		loadEntity(currentEntity);
-	}
-
-	/*
-		Entity ID:
-		0 -> Player
-		1 -> Enemy
-		2 -> Coin
-		3 -> Flag
-	 */
-	function loadEntity(entity:FlxSprite)
-	{
-		switch (actualEntity)
-		{
-			case 0:
-				entity.loadGraphic(Paths.getImage('player'), true, 12, 24);
-			case 1:
-				entity.loadGraphic(Paths.getImage('picky'), true, 12, 12);
-			case 2:
-				entity.loadGraphic(Paths.getImage('items/coin'), true, 12, 12);
-			case 3:
-				entity.loadGraphic(Paths.getImage('items/flag'), true, 24, 48);
-		}
+		currentEntity.setEntityType(actualEntity);
 	}
 
 	// Player selector
@@ -558,7 +541,7 @@ class EditorState extends BaseState
 	}
 
 	/*
-		Level data generation
+		Level data generation (Save system)
 	 */
 	function getEntitiesData()
 	{
@@ -606,13 +589,63 @@ class EditorState extends BaseState
 		return Json.stringify(result, "\t");
 	}
 
-	function testExport()
+	/*
+		Level data generation (Load system)
+	 */
+	function setEntitiesData(entitiesJSON:String)
 	{
-		if (!FileSystem.exists("maps"))
-			FileSystem.createDirectory("maps");
+		var entities:Array<Entity> = Json.parse(entitiesJSON);
 
-		File.saveContent("maps/testMap.json", generateJSONLevel());
-		trace("Map exported!");
+		// Clear entities in the scene
+		levelEntities.forEach((entity) ->
+		{
+			levelEntities.remove(entity);
+			entity.destroy();
+		});
+		levelEntities.clear();
+
+		while (entitiesPositions.length > 0)
+			entitiesPositions.pop();
+
+		// Load entities
+		for (entity in entities)
+		{
+			levelEntities.add(new FlxSpriteEditor(entity.type, entity.x, entity.y));
+			entitiesPositions.push('${entity.x}-${entity.y}');
+
+			if (entity.type == 0 && !levelHasPlayer)
+				levelHasPlayer = true;
+
+			if (entity.type == 3 && !levelHasFlag)
+				levelHasFlag = true;
+		}
+	}
+
+	function setMapData(layers:Array<String>)
+	{
+		// hard code layers
+		levelMap.members[0].loadMapFromArray(Json.parse(layers[2]), MAX_WIDTH, Game.MAP_HEIGHT, Paths.getImage("tilemaps/backtiles"), Game.TILE_SIZE,
+			Game.TILE_SIZE);
+		levelMap.members[1].loadMapFromArray(Json.parse(layers[1]), MAX_WIDTH, Game.MAP_HEIGHT, Paths.getImage("tilemaps/objects"), Game.TILE_SIZE,
+			Game.TILE_SIZE);
+		levelMap.members[2].loadMapFromArray(Json.parse(layers[0]), MAX_WIDTH, Game.MAP_HEIGHT, Paths.getImage("tilemaps/grass"), Game.TILE_SIZE,
+			Game.TILE_SIZE, FULL);
+	}
+
+	function readJSONLevel()
+	{
+		var level:LevelData = Json.parse(File.getContent('maps/${inputText.text}.json'));
+		trace(level);
+
+		setMapData(level.layers);
+		setEntitiesData(level.entities);
+		changePlayerCursor(level.player);
+		changeBackType(level.background.type);
+		if (backParallax.cloudsVisible() != level.background.clouds)
+			backParallax.toggleClouds();
+		backgroundClouds = level.background.clouds;
+
+		changeBackgroundColorValues(level.background.redValue, level.background.greenValue, level.background.blueValue);
 	}
 
 	/*
@@ -723,7 +756,7 @@ class EditorState extends BaseState
 
 	function changeBackType(value:Int)
 	{
-		backgroundType += value;
+		backgroundType = value;
 
 		if (backgroundType < 0)
 			backgroundType = BACKGROUND_TYPE_LIMIT;
@@ -754,6 +787,20 @@ class EditorState extends BaseState
 				blueValue += value;
 		}
 
+		updateBackColors();
+	}
+
+	function changeBackgroundColorValues(red:Int, green:Int, blue:Int)
+	{
+		redValue = red;
+		greenValue = green;
+		blueValue = blue;
+
+		updateBackColors();
+	}
+
+	function updateBackColors()
+	{
 		// Comprobemos que los valores sean válidos
 		if (redValue < 0)
 			redValue = 0;
@@ -819,10 +866,10 @@ class EditorState extends BaseState
 			changeBackValue(-1);
 
 		if (FlxG.keys.justPressed.RIGHT)
-			changeBackType(1);
+			changeBackType(backgroundType + 1);
 
 		if (FlxG.keys.justPressed.LEFT)
-			changeBackType(-1);
+			changeBackType(backgroundType - 1);
 
 		if (FlxG.keys.justPressed.C)
 		{
@@ -906,14 +953,27 @@ class EditorState extends BaseState
 
 	function onExportUpdate()
 	{
+		if (!inputText.hasFocus)
+		{
+			if (FlxG.keys.justPressed.X)
+			{
+				readJSONLevel();
+				changeState(Tilemap);
+				new FlxTimer().start((tmr) -> canChangeState = true);
+			}
+
+			if (FlxG.keys.justPressed.S)
+				exportLevel();
+		}
+
+		if (FlxG.keys.justPressed.ENTER)
+			exportLevel();
+
 		if (FlxG.keys.justPressed.ESCAPE)
 		{
 			changeState(Tilemap);
 			new FlxTimer().start((tmr) -> canChangeState = true);
 		}
-
-		if (FlxG.keys.justPressed.ENTER)
-			exportLevel();
 	}
 
 	function exportLevel()
@@ -1072,9 +1132,6 @@ class EditorState extends BaseState
 
 		#if debug
 		// TESTING ONLY
-		if (FlxG.keys.justPressed.K)
-			testExport();
-
 		FlxG.watch.addQuick("Mouse X", mouseX);
 		FlxG.watch.addQuick("Mouse Y", mouseY);
 		FlxG.watch.addQuick("Mouse Sel. X", mouseX * Game.TILE_SIZE);

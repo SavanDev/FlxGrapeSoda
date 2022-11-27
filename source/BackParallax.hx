@@ -1,6 +1,7 @@
 import flixel.FlxSprite;
 import flixel.addons.display.FlxBackdrop;
 import flixel.group.FlxGroup;
+import flixel.util.FlxAxes;
 
 class BackParallax extends FlxGroup
 {
@@ -17,13 +18,15 @@ class BackParallax extends FlxGroup
 	public function new(type:Int = 0, showClouds:Bool = true)
 	{
 		super();
-		city2 = new FlxBackdrop(Paths.getImage('parallax/city2'), .1, 0, true, false);
+		city2 = new FlxBackdrop(Paths.getImage('parallax/city2'), FlxAxes.X, 0, 0);
 		city2.setGraphicSize(Std.int(city2.width * 2));
 		city2.y = Game.HEIGHT - city2.height;
+		city2.scrollFactor.set(.1, 0);
 		add(city2);
 
-		clouds = new FlxBackdrop(Paths.getImage("parallax/clouds"), .25, 0, true, false);
+		clouds = new FlxBackdrop(Paths.getImage("parallax/clouds"), FlxAxes.X, 0, 0);
 		clouds.y = 17;
+		clouds.scrollFactor.set(.25, 0);
 		add(clouds);
 
 		overworldBack = new FlxSprite();
@@ -31,14 +34,16 @@ class BackParallax extends FlxGroup
 		overworldBack.scrollFactor.set();
 		add(overworldBack);
 
-		overworld = new FlxBackdrop(Paths.getImage('parallax/mountain'), .5, 0, true, false);
+		overworld = new FlxBackdrop(Paths.getImage('parallax/mountain'), FlxAxes.X, 0, 0);
 		overworld.y = 65;
 		overworldBack.y = overworld.y + 52;
+		overworld.scrollFactor.set(.5, 0);
 		add(overworld);
 
-		city1 = new FlxBackdrop(Paths.getImage('parallax/city1'), .3, 0, true, false);
+		city1 = new FlxBackdrop(Paths.getImage('parallax/city1'), FlxAxes.X, 0, 0);
 		city1.setGraphicSize(Std.int(city1.width * 2));
 		city1.y = Game.HEIGHT - city1.height;
+		city1.scrollFactor.set(.3, 0);
 		add(city1);
 
 		setBackgroundType(type);
@@ -65,6 +70,11 @@ class BackParallax extends FlxGroup
 				overworld.visible = overworldBack.visible = false;
 				city1.visible = city2.visible = true;
 		}
+	}
+
+	public function cloudsVisible():Bool
+	{
+		return clouds.visible;
 	}
 
 	public function toggleClouds()
