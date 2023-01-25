@@ -1,19 +1,16 @@
-package;
+package states;
 
+import Gameplay;
 import flixel.FlxG;
 import flixel.FlxObject;
-import flixel.FlxSprite;
-import flixel.addons.editors.ogmo.FlxOgmo3Loader;
 import flixel.group.FlxGroup;
 import flixel.math.FlxPoint;
-import flixel.text.FlxBitmapText;
 import flixel.tile.FlxTilemap;
-import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import haxe.Json;
 import lime.utils.Assets;
-import objects.BreakBlock;
+import objects.BreakableBlock;
 import objects.Enemy;
 import objects.Flag;
 import objects.Money;
@@ -30,27 +27,8 @@ import Discord.State;
 import mobile.AndroidPad;
 #end
 
-typedef LevelData =
-{
-	var layers:Array<String>;
-	var entities:String;
-	var player:Int;
-	var background:
-		{
-			type:Int,
-			clouds:Bool,
-			redValue:Int,
-			greenValue:Int,
-			blueValue:Int
-		};
-}
-
 class PlayState extends BaseState
 {
-	public static var LEVEL:Int = -1;
-	public static var MONEY:Int = 0;
-	public static var HUD:HUD;
-
 	// player variables
 	var player:Player;
 	var checkpoint:FlxPoint;
@@ -60,8 +38,12 @@ class PlayState extends BaseState
 	var staticObjectsMap:FlxTilemap;
 
 	var coins:FlxTypedGroup<Money>;
+	var breakableBlocks:FlxTypedGroup<BreakableBlock>;
 	var pickyEnemy:FlxTypedGroup<Enemy>;
 	var flag:Flag;
+
+	var breakableBlockSelected:BreakableBlock;
+	var breakBlockCollision:Bool;
 
 	// misc
 	var offLimits:Bool = false;
@@ -90,6 +72,8 @@ class PlayState extends BaseState
 					coins.add(new Money(entity.x, entity.y));
 				case 3:
 					flag.setPosition(entity.x, entity.y);
+				case 4:
+					breakableBlocks.add(new BreakableBlock(entity.x, entity.y));
 			}
 		}
 	}
@@ -114,7 +98,7 @@ class PlayState extends BaseState
 	{
 		if (player.alive && picky.alive)
 		{
-			if (picky.isTouching(FlxObject.UP))
+			if (picky.isTouching(UP))
 			{
 				player.velocity.y = -100;
 				picky.kill();
@@ -132,11 +116,11 @@ class PlayState extends BaseState
 		FlxG.sound.play(Paths.getSound("finish"));
 		Timer.stop();
 		player.canMove = false;
-		player.facing = FlxObject.RIGHT;
+		player.facing = RIGHT;
 
 		FlxG.camera.fade(FlxColor.BLACK, 1.5, false, () ->
 		{
-			trace('Level $LEVEL finished!');
+			trace('Level ${Gameplay.LEVEL} finished!');
 			FlxG.switchState(new ShopState());
 		});
 
@@ -148,11 +132,11 @@ class PlayState extends BaseState
 	{
 		super.create();
 
-		HUD = new HUD();
-		add(HUD);
+		Gameplay.HUD = new HUD();
+		add(Gameplay.HUD);
 
-		var level:LevelData = Json.parse(Assets.getText(Paths.getLevel(LEVEL)));
-		trace('Level $LEVEL: $level');
+		var level:LevelData = Json.parse(Assets.getText(Paths.getLevel(Gameplay.LEVEL)));
+		trace('Level ${Gameplay.LEVEL}: $level');
 
 		var parallax = new BackParallax(level.background.type, level.background.clouds);
 		add(parallax);
@@ -160,7 +144,7 @@ class PlayState extends BaseState
 		// TODO: Music level in JSON
 		FlxG.sound.playMusic(Paths.getMusic("50s-bit"));
 
-		Timer.start(HUD);
+		Timer.start(Gameplay.HUD);
 
 		// preparar el nivel
 		FlxG.camera.bgColor = FlxColor.fromRGB(level.background.redValue, level.background.greenValue, level.background.blueValue);
@@ -183,19 +167,9 @@ class PlayState extends BaseState
 
 		FlxG.camera.setScrollBoundsRect(0, 0, maxWidth, maxHeight, true);
 
-		#if !mobile
-		var keysPath:String = Paths.getImage("keys");
-		#if desktop
-		if (Input.isGamepadConnected)
-			keysPath = Paths.getImage("keysGamepad");
-		#end
-		/*tutorial = map.loadTilemap(keysPath, "Keys");
-			add(tutorial);
-			FlxTween.num(tutorial.y, tutorial.y + 2, .5, {type: PINGPONG}, (v:Float) -> tutorial.y = v); */
-		#end
-
 		// Entities
 		coins = new FlxTypedGroup<Money>();
+		breakableBlocks = new FlxTypedGroup<BreakableBlock>();
 		pickyEnemy = new FlxTypedGroup<Enemy>();
 		flag = new Flag();
 		player = new Player();
@@ -205,23 +179,9 @@ class PlayState extends BaseState
 		// Mostrar el nivel
 		add(flag);
 		add(coins);
-		add(player);
 		add(pickyEnemy);
-
-		/*if (DEMO_END)
-			{
-				var sorry = new FlxBitmapText(Fonts.DEFAULT);
-				sorry.setPosition(0, 35);
-				sorry.text = "Sorry, but you\nwon't be able to\nhave it in this\nversion";
-				sorry.alignment = CENTER;
-				sorry.screenCenter(X);
-				add(sorry);
-
-				var grapeSoda = new FlxSprite(FlxG.width - 30, 95);
-				grapeSoda.loadGraphic(Paths.getImage("items/grapesoda"));
-				add(grapeSoda);
-				FlxTween.num(grapeSoda.y, grapeSoda.y + 3, .5, {type: PINGPONG}, (v:Float) -> grapeSoda.y = v);
-		}*/
+		add(player);
+		add(breakableBlocks);
 
 		#if mobile
 		var pad = new AndroidPad();
@@ -237,15 +197,22 @@ class PlayState extends BaseState
 		Discord.changePresence(State.Level, discordPlayer, discordTime);
 		#end
 
-		HUD.cameras = [uiCamera];
+		Gameplay.HUD.cameras = [uiCamera];
 		#if mobile
 		pad.cameras = [uiCamera];
 		#end
+
+		player.punchCallback = () ->
+		{
+			if (breakableBlockSelected != null)
+				breakableBlockSelected.hurt(1);
+		};
 	}
 
-	public function pleaseCollide(enemy:Enemy, other:FlxObject)
+	function breakableBlockWithPlayer(player:Player, breakableBlock:BreakableBlock)
 	{
-		enemy.direction = enemy.justTouched(FlxObject.LEFT) ? 1 : -1;
+		if (breakableBlockSelected == null)
+			breakableBlockSelected = breakableBlock;
 	}
 
 	override public function update(elapsed:Float)
@@ -254,12 +221,17 @@ class PlayState extends BaseState
 
 		FlxG.collide(player, staticObjectsMap);
 		FlxG.collide(player, groundMap);
+		breakBlockCollision = FlxG.collide(player, breakableBlocks, breakableBlockWithPlayer);
+
+		if (!breakBlockCollision && breakableBlockSelected != null)
+			breakableBlockSelected = null;
 
 		if (player.x < 0)
 			player.x = 0;
 
-		FlxG.collide(pickyEnemy, staticObjectsMap, pleaseCollide);
-		FlxG.collide(pickyEnemy, groundMap, pleaseCollide);
+		FlxG.collide(pickyEnemy, staticObjectsMap);
+		FlxG.collide(pickyEnemy, groundMap);
+		FlxG.collide(pickyEnemy, breakableBlocks);
 
 		if (!player.invencible)
 			FlxG.collide(player, pickyEnemy, playerHitEnemy);

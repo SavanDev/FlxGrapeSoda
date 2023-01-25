@@ -32,7 +32,7 @@ class HUD extends FlxTypedGroup<FlxSprite>
 
 		// money
 		moneyCounter = new FlxBitmapText(Fonts.TOY);
-		updateMoneyCounter(PlayState.MONEY);
+		updateMoneyCounter(Gameplay.MONEY);
 		moneyCounter.setPosition(FlxG.width - moneyCounter.width - 10, initialY);
 		moneyCounter.setBorderStyle(SHADOW, FlxColor.BLACK, 1, 1);
 		moneyCounter.useTextColor = true;

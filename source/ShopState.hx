@@ -82,8 +82,8 @@ class ShopState extends BaseState
 	{
 		add(moneyIcon);
 		add(moneyCounter);
-		if (PlayState.MONEY > 0)
-			scoreTween = FlxTween.num(score, PlayState.MONEY, PlayState.MONEY * .05, {ease: FlxEase.linear, onComplete: counterEnd}, onMoneyCount);
+		if (Gameplay.MONEY > 0)
+			scoreTween = FlxTween.num(score, Gameplay.MONEY, Gameplay.MONEY * .05, {ease: FlxEase.linear, onComplete: counterEnd}, onMoneyCount);
 		else
 			counterEnd(null);
 	}
@@ -101,7 +101,7 @@ class ShopState extends BaseState
 		if (Input.SELECT || Input.SELECT_ALT)
 		{
 			scoreTween.cancel();
-			moneyCounter.text = Std.string(PlayState.MONEY);
+			moneyCounter.text = Std.string(Gameplay.MONEY);
 			counterEnd(scoreTween);
 		}
 	}
@@ -113,7 +113,7 @@ class ShopState extends BaseState
 
 	function shopEnding(timer:FlxTimer)
 	{
-		if (PlayState.MONEY < GRAPESODA_PRICE)
+		if (Gameplay.MONEY < GRAPESODA_PRICE)
 		{
 			trace("tas pobre bro :P");
 			FlxG.sound.play(Paths.getSound("failed"));
@@ -138,7 +138,7 @@ class ShopState extends BaseState
 
 			FlxG.camera.shake(0.025, 2, () ->
 			{
-				PlayState.LEVEL += 1;
+				Gameplay.LEVEL += 1;
 				FlxG.switchState(new ReadyState());
 			});
 		}

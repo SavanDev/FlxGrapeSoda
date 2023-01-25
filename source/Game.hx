@@ -12,7 +12,8 @@ class Game
 	public static inline var WIDTH:Int = TILE_SIZE * MAP_WIDTH;
 	public static inline var HEIGHT:Int = TILE_SIZE * MAP_HEIGHT;
 
-	public static inline var MAX_LIVES:Int = 3;
+	public static inline var MAX_LIVES:Int = 5;
+	public static inline var INITIAL_LEVEL:Int = 0;
 
 	public static function initialize()
 	{

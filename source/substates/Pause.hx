@@ -78,10 +78,7 @@ class Pause extends FlxSubState
 			FlxG.camera.fade(.5, () ->
 			{
 				// TODO: Hasta que haya algún sistema de guardado
-				PlayState.MONEY = 0;
-				Timer.restart();
-				PlayState.LEVEL = 1;
-				Player.LIVES = 5;
+				Gameplay.resetGlobalVariables();
 
 				FlxG.switchState(new MenuState());
 			});

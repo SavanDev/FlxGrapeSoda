@@ -3,10 +3,8 @@ package;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.addons.display.FlxBackdrop;
-import flixel.addons.editors.ogmo.FlxOgmo3Loader;
 import flixel.group.FlxSpriteGroup;
 import flixel.text.FlxBitmapText;
-import flixel.tile.FlxTilemap;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
@@ -20,8 +18,6 @@ import Discord.State;
 
 class MenuState extends BaseState
 {
-	var map:FlxOgmo3Loader;
-	var tileMap:FlxTilemap;
 	var player:Player;
 
 	var logo:FlxSpriteGroup;
@@ -31,12 +27,6 @@ class MenuState extends BaseState
 
 	static inline var LOGO_X = 63;
 	static inline var LOGO_Y = 20;
-
-	function entitiesPos(entity:EntityData)
-	{
-		if (entity.name == "Player")
-			player.setPosition(FlxG.width / 2, entity.y - 4);
-	}
 
 	function playBlink(timer:FlxTimer)
 	{
@@ -71,11 +61,7 @@ class MenuState extends BaseState
 
 		var editor:MenuItem = {
 			text: "Editor",
-			event: (menu) ->
-			{
-				menu.kill();
-				FlxG.camera.fade(0xFF111111, () -> FlxG.switchState(new editor.EditorState()));
-			}
+			event: (menu) -> menu.gotoPage("editor")
 		}
 
 		var donate:MenuItem = {
@@ -97,6 +83,25 @@ class MenuState extends BaseState
 		var exit:MenuItem = {
 			text: "Exit",
 			event: (menu) -> System.exit(0)
+		}
+
+		// Editor Menu
+		var editorNew:MenuItem = {
+			text: "New level",
+			event: (menu) ->
+			{
+				menu.kill();
+				FlxG.camera.fade(0xFF111111, () -> FlxG.switchState(new editor.EditorState()));
+			}
+		}
+
+		var editorLoad:MenuItem = {
+			text: "Load level",
+			event: (menu) ->
+			{
+				menu.kill();
+				FlxG.camera.fade(0xFF111111, () -> FlxG.switchState(new editor.EditorState(true)));
+			}
 		}
 
 		// Options Menu
@@ -137,6 +142,7 @@ class MenuState extends BaseState
 
 		#if desktop
 		menu.addPage("main", [newGame, editor, options, donate, exit]);
+		menu.addPage("editor", [editorNew, editorLoad, optBack]);
 		menu.addPage("options", [optFullWindow, optMusicOff, optGamepad, optBack]);
 		#elseif web
 		menu.addPage("main", [newGame, options, donate]);
@@ -216,16 +222,16 @@ class MenuState extends BaseState
 		FlxG.camera.bgColor = 0xFF64A5FF;
 
 		// fondo
-		var parallax = new FlxBackdrop(Paths.getImage("parallax/mountain"), X, 0, 0);
+		var parallax = new FlxBackdrop(Paths.getImage("parallax/mountain"), X);
 		parallax.y = 65;
 		add(parallax);
 
 		// mini nivel
-		map = new FlxOgmo3Loader(Paths.getOgmoData(), Paths.getMap("menuMap"));
-		tileMap = map.loadTilemap(Paths.getImage("map/tileMap"), "Blocks");
-		add(tileMap);
+		var grassParallax = new FlxBackdrop(Paths.getImage("menu/grassMenu"), X);
+		grassParallax.y = 120;
+		add(grassParallax);
 		player = new Player(0, 0, true);
-		map.loadEntities(entitiesPos, "Entities");
+		player.setPosition(FlxG.width / 2, grassParallax.y - (player.height + player.offset.y));
 		add(player);
 
 		// musica

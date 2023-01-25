@@ -1,7 +1,5 @@
 package util;
 
-import editor.EditorState;
-import flixel.FlxG;
 import flixel.FlxSprite;
 
 class FlxSpriteEditor extends FlxSprite
@@ -30,6 +28,7 @@ class FlxSpriteEditor extends FlxSprite
 		1 -> Enemy
 		2 -> Coin
 		3 -> Flag
+		4 -> Breakable block
 	 */
 	function set_entityType(value:Int):Int
 	{
@@ -38,11 +37,13 @@ class FlxSpriteEditor extends FlxSprite
 			case 0:
 				loadGraphic(Paths.getImage('player'), true, 12, 24);
 			case 1:
-				loadGraphic(Paths.getImage('picky'), true, 12, 12);
+				loadGraphic(Paths.getImage('enemies/picky'), true, 12, 12);
 			case 2:
 				loadGraphic(Paths.getImage('items/coin'), true, 12, 12);
 			case 3:
-				loadGraphic(Paths.getImage('items/flag'), true, 24, 48);
+				loadGraphic(Paths.getImage('objects/flag'), true, 24, 48);
+			case 4:
+				loadGraphic(Paths.getImage('objects/breakableBlock'), true, 12, 24);
 		}
 		return entityType = value;
 	}

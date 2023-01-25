@@ -3,12 +3,12 @@ package objects;
 import flixel.FlxG;
 import flixel.FlxSprite;
 
-class BreakBlock extends FlxSprite
+class BreakableBlock extends FlxSprite
 {
 	public function new(x:Float = 0, y:Float = 0)
 	{
 		super(x, y);
-		loadGraphic(Paths.getImage("breakBlock"), true, 12, 24);
+		loadGraphic(Paths.getImage("objects/breakableBlock"), true, 12, 24);
 		health = 2;
 		animation.add("default", [0]);
 		animation.add("break", [1]);

@@ -1,7 +1,6 @@
 package objects;
 
 import flixel.FlxG;
-import flixel.FlxObject;
 import flixel.FlxSprite;
 import flixel.effects.FlxFlicker;
 import flixel.util.FlxTimer;
@@ -17,7 +16,6 @@ enum Character
 class Player extends FlxSprite
 {
 	public static inline var SPEED:Float = 75;
-	static inline var GRAVITY:Float = 300;
 	static inline var JUMP_POWER:Float = 100;
 
 	public static var CHARACTER:Character = Dylan;
@@ -54,12 +52,12 @@ class Player extends FlxSprite
 		loadGraphic(skin, true, 12, 24);
 
 		// para las colisiones
-		setSize(8, 18);
-		offset.set(3, 6);
+		setSize(7, 18);
+		offset.set(2, 6);
 
 		// para las animaciones
-		setFacingFlip(FlxObject.LEFT, true, false);
-		setFacingFlip(FlxObject.RIGHT, false, false);
+		setFacingFlip(LEFT, true, false);
+		setFacingFlip(RIGHT, false, false);
 		animation.add("default", [1, 2], 3);
 		animation.add("walk", [3, 4, 3, 5], 5);
 		animation.add("jump", [6], 0);
@@ -73,10 +71,11 @@ class Player extends FlxSprite
 		if (!invencible)
 		{
 			trace("Player Hurt!");
+			FlxG.camera.shake(.01, .15);
 			FlxG.sound.play(Paths.getSound("hurt"));
 			LIVES -= Std.int(damage);
-			if (PlayState.HUD != null)
-				PlayState.HUD.updateLivesCounter(LIVES);
+			if (Gameplay.HUD != null)
+				Gameplay.HUD.updateLivesCounter(LIVES);
 			super.hurt(damage);
 		}
 		invencible = true;
@@ -93,7 +92,7 @@ class Player extends FlxSprite
 		if (canMove)
 		{
 			this.drag.x = SPEED * 10;
-			this.acceleration.y = GRAVITY;
+			this.acceleration.y = Gameplay.GRAVITY;
 		}
 	}
 
@@ -114,13 +113,13 @@ class Player extends FlxSprite
 		if (left && !right)
 		{
 			velocity.x = -SPEED;
-			facing = FlxObject.LEFT;
+			facing = LEFT;
 		}
 
 		if (right && !left)
 		{
 			velocity.x = SPEED;
-			facing = FlxObject.RIGHT;
+			facing = RIGHT;
 		}
 
 		// sistema de salto (gracias HaxeFlixel Snippets!)
@@ -131,7 +130,7 @@ class Player extends FlxSprite
 			FlxG.sound.play(Paths.getSound("jump"));
 
 		// coyote time
-		if (isTouching(FlxObject.DOWN))
+		if (isTouching(DOWN))
 			coyoteTime = 0;
 		else
 			coyoteTime += elapsed;
@@ -160,11 +159,17 @@ class Player extends FlxSprite
 			if (punchCallback != null)
 				punchCallback();
 		}
+
+		if (facing == LEFT)
+			offset.set(3, 6);
+
+		if (facing == RIGHT)
+			offset.set(2, 6);
 	}
 
 	function playerAnimation()
 	{
-		if (!isTouching(FlxObject.DOWN) && canMove)
+		if (!isTouching(DOWN) && canMove)
 			animation.play("jump");
 		else
 		{

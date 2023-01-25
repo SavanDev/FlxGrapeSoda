@@ -82,21 +82,21 @@ class Discord
 				});
 			case Level:
 				DiscordRpc.presence({
-					details: 'Playing Level ${PlayState.LEVEL}',
-					state: 'Coins: ${PlayState.MONEY}',
+					details: 'Playing Level ${Gameplay.WORLD}-${Gameplay.LEVEL}',
+					state: 'Coins: ${Gameplay.MONEY}',
 					largeImageKey: 'icon', // 'icon$player',
 					startTimestamp: Std.int(initialTime / 1000)
 				});
 			case Shop:
 				DiscordRpc.presence({
 					details: 'In the Shop',
-					state: 'Coins: ${PlayState.MONEY}',
+					state: 'Coins: ${Gameplay.MONEY}',
 					largeImageKey: 'icon'
 				});
 			case DemoEnd:
 				DiscordRpc.presence({
 					details: 'Demo finished!',
-					state: 'Coins: ${PlayState.MONEY}',
+					state: 'Coins: ${Gameplay.MONEY}',
 					largeImageKey: 'icon'
 				});
 		}

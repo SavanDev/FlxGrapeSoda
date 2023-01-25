@@ -1,3 +1,4 @@
+import Gameplay;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.text.FlxBitmapText;
@@ -6,12 +7,7 @@ import haxe.Json;
 import lime.utils.Assets;
 import objects.Player;
 import states.ComicState;
-
-typedef PlayerData =
-{
-	var player:String;
-	var cutscene:String;
-}
+import states.PlayState;
 
 class ReadyState extends BaseState
 {
@@ -29,11 +25,11 @@ class ReadyState extends BaseState
 	{
 		super.create();
 		FlxG.camera.bgColor = 0xFF111111;
-		var levelExists = Assets.exists(Paths.getLevel(PlayState.LEVEL));
+		var levelExists = Assets.exists(Paths.getLevel(Gameplay.LEVEL));
 
 		if (levelExists)
 		{
-			var level:PlayerData = Json.parse(Assets.getText(Paths.getLevel(PlayState.LEVEL)));
+			var level:MinimalLevelData = Json.parse(Assets.getText(Paths.getLevel(Gameplay.LEVEL)));
 
 			if (level.cutscene != null && Assets.exists('assets/data/cutscenes/${level.cutscene}.json') && SHOW_CUTSCENE)
 			{
@@ -59,7 +55,7 @@ class ReadyState extends BaseState
 		{
 			// mostrar nivel
 			var levelText = new FlxBitmapText(Fonts.DEFAULT_16);
-			levelText.text = 'Level ${PlayState.LEVEL}';
+			levelText.text = 'Level ${Gameplay.LEVEL}';
 			levelText.screenCenter();
 			levelText.y -= 35;
 			add(levelText);
@@ -79,7 +75,7 @@ class ReadyState extends BaseState
 
 			var moneyCount = new FlxBitmapText(Fonts.DEFAULT);
 			moneyCount.screenCenter();
-			moneyCount.text = 'x ${PlayState.MONEY}';
+			moneyCount.text = 'x ${Gameplay.MONEY}';
 			moneyCount.y++;
 			moneyCount.x += 15;
 			add(moneyCount);

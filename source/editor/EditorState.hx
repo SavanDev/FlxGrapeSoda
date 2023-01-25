@@ -1,12 +1,11 @@
 package editor;
 
-import PlayState.LevelData;
+import Gameplay;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.addons.ui.FlxInputText;
 import flixel.group.FlxGroup;
 import flixel.group.FlxSpriteGroup;
-import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
 import flixel.text.FlxBitmapText;
 import flixel.text.FlxText;
@@ -28,6 +27,7 @@ enum EditorMode
 	Background;
 	ExitWarning;
 	Export;
+	Load;
 }
 
 enum ButtonShortcut
@@ -67,7 +67,7 @@ class EditorState extends BaseState
 	static inline var SCROLL_SPEED:Int = 3;
 	static inline var PLAYERS_SEPARATION:Int = 20;
 
-	var editorState:EditorMode = Tilemap;
+	var editorState:EditorMode;
 	var lastShortcut:Array<Shortcut>;
 	var canChangeState:Bool = true;
 	var canScroll:Bool = true;
@@ -137,8 +137,17 @@ class EditorState extends BaseState
 	// Export
 	var inputText:FlxInputText;
 	var messageExport:FlxBitmapText;
+	var saveTextUI:FlxBitmapText;
 
 	static inline var BACKGROUND_TYPE_LIMIT:Int = 1; // Cantidad de fondos disponibles (contando el 0)
+
+	var loadLevelAtStart:Bool = false;
+
+	public function new(loadLevel:Bool = false)
+	{
+		super();
+		loadLevelAtStart = loadLevel;
+	}
 
 	// Shortcuts!
 	var shortcutsGeneral:Array<Shortcut> = [
@@ -207,14 +216,6 @@ class EditorState extends BaseState
 		{
 			name: "Back",
 			button: BtnEsc
-		},
-		{
-			name: "Load",
-			button: BtnX
-		},
-		{
-			name: "Save",
-			button: BtnS
 		}
 	];
 
@@ -404,7 +405,7 @@ class EditorState extends BaseState
 
 	function addEntityToMap()
 	{
-		var entityPos:String = '$mouseX-$mouseY';
+		var entityPos:String = '${currentEntity.x}-${currentEntity.y}';
 		var newEntityCopy = new FlxSpriteEditor(currentEntity.getEntityType(), currentEntity.x, currentEntity.y);
 
 		if (!entitiesPositions.contains(entityPos))
@@ -422,7 +423,7 @@ class EditorState extends BaseState
 
 	function removeEntityToMap()
 	{
-		var entityPos:String = '$mouseX-$mouseY'; // ID improvisado
+		var entityPos:String = '${currentEntity.x}-${currentEntity.y}';
 		if (entitiesPositions.contains(entityPos))
 		{
 			var entityIndex:Int = entitiesPositions.indexOf(entityPos);
@@ -891,7 +892,7 @@ class EditorState extends BaseState
 		exitUI.add(exitBackground);
 
 		var exitText = new FlxBitmapText();
-		exitText.text = "Are you sure you want to leave the editor?\nAll unavailable changes will be erased!\n\nPress ESC again to exit.";
+		exitText.text = "Are you sure you want to leave the editor?\nAll unavailable changes will be erased!\n\nPress ESC again to exit.\nPress ENTER to cancel and back.";
 		exitText.multiLine = true;
 		exitText.alignment = CENTER;
 		exitText.screenCenter();
@@ -907,6 +908,11 @@ class EditorState extends BaseState
 		{
 			FlxG.mouse.visible = false;
 			FlxG.switchState(new MenuState());
+		}
+		if (FlxG.keys.justPressed.ENTER)
+		{
+			changeState(Tilemap);
+			new FlxTimer().start((tmr) -> canChangeState = true);
 		}
 	}
 
@@ -938,7 +944,7 @@ class EditorState extends BaseState
 		messageExport.multiLine = true;
 		exportUI.add(messageExport);
 
-		var saveTextUI = new FlxBitmapText();
+		saveTextUI = new FlxBitmapText();
 		saveTextUI.setPosition(width - 35, height - 10);
 		saveTextUI.text = "Save";
 		exportUI.add(saveTextUI);
@@ -953,19 +959,6 @@ class EditorState extends BaseState
 
 	function onExportUpdate()
 	{
-		if (!inputText.hasFocus)
-		{
-			if (FlxG.keys.justPressed.X)
-			{
-				readJSONLevel();
-				changeState(Tilemap);
-				new FlxTimer().start((tmr) -> canChangeState = true);
-			}
-
-			if (FlxG.keys.justPressed.S)
-				exportLevel();
-		}
-
 		if (FlxG.keys.justPressed.ENTER)
 			exportLevel();
 
@@ -984,6 +977,31 @@ class EditorState extends BaseState
 		File.saveContent('maps/${inputText.text}.json', generateJSONLevel());
 		messageExport.text = "Level saved!";
 		trace("Map exported successful!");
+	}
+
+	/*
+		Load level
+	 */
+	function onLoadCreate()
+	{
+		messageExport.text = 'The level should be at:\n"maps/*"';
+		saveTextUI.text = "Load";
+	}
+
+	function onLoadUpdate()
+	{
+		if (FlxG.keys.justPressed.ENTER)
+		{
+			readJSONLevel();
+			changeState(Tilemap);
+			new FlxTimer().start((tmr) -> canChangeState = true);
+		}
+
+		if (FlxG.keys.justPressed.ESCAPE)
+		{
+			changeState(Tilemap);
+			new FlxTimer().start((tmr) -> canChangeState = true);
+		}
 	}
 
 	/*
@@ -1051,7 +1069,7 @@ class EditorState extends BaseState
 		actualPlayer.cameras = [uiCamera];
 
 		changeBackValue(0);
-		changeState(Tilemap);
+		changeState(!loadLevelAtStart ? Tilemap : Load);
 	}
 
 	override public function update(elapsed:Float)
@@ -1078,6 +1096,8 @@ class EditorState extends BaseState
 				onExitUpdate();
 			case Export:
 				onExportUpdate();
+			case Load:
+				onLoadUpdate();
 		}
 
 		if (FlxG.mouse.getPosition().y >= sprLayers.y)
@@ -1198,6 +1218,7 @@ class EditorState extends BaseState
 				extraUI.visible = false;
 				backgroundUI.visible = false;
 				canScroll = false;
+				canChangeState = false;
 				shortcutUI.visible = false;
 				exportUI.visible = false;
 				editorText.text = "";
@@ -1211,8 +1232,24 @@ class EditorState extends BaseState
 				canScroll = false;
 				canChangeState = false;
 				exportUI.visible = true;
+				messageExport.text = 'The level will be saved in:\n"maps/*"';
+				saveTextUI.text = "Save";
 				generateShortcutViewer(shortcutsExport);
 				editorText.text = "EXPORT LEVEL";
+			case Load:
+				exitUI.visible = false;
+				tilemapUI.visible = false;
+				entityUI.visible = false;
+				playerUI.visible = false;
+				extraUI.visible = false;
+				backgroundUI.visible = false;
+				canScroll = false;
+				canChangeState = false;
+				exportUI.visible = true;
+				messageExport.text = 'The level should be at:\n"maps/*"';
+				saveTextUI.text = "Load";
+				generateShortcutViewer(shortcutsExport);
+				editorText.text = "LOAD LEVEL";
 		}
 		editorState = state;
 	}
