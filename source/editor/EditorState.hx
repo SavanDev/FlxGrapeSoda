@@ -1,5 +1,6 @@
 package editor;
 
+#if EDITOR
 import Gameplay;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -28,6 +29,7 @@ enum EditorMode
 	ExitWarning;
 	Export;
 	Load;
+	Music;
 }
 
 enum ButtonShortcut
@@ -80,6 +82,7 @@ class EditorState extends BaseState
 	var exportUI:FlxGroup;
 	var shortcutUI:FlxGroup;
 	var extraUI:FlxGroup;
+	var musicUI:FlxGroup;
 
 	var uiBorder:FlxSprite;
 	var sprLayers:FlxSprite;
@@ -139,6 +142,9 @@ class EditorState extends BaseState
 	var messageExport:FlxBitmapText;
 	var saveTextUI:FlxBitmapText;
 
+	// Music
+	var inputMusic:FlxInputText;
+
 	static inline var BACKGROUND_TYPE_LIMIT:Int = 1; // Cantidad de fondos disponibles (contando el 0)
 
 	var loadLevelAtStart:Bool = false;
@@ -172,7 +178,7 @@ class EditorState extends BaseState
 			button: BtnH
 		},
 		{
-			name: "Hide Shortcuts",
+			name: "Sounds",
 			button: BtnS
 		},
 		{
@@ -209,10 +215,25 @@ class EditorState extends BaseState
 		{
 			name: "Toggle clouds",
 			button: BtnC
+		},
+		{
+			name: "Back",
+			button: BtnEsc
 		}
 	];
 
 	var shortcutsExport:Array<Shortcut> = [
+		{
+			name: "Back",
+			button: BtnEsc
+		}
+	];
+
+	var shortcutsMusic:Array<Shortcut> = [
+		{
+			name: "Stop music",
+			button: BtnS
+		},
 		{
 			name: "Back",
 			button: BtnEsc
@@ -585,7 +606,8 @@ class EditorState extends BaseState
 				redValue: redValue,
 				greenValue: greenValue,
 				blueValue: blueValue
-			}
+			},
+			music: inputMusic.text
 		};
 		return Json.stringify(result, "\t");
 	}
@@ -877,6 +899,12 @@ class EditorState extends BaseState
 			backParallax.toggleClouds();
 			backgroundClouds = !backgroundClouds;
 		}
+
+		if (FlxG.keys.justPressed.ESCAPE)
+		{
+			changeState(Tilemap);
+			new FlxTimer().start((tmr) -> canChangeState = true);
+		}
 	}
 
 	/*
@@ -1005,6 +1033,62 @@ class EditorState extends BaseState
 	}
 
 	/*
+		Music options
+	 */
+	function onMusicCreate()
+	{
+		musicUI = new FlxGroup();
+
+		var width:Int = Std.int(Game.WIDTH / 2);
+		var height:Int = Std.int(Game.HEIGHT / 2 + 20);
+
+		var musicBackground = new FlxSprite(5, 5);
+		musicBackground.makeGraphic(width, height, 0xAA000000);
+		musicUI.add(musicBackground);
+
+		var musicFileNameUI = new FlxBitmapText();
+		musicFileNameUI.setPosition(10, 10);
+		musicFileNameUI.text = "File name:";
+		musicUI.add(musicFileNameUI);
+
+		inputMusic = new FlxInputText(10, 20, width - 10, "50s-bit");
+		musicUI.add(inputMusic);
+
+		var messageMusic = new FlxBitmapText();
+		messageMusic.setPosition(10, inputText.y + inputText.height + 5);
+		messageMusic.text = 'The file should be at:\n"maps/music/*.ogg"\nor\n"assets/music/*.ogg"';
+		messageMusic.multiLine = true;
+		musicUI.add(messageMusic);
+
+		var musicTestUI = new FlxBitmapText();
+		musicTestUI.setPosition(width - 35, height - 10);
+		musicTestUI.text = "Play";
+		musicUI.add(musicTestUI);
+
+		var saveButtonUI = new FlxSprite(width - 15, height - 15);
+		saveButtonUI.loadGraphic(Paths.getImage("enter-button"));
+		musicUI.add(saveButtonUI);
+
+		musicUI.cameras = [uiCamera];
+		add(musicUI);
+	}
+
+	function onMusicUpdate()
+	{
+		if (FlxG.keys.justPressed.ENTER)
+			FlxG.sound.playMusic(Paths.getMusic(inputMusic.text));
+
+		if (FlxG.keys.justPressed.S && FlxG.sound.music.playing)
+			FlxG.sound.music.stop();
+
+		if (FlxG.keys.justPressed.ESCAPE)
+		{
+			changeState(Tilemap);
+			new FlxTimer().start((tmr) -> canChangeState = true);
+		}
+	}
+
+	/*
 		FlxState functions
 	 */
 	override public function create()
@@ -1051,6 +1135,7 @@ class EditorState extends BaseState
 		onPlayersCreate();
 		onExportCreate();
 		onExitCreate();
+		onMusicCreate();
 
 		sprLayers = new FlxSprite(Game.WIDTH - 40, uiBorder.y - 9);
 		sprLayers.loadGraphic(Paths.getImage("layers"), true, 32, 9);
@@ -1098,6 +1183,8 @@ class EditorState extends BaseState
 				onExportUpdate();
 			case Load:
 				onLoadUpdate();
+			case Music:
+				onMusicUpdate();
 		}
 
 		if (FlxG.mouse.getPosition().y >= sprLayers.y)
@@ -1115,9 +1202,6 @@ class EditorState extends BaseState
 		{
 			if (FlxG.keys.justPressed.H)
 				uiCamera.visible = !uiCamera.visible;
-
-			if (FlxG.keys.justPressed.S)
-				shortcutUI.visible = !shortcutUI.visible;
 		}
 
 		if (canChangeState)
@@ -1136,6 +1220,9 @@ class EditorState extends BaseState
 
 			if (FlxG.keys.justPressed.X)
 				changeState(Export);
+
+			if (FlxG.keys.justPressed.S)
+				changeState(Music);
 
 			if (FlxG.keys.justPressed.ESCAPE)
 				changeState(ExitWarning);
@@ -1175,7 +1262,9 @@ class EditorState extends BaseState
 				setLayerTilePreview();
 				exitUI.visible = false;
 				exportUI.visible = false;
+				shortcutUI.visible = true;
 				editorText.text = "LEVEL EDITOR";
+				musicUI.visible = false;
 			case Entity:
 				tilemapUI.visible = false;
 				entityUI.visible = true;
@@ -1188,6 +1277,7 @@ class EditorState extends BaseState
 				exitUI.visible = false;
 				exportUI.visible = false;
 				editorText.text = "ENTITY EDITOR";
+				musicUI.visible = false;
 			case PlayerSelection:
 				tilemapUI.visible = false;
 				entityUI.visible = false;
@@ -1199,6 +1289,7 @@ class EditorState extends BaseState
 				exitUI.visible = false;
 				exportUI.visible = false;
 				editorText.text = "PLAYER EDITOR";
+				musicUI.visible = false;
 			case Background:
 				tilemapUI.visible = false;
 				entityUI.visible = false;
@@ -1209,7 +1300,9 @@ class EditorState extends BaseState
 				generateShortcutViewer(shortcutsBackground);
 				exitUI.visible = false;
 				exportUI.visible = false;
+				canChangeState = false;
 				editorText.text = "BACKGROUND EDITOR";
+				musicUI.visible = false;
 			case ExitWarning:
 				exitUI.visible = true;
 				tilemapUI.visible = false;
@@ -1222,6 +1315,7 @@ class EditorState extends BaseState
 				shortcutUI.visible = false;
 				exportUI.visible = false;
 				editorText.text = "";
+				musicUI.visible = false;
 			case Export:
 				exitUI.visible = false;
 				tilemapUI.visible = false;
@@ -1236,6 +1330,7 @@ class EditorState extends BaseState
 				saveTextUI.text = "Save";
 				generateShortcutViewer(shortcutsExport);
 				editorText.text = "EXPORT LEVEL";
+				musicUI.visible = false;
 			case Load:
 				exitUI.visible = false;
 				tilemapUI.visible = false;
@@ -1250,7 +1345,22 @@ class EditorState extends BaseState
 				saveTextUI.text = "Load";
 				generateShortcutViewer(shortcutsExport);
 				editorText.text = "LOAD LEVEL";
+				musicUI.visible = false;
+			case Music:
+				exitUI.visible = false;
+				tilemapUI.visible = false;
+				entityUI.visible = false;
+				playerUI.visible = false;
+				extraUI.visible = false;
+				backgroundUI.visible = false;
+				canScroll = false;
+				canChangeState = false;
+				exportUI.visible = false;
+				musicUI.visible = true;
+				generateShortcutViewer(shortcutsMusic);
+				editorText.text = "MUSIC LEVEL";
 		}
 		editorState = state;
 	}
 }
+#end

@@ -40,13 +40,13 @@ class ReadyState extends BaseState
 
 			switch (level.player)
 			{
-				case "dylan":
+				case 0:
 					Player.CHARACTER = Dylan;
-				case "luka":
+				case 1:
 					Player.CHARACTER = Luka;
-				case "watanoge":
+				case 2:
 					Player.CHARACTER = Watanoge;
-				case "asdonaur":
+				case 3:
 					Player.CHARACTER = Asdonaur;
 			}
 		}

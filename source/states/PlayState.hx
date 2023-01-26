@@ -2,7 +2,6 @@ package states;
 
 import Gameplay;
 import flixel.FlxG;
-import flixel.FlxObject;
 import flixel.group.FlxGroup;
 import flixel.math.FlxPoint;
 import flixel.tile.FlxTilemap;
@@ -20,9 +19,6 @@ import substates.GameOver;
 import substates.Pause;
 import types.Entity;
 import util.Timer;
-#if desktop
-import Discord.State;
-#end
 #if mobile
 import mobile.AndroidPad;
 #end
@@ -49,12 +45,6 @@ class PlayState extends BaseState
 	var offLimits:Bool = false;
 	var finished:Bool = false;
 	var tutorial:FlxTilemap;
-
-	#if (desktop && cpp)
-	// discord
-	public static var discordTime:Float;
-	public static var discordPlayer:Int;
-	#end
 
 	// Functions!
 	function initializeEntities(entities:Array<Entity>)
@@ -141,8 +131,8 @@ class PlayState extends BaseState
 		var parallax = new BackParallax(level.background.type, level.background.clouds);
 		add(parallax);
 
-		// TODO: Music level in JSON
-		FlxG.sound.playMusic(Paths.getMusic("50s-bit"));
+		var levelMusic = level.music != null ? Paths.getMusic(level.music) : Paths.getMusic("50s-bit");
+		FlxG.sound.playMusic(levelMusic);
 
 		Timer.start(Gameplay.HUD);
 
@@ -190,12 +180,6 @@ class PlayState extends BaseState
 
 		// preparar el juego
 		FlxG.camera.follow(player, PLATFORMER, .1);
-
-		#if (cpp && desktop)
-		discordTime = Date.now().getTime();
-		discordPlayer = level.player;
-		Discord.changePresence(State.Level, discordPlayer, discordTime);
-		#end
 
 		Gameplay.HUD.cameras = [uiCamera];
 		#if mobile

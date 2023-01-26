@@ -8,9 +8,6 @@ import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import objects.Player;
-#if desktop
-import Discord.State;
-#end
 
 class ShopState extends BaseState
 {
@@ -29,10 +26,6 @@ class ShopState extends BaseState
 	override public function create()
 	{
 		super.create();
-
-		#if (cpp && desktop)
-		Discord.changePresence(State.Shop);
-		#end
 
 		FlxG.camera.bgColor = FlxColor.BLACK;
 

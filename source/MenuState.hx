@@ -12,9 +12,6 @@ import lime.app.Application;
 import lime.system.System;
 import objects.Player;
 import util.Menu;
-#if desktop
-import Discord.State;
-#end
 
 class MenuState extends BaseState
 {
@@ -85,6 +82,7 @@ class MenuState extends BaseState
 			event: (menu) -> System.exit(0)
 		}
 
+		#if EDITOR
 		// Editor Menu
 		var editorNew:MenuItem = {
 			text: "New level",
@@ -103,6 +101,7 @@ class MenuState extends BaseState
 				FlxG.camera.fade(0xFF111111, () -> FlxG.switchState(new editor.EditorState(true)));
 			}
 		}
+		#end
 
 		// Options Menu
 		var optFullWindow:MenuItem = {
@@ -141,8 +140,12 @@ class MenuState extends BaseState
 		}
 
 		#if desktop
+		#if EDITOR
 		menu.addPage("main", [newGame, editor, options, donate, exit]);
 		menu.addPage("editor", [editorNew, editorLoad, optBack]);
+		#else
+		menu.addPage("main", [newGame, options, donate, exit]);
+		#end
 		menu.addPage("options", [optFullWindow, optMusicOff, optGamepad, optBack]);
 		#elseif web
 		menu.addPage("main", [newGame, options, donate]);
@@ -160,19 +163,6 @@ class MenuState extends BaseState
 	override public function create()
 	{
 		super.create();
-
-		#if (desktop && cpp)
-		if (!Discord.hasStarted)
-		{
-			Discord.init();
-			Application.current.onExit.add((exitCode) ->
-			{
-				Discord.close();
-			});
-		}
-		else
-			Discord.changePresence(State.Title);
-		#end
 
 		// start!
 		var startText:String;

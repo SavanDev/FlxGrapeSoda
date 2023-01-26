@@ -14,18 +14,18 @@ typedef LevelData =
 			greenValue:Int,
 			blueValue:Int
 		};
+	var music:String;
 }
 
 typedef MinimalLevelData =
 {
-	var player:String;
+	var player:Int;
 	var cutscene:String;
 }
 
 class Gameplay
 {
 	public static var LEVEL:Int = 0;
-	public static var WORLD:Int = 1;
 
 	public static var MONEY:Int = 0;
 	public static var HUD:HUD;
@@ -38,5 +38,6 @@ class Gameplay
 		Timer.restart();
 		LEVEL = Game.INITIAL_LEVEL;
 		Player.LIVES = Game.MAX_LIVES;
+		Player.CHARACTER = Dylan;
 	}
 }

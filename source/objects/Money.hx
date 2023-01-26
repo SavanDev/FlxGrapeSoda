@@ -1,6 +1,5 @@
 package objects;
 
-import Discord.State;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.tweens.FlxEase;
