@@ -35,10 +35,12 @@ class Paths
 
 	static public function getLevel(number:Int)
 	{
-		if (number == -1)
-			return 'assets/data/levels/levelTest.json';
-		else
-			return 'assets/data/levels/level$number.json';
+		return 'assets/data/levels/level$number.json';
+	}
+
+	static public function getCustomLevel(level:String)
+	{
+		return 'maps/$level.json';
 	}
 
 	static public function getMap(file:String)

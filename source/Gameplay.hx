@@ -25,7 +25,9 @@ typedef MinimalLevelData =
 
 class Gameplay
 {
+	public static var STORY_MODE:Bool = true;
 	public static var LEVEL:Int = 0;
+	public static var LEVELNAME:String;
 
 	public static var MONEY:Int = 0;
 	public static var HUD:HUD;
@@ -39,5 +41,6 @@ class Gameplay
 		LEVEL = Game.INITIAL_LEVEL;
 		Player.LIVES = Game.MAX_LIVES;
 		Player.CHARACTER = Dylan;
+		Gameplay.STORY_MODE = true;
 	}
 }

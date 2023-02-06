@@ -132,7 +132,7 @@ class ShopState extends BaseState
 			FlxG.camera.shake(0.025, 2, () ->
 			{
 				Gameplay.LEVEL += 1;
-				FlxG.switchState(new ReadyState());
+				FlxG.switchState(Gameplay.STORY_MODE ? new ReadyState() : new MenuState());
 			});
 		}
 	}

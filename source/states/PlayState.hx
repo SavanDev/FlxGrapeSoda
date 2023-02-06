@@ -21,6 +21,7 @@ import objects.Sign;
 import states.CharacterState;
 import substates.GameOver;
 import substates.Pause;
+import sys.io.File;
 import types.Entity;
 import util.Timer;
 #if mobile
@@ -55,7 +56,6 @@ class PlayState extends BaseState
 	var finished:Bool = false;
 	var tutorial:FlxTilemap;
 
-	// Functions!
 	function initializeEntities(entities:Array<Entity>)
 	{
 		for (entity in entities)
@@ -136,7 +136,7 @@ class PlayState extends BaseState
 		Gameplay.HUD = new HUD();
 		add(Gameplay.HUD);
 
-		var level:LevelData = Json.parse(Assets.getText(Paths.getLevel(Gameplay.LEVEL)));
+		var level:LevelData = Json.parse(File.getContent(Gameplay.STORY_MODE ? Paths.getLevel(Gameplay.LEVEL) : Paths.getCustomLevel(Gameplay.LEVELNAME)));
 		trace('Level ${Gameplay.LEVEL}: $level');
 
 		var parallax = new BackParallax(level.background.type, level.background.clouds);
@@ -211,7 +211,7 @@ class PlayState extends BaseState
 
 		backgroundSign = new FlxSprite();
 		backgroundSign.makeGraphic(FlxG.width, 20, 0xAA000000);
-		backgroundSign.setPosition(0, FlxG.height - backgroundSign.height);
+		backgroundSign.setPosition(0, FlxG.height / 2);
 		signUI.add(backgroundSign);
 
 		signText = new FlxBitmapText(Fonts.DEFAULT);

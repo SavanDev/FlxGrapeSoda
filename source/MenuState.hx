@@ -11,11 +11,13 @@ import flixel.util.FlxTimer;
 import lime.app.Application;
 import lime.system.System;
 import objects.Player;
+import sys.FileSystem;
 import util.Menu;
 
 class MenuState extends BaseState
 {
 	var player:Player;
+	var levels:Array<String>;
 
 	var logo:FlxSpriteGroup;
 	var playText:FlxBitmapText;
@@ -47,7 +49,7 @@ class MenuState extends BaseState
 
 		// Main Menu
 		var newGame:MenuItem = {
-			text: "New Game",
+			text: "Story mode",
 			event: (menu) ->
 			{
 				menu.kill();
@@ -140,9 +142,42 @@ class MenuState extends BaseState
 			event: (menu) -> menu.gotoPage("main")
 		}
 
+		var customLevels:Array<MenuItem> = new Array<MenuItem>();
+
+		for (level in levels)
+		{
+			if (level.indexOf(".json") != -1)
+			{
+				var levelName = level.split(".json")[0];
+
+				var menuLevel:MenuItem = {
+					text: levelName,
+					event: (menu) ->
+					{
+						menu.kill();
+						FlxG.sound.play(Paths.getSound("select"));
+						Gameplay.resetGlobalVariables();
+						Gameplay.STORY_MODE = false;
+						Gameplay.LEVELNAME = levelName;
+						FlxG.camera.fade(0xFF111111, () -> FlxG.switchState(new ReadyState()));
+					}
+				}
+
+				customLevels.push(menuLevel);
+			}
+		}
+
+		customLevels.push(optBack);
+		menu.addPage("levels", customLevels);
+
+		var customLevelsMenu:MenuItem = {
+			text: "Custom levels",
+			event: (menu) -> menu.gotoPage("levels")
+		}
+
 		#if desktop
 		#if EDITOR
-		menu.addPage("main", [newGame, editor, options, donate, exit]);
+		menu.addPage("main", [newGame, customLevelsMenu, editor, options, donate, exit]);
 		menu.addPage("editor", [editorNew, editorLoad, optBack]);
 		#else
 		menu.addPage("main", [newGame, options, donate, exit]);
@@ -243,6 +278,9 @@ class MenuState extends BaseState
 
 		// FIXME: Pequeño arreglo temporal. Luego voy a tener que estudiar un poco más el sistema de sonidos.
 		FlxG.sound.defaultSoundGroup.volume = .5;
+
+		// Custom levels
+		levels = FileSystem.exists("maps") ? FileSystem.readDirectory("maps") : [];
 	}
 
 	override public function update(elapsed:Float)

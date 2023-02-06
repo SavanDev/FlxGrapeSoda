@@ -8,6 +8,8 @@ import lime.utils.Assets;
 import objects.Player;
 import states.ComicState;
 import states.PlayState;
+import sys.FileSystem;
+import sys.io.File;
 
 class ReadyState extends BaseState
 {
@@ -19,13 +21,17 @@ class ReadyState extends BaseState
 	{
 		super.create();
 		FlxG.camera.bgColor = 0xFF111111;
-		var levelExists = Assets.exists(Paths.getLevel(Gameplay.LEVEL));
+		var level = Gameplay.STORY_MODE ? Paths.getLevel(Gameplay.LEVEL) : Paths.getCustomLevel(Gameplay.LEVELNAME);
+		var levelExists = FileSystem.exists(level);
+		trace(levelExists);
 
 		if (levelExists)
 		{
-			var level:MinimalLevelData = Json.parse(Assets.getText(Paths.getLevel(Gameplay.LEVEL)));
+			var level:MinimalLevelData = Json.parse(File.getContent(level));
 
-			if (level.cutscene != null && Assets.exists('assets/data/cutscenes/${level.cutscene}.json') && SHOW_CUTSCENE)
+			if (level.cutscene != null
+				&& Assets.exists('assets/data/cutscenes/${level.cutscene}.json')
+				&& SHOW_CUTSCENE) // TODO: Custom Cutscenes
 			{
 				SHOW_CUTSCENE = false;
 				loadCutscene = true;
@@ -49,7 +55,7 @@ class ReadyState extends BaseState
 		{
 			// mostrar nivel
 			var levelText = new FlxBitmapText(Fonts.DEFAULT_16);
-			levelText.text = levelExists ? 'Level ${Gameplay.LEVEL}' : 'BAD END';
+			levelText.text = Gameplay.STORY_MODE ? (levelExists ? 'Level ${Gameplay.LEVEL}' : 'BAD END') : 'Freeplay';
 			levelText.screenCenter();
 			levelText.y -= 35;
 			add(levelText);
