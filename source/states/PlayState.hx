@@ -2,8 +2,11 @@ package states;
 
 import Gameplay;
 import flixel.FlxG;
+import flixel.FlxSprite;
 import flixel.group.FlxGroup;
+import flixel.group.FlxSpriteGroup;
 import flixel.math.FlxPoint;
+import flixel.text.FlxBitmapText;
 import flixel.tile.FlxTilemap;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
@@ -14,6 +17,7 @@ import objects.Enemy;
 import objects.Flag;
 import objects.Money;
 import objects.Player;
+import objects.Sign;
 import states.CharacterState;
 import substates.GameOver;
 import substates.Pause;
@@ -37,9 +41,14 @@ class PlayState extends BaseState
 	var breakableBlocks:FlxTypedGroup<BreakableBlock>;
 	var pickyEnemy:FlxTypedGroup<Enemy>;
 	var flag:Flag;
+	var signs:FlxTypedGroup<Sign>;
 
 	var breakableBlockSelected:BreakableBlock;
 	var breakBlockCollision:Bool;
+
+	var backgroundSign:FlxSprite;
+	var signText:FlxBitmapText;
+	var signUI:FlxSpriteGroup;
 
 	// misc
 	var offLimits:Bool = false;
@@ -64,6 +73,8 @@ class PlayState extends BaseState
 					flag.setPosition(entity.x, entity.y);
 				case 4:
 					breakableBlocks.add(new BreakableBlock(entity.x, entity.y));
+				case 5:
+					signs.add(new Sign(entity.x, entity.y, entity.msg));
 			}
 		}
 	}
@@ -162,6 +173,7 @@ class PlayState extends BaseState
 		breakableBlocks = new FlxTypedGroup<BreakableBlock>();
 		pickyEnemy = new FlxTypedGroup<Enemy>();
 		flag = new Flag();
+		signs = new FlxTypedGroup<Sign>();
 		player = new Player();
 
 		initializeEntities(Json.parse(level.entities));
@@ -169,6 +181,7 @@ class PlayState extends BaseState
 		// Mostrar el nivel
 		add(flag);
 		add(coins);
+		add(signs);
 		add(pickyEnemy);
 		add(player);
 		add(breakableBlocks);
@@ -191,12 +204,31 @@ class PlayState extends BaseState
 			if (breakableBlockSelected != null)
 				breakableBlockSelected.hurt(1);
 		};
+
+		signUI = new FlxSpriteGroup();
+		signUI.scrollFactor.set();
+		add(signUI);
+
+		backgroundSign = new FlxSprite();
+		backgroundSign.makeGraphic(FlxG.width, 20, 0xAA000000);
+		backgroundSign.setPosition(0, FlxG.height - backgroundSign.height);
+		signUI.add(backgroundSign);
+
+		signText = new FlxBitmapText(Fonts.DEFAULT);
+		signText.setPosition(5, backgroundSign.y + 5);
+		signUI.add(signText);
 	}
 
 	function breakableBlockWithPlayer(player:Player, breakableBlock:BreakableBlock)
 	{
 		if (breakableBlockSelected == null)
 			breakableBlockSelected = breakableBlock;
+	}
+
+	function signHandle(player:Player, sign:Sign)
+	{
+		signUI.visible = true;
+		signText.text = sign.message;
 	}
 
 	override public function update(elapsed:Float)
@@ -206,6 +238,9 @@ class PlayState extends BaseState
 		FlxG.collide(player, staticObjectsMap);
 		FlxG.collide(player, groundMap);
 		breakBlockCollision = FlxG.collide(player, breakableBlocks, breakableBlockWithPlayer);
+
+		if (!FlxG.overlap(player, signs, signHandle) && signUI.visible)
+			signUI.visible = false;
 
 		if (!breakBlockCollision && breakableBlockSelected != null)
 			breakableBlockSelected = null;

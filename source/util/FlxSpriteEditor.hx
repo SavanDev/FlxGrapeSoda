@@ -1,10 +1,13 @@
 package util;
 
+import flixel.FlxG;
 import flixel.FlxSprite;
 
 class FlxSpriteEditor extends FlxSprite
 {
 	var entityType(default, set):Int;
+
+	public var message:String;
 
 	public function new(Type:Int, ?X:Float = 0, ?Y:Float = 0)
 	{
@@ -12,9 +15,35 @@ class FlxSpriteEditor extends FlxSprite
 		entityType = Type;
 	}
 
+	override function update(elapsed:Float)
+	{
+		super.update(elapsed);
+	}
+
 	public function getEntityType()
 	{
 		return entityType;
+	}
+
+	public function getEntityName(value:Int):String
+	{
+		switch (value)
+		{
+			case 0:
+				return "PLAYER";
+			case 1:
+				return "ENEMY - PICKY";
+			case 2:
+				return "COIN";
+			case 3:
+				return "FLAG";
+			case 4:
+				return "BREAKABLE BLOCK";
+			case 5:
+				return "SIGN";
+			default:
+				return "NULL";
+		}
 	}
 
 	public function setEntityType(value:Int)
@@ -29,6 +58,7 @@ class FlxSpriteEditor extends FlxSprite
 		2 -> Coin
 		3 -> Flag
 		4 -> Breakable block
+		5 -> Sign
 	 */
 	function set_entityType(value:Int):Int
 	{
@@ -44,6 +74,8 @@ class FlxSpriteEditor extends FlxSprite
 				loadGraphic(Paths.getImage('objects/flag'), true, 24, 48);
 			case 4:
 				loadGraphic(Paths.getImage('objects/breakableBlock'), true, 12, 24);
+			case 5:
+				loadGraphic(Paths.getImage('objects/sign'), false, 12, 12);
 		}
 		return entityType = value;
 	}

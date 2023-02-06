@@ -15,12 +15,6 @@ class ReadyState extends BaseState
 
 	var loadCutscene:Bool = false;
 
-	function startCallback(timer:FlxTimer):Void
-	{
-		SHOW_CUTSCENE = true;
-		FlxG.switchState(new PlayState());
-	}
-
 	override public function create()
 	{
 		super.create();
@@ -55,7 +49,7 @@ class ReadyState extends BaseState
 		{
 			// mostrar nivel
 			var levelText = new FlxBitmapText(Fonts.DEFAULT_16);
-			levelText.text = 'Level ${Gameplay.LEVEL}';
+			levelText.text = levelExists ? 'Level ${Gameplay.LEVEL}' : 'BAD END';
 			levelText.screenCenter();
 			levelText.y -= 35;
 			add(levelText);
@@ -88,7 +82,11 @@ class ReadyState extends BaseState
 			getReadyText.y += 15;
 			add(getReadyText);
 
-			new FlxTimer().start(2, startCallback);
+			new FlxTimer().start(2, (tmr) ->
+			{
+				SHOW_CUTSCENE = true;
+				FlxG.switchState(levelExists ? new PlayState() : new MenuState());
+			});
 		}
 
 		if (FlxG.sound.music != null)

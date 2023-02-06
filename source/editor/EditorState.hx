@@ -30,6 +30,7 @@ enum EditorMode
 	Export;
 	Load;
 	Music;
+	Sign;
 }
 
 enum ButtonShortcut
@@ -70,6 +71,7 @@ class EditorState extends BaseState
 	static inline var PLAYERS_SEPARATION:Int = 20;
 
 	var editorState:EditorMode;
+	var lastEditorState:EditorMode;
 	var lastShortcut:Array<Shortcut>;
 	var canChangeState:Bool = true;
 	var canScroll:Bool = true;
@@ -83,6 +85,7 @@ class EditorState extends BaseState
 	var shortcutUI:FlxGroup;
 	var extraUI:FlxGroup;
 	var musicUI:FlxGroup;
+	var signUI:FlxGroup;
 
 	var uiBorder:FlxSprite;
 	var sprLayers:FlxSprite;
@@ -144,6 +147,11 @@ class EditorState extends BaseState
 
 	// Music
 	var inputMusic:FlxInputText;
+
+	// Sign
+	var inputSign:FlxInputText;
+	var inputCounter:FlxText;
+	var inputEntity:FlxSpriteEditor;
 
 	static inline var BACKGROUND_TYPE_LIMIT:Int = 1; // Cantidad de fondos disponibles (contando el 0)
 
@@ -222,7 +230,7 @@ class EditorState extends BaseState
 		}
 	];
 
-	var shortcutsExport:Array<Shortcut> = [
+	var shortcutsSimple:Array<Shortcut> = [
 		{
 			name: "Back",
 			button: BtnEsc
@@ -383,6 +391,7 @@ class EditorState extends BaseState
 
 		currentEntity = new FlxSpriteEditor(actualEntity);
 		currentEntity.alpha = .75;
+		currentEntity.solid = false;
 		entityUI.add(currentEntity);
 
 		currentEntityName = new FlxText(2, Game.HEIGHT - 18);
@@ -439,6 +448,28 @@ class EditorState extends BaseState
 
 			if (actualEntity == 3)
 				levelHasFlag = true;
+
+			if (actualEntity == 5)
+			{
+				inputEntity = newEntityCopy;
+				changeState(Sign);
+			}
+		}
+		else
+		{
+			var entityIndex:Int = entitiesPositions.indexOf(entityPos);
+			var entity:FlxSpriteEditor = levelEntities.members[entityIndex];
+
+			if (entity.getEntityType() == 5)
+			{
+				if (entity.message != null)
+				{
+					inputSign.text = entity.message;
+					inputSign.caretIndex = inputSign.text.length;
+				}
+				inputEntity = entity;
+				changeState(Sign);
+			}
 		}
 	}
 
@@ -470,17 +501,7 @@ class EditorState extends BaseState
 		if (actualEntity < 0)
 			actualEntity = MAX_ENTITIES - 1;
 
-		switch (actualEntity)
-		{
-			case 0:
-				currentEntityName.text = "PLAYER";
-			case 1:
-				currentEntityName.text = "ENEMY - PICKY";
-			case 2:
-				currentEntityName.text = "COIN";
-			case 3:
-				currentEntityName.text = "FLAG";
-		}
+		currentEntityName.text = currentEntity.getEntityName(actualEntity);
 		currentEntity.setEntityType(actualEntity);
 	}
 
@@ -570,7 +591,16 @@ class EditorState extends BaseState
 		var entities:Array<Entity> = new Array<Entity>();
 		levelEntities.forEach((entity) ->
 		{
-			entities.push({type: entity.getEntityType(), x: entity.x, y: entity.y});
+			var newEntity:Entity = {
+				type: entity.getEntityType(),
+				x: entity.x,
+				y: entity.y
+			};
+
+			if (entity.message != null)
+				newEntity.msg = entity.message;
+
+			entities.push(newEntity);
 		});
 
 		return Json.stringify(entities);
@@ -902,8 +932,8 @@ class EditorState extends BaseState
 
 		if (FlxG.keys.justPressed.ESCAPE)
 		{
-			changeState(Tilemap);
-			new FlxTimer().start((tmr) -> canChangeState = true);
+			changeState(lastEditorState);
+			new FlxTimer().start(.1, (tmr) -> canChangeState = true);
 		}
 	}
 
@@ -939,8 +969,8 @@ class EditorState extends BaseState
 		}
 		if (FlxG.keys.justPressed.ENTER)
 		{
-			changeState(Tilemap);
-			new FlxTimer().start((tmr) -> canChangeState = true);
+			changeState(lastEditorState);
+			new FlxTimer().start(.1, (tmr) -> canChangeState = true);
 		}
 	}
 
@@ -992,8 +1022,9 @@ class EditorState extends BaseState
 
 		if (FlxG.keys.justPressed.ESCAPE)
 		{
-			changeState(Tilemap);
-			new FlxTimer().start((tmr) -> canChangeState = true);
+			inputText.hasFocus = false;
+			changeState(lastEditorState);
+			new FlxTimer().start(.1, (tmr) -> canChangeState = true);
 		}
 	}
 
@@ -1083,8 +1114,49 @@ class EditorState extends BaseState
 
 		if (FlxG.keys.justPressed.ESCAPE)
 		{
-			changeState(Tilemap);
-			new FlxTimer().start((tmr) -> canChangeState = true);
+			changeState(lastEditorState);
+			new FlxTimer().start(.1, (tmr) -> canChangeState = true);
+		}
+	}
+
+	/*
+		Sign options
+	 */
+	function onSignCreate()
+	{
+		signUI = new FlxGroup();
+
+		var signBackground = new FlxSprite(Paths.getImage("hud/sign"));
+		signBackground.setPosition(5, FlxG.height - 16 - signBackground.height);
+		signUI.add(signBackground);
+
+		inputSign = new FlxInputText(signBackground.x + 5, signBackground.y + 5, Std.int(signBackground.width - 10));
+		inputSign.maxLength = 30;
+		signUI.add(inputSign);
+
+		inputCounter = new FlxText(5, signBackground.y - 16);
+		inputCounter.text = '${inputSign.text.length}/${inputSign.maxLength}';
+		signUI.add(inputCounter);
+
+		signUI.cameras = [uiCamera];
+		add(signUI);
+	}
+
+	function onSignUpdate()
+	{
+		inputCounter.text = '${inputSign.text.length}/${inputSign.maxLength}';
+
+		if (FlxG.keys.justPressed.ESCAPE)
+		{
+			if (inputEntity != null)
+				inputEntity.message = inputSign.text;
+
+			inputEntity = null;
+			inputSign.text = "";
+			inputSign.hasFocus = false;
+
+			changeState(Entity);
+			new FlxTimer().start(.1, (tmr) -> canChangeState = true);
 		}
 	}
 
@@ -1136,6 +1208,7 @@ class EditorState extends BaseState
 		onExportCreate();
 		onExitCreate();
 		onMusicCreate();
+		onSignCreate();
 
 		sprLayers = new FlxSprite(Game.WIDTH - 40, uiBorder.y - 9);
 		sprLayers.loadGraphic(Paths.getImage("layers"), true, 32, 9);
@@ -1185,6 +1258,8 @@ class EditorState extends BaseState
 				onLoadUpdate();
 			case Music:
 				onMusicUpdate();
+			case Sign:
+				onSignUpdate();
 		}
 
 		if (FlxG.mouse.getPosition().y >= sprLayers.y)
@@ -1198,7 +1273,7 @@ class EditorState extends BaseState
 				uiBorder.alpha = posBackground.alpha = sprLayers.alpha += .1;
 		}
 
-		if (editorState != Export)
+		if (editorState == Tilemap || editorState == Entity)
 		{
 			if (FlxG.keys.justPressed.H)
 				uiCamera.visible = !uiCamera.visible;
@@ -1226,6 +1301,9 @@ class EditorState extends BaseState
 
 			if (FlxG.keys.justPressed.ESCAPE)
 				changeState(ExitWarning);
+
+			if (FlxG.keys.justPressed.C)
+				changeState(Sign);
 		}
 
 		// Ajustes para el "offset"
@@ -1265,6 +1343,7 @@ class EditorState extends BaseState
 				shortcutUI.visible = true;
 				editorText.text = "LEVEL EDITOR";
 				musicUI.visible = false;
+				signUI.visible = false;
 			case Entity:
 				tilemapUI.visible = false;
 				entityUI.visible = true;
@@ -1278,6 +1357,7 @@ class EditorState extends BaseState
 				exportUI.visible = false;
 				editorText.text = "ENTITY EDITOR";
 				musicUI.visible = false;
+				signUI.visible = false;
 			case PlayerSelection:
 				tilemapUI.visible = false;
 				entityUI.visible = false;
@@ -1290,6 +1370,7 @@ class EditorState extends BaseState
 				exportUI.visible = false;
 				editorText.text = "PLAYER EDITOR";
 				musicUI.visible = false;
+				signUI.visible = false;
 			case Background:
 				tilemapUI.visible = false;
 				entityUI.visible = false;
@@ -1303,6 +1384,7 @@ class EditorState extends BaseState
 				canChangeState = false;
 				editorText.text = "BACKGROUND EDITOR";
 				musicUI.visible = false;
+				signUI.visible = false;
 			case ExitWarning:
 				exitUI.visible = true;
 				tilemapUI.visible = false;
@@ -1316,6 +1398,7 @@ class EditorState extends BaseState
 				exportUI.visible = false;
 				editorText.text = "";
 				musicUI.visible = false;
+				signUI.visible = false;
 			case Export:
 				exitUI.visible = false;
 				tilemapUI.visible = false;
@@ -1328,9 +1411,12 @@ class EditorState extends BaseState
 				exportUI.visible = true;
 				messageExport.text = 'The level will be saved in:\n"maps/*"';
 				saveTextUI.text = "Save";
-				generateShortcutViewer(shortcutsExport);
+				generateShortcutViewer(shortcutsSimple);
 				editorText.text = "EXPORT LEVEL";
 				musicUI.visible = false;
+				signUI.visible = false;
+				if (!uiCamera.visible)
+					uiCamera.visible = true;
 			case Load:
 				exitUI.visible = false;
 				tilemapUI.visible = false;
@@ -1343,9 +1429,10 @@ class EditorState extends BaseState
 				exportUI.visible = true;
 				messageExport.text = 'The level should be at:\n"maps/*"';
 				saveTextUI.text = "Load";
-				generateShortcutViewer(shortcutsExport);
+				generateShortcutViewer(shortcutsSimple);
 				editorText.text = "LOAD LEVEL";
 				musicUI.visible = false;
+				signUI.visible = false;
 			case Music:
 				exitUI.visible = false;
 				tilemapUI.visible = false;
@@ -1357,9 +1444,28 @@ class EditorState extends BaseState
 				canChangeState = false;
 				exportUI.visible = false;
 				musicUI.visible = true;
+				signUI.visible = false;
 				generateShortcutViewer(shortcutsMusic);
 				editorText.text = "MUSIC LEVEL";
+			case Sign:
+				exitUI.visible = false;
+				tilemapUI.visible = false;
+				entityUI.visible = false;
+				playerUI.visible = false;
+				extraUI.visible = false;
+				backgroundUI.visible = false;
+				canScroll = false;
+				canChangeState = false;
+				exportUI.visible = false;
+				musicUI.visible = false;
+				signUI.visible = true;
+				generateShortcutViewer(shortcutsSimple);
+				editorText.text = "SIGN EDITOR";
 		}
+
+		if (editorState != null)
+			lastEditorState = editorState;
+
 		editorState = state;
 	}
 }

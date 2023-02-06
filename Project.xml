@@ -13,6 +13,9 @@
 	<!--These window settings apply to all targets-->
 	<window width="1260" height="720" fps="60" background="#000000" hardware="true" vsync="true" />
 
+	<!--Legacy-x86-specific-->
+	<windows if="legacyPC" hardware="false" />
+
 	<!--HTML5-specific-->
 	<window if="html5" resizable="true" />
 
@@ -31,7 +34,7 @@
 	<source name="source" />
 	
 	<!-- Legacy files -->
-	<assets path="assets/legacy" rename="assets" />
+	<!--assets path="assets/legacy" rename="assets" /-->
 
 	<section if="mobile">
 		<assets path="assets/base" rename="assets" />
@@ -59,6 +62,9 @@
 
 	<!--In case you want to use the ui package-->
 	<haxelib name="flixel-ui" if="desktop"/>
+
+	<!--For expand text libraries-->
+	<!--haxelib name="texter" if="desktop"/-->
 
 	<!--In case you want to use nape with flixel-->
 	<!--<haxelib name="nape-haxe4" />-->

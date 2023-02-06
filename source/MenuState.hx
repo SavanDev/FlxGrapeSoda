@@ -52,6 +52,7 @@ class MenuState extends BaseState
 			{
 				menu.kill();
 				FlxG.sound.play(Paths.getSound("select"));
+				Gameplay.resetGlobalVariables();
 				FlxG.camera.fade(0xFF111111, () -> FlxG.switchState(new ReadyState()));
 			}
 		}
