@@ -11,6 +11,7 @@ import openfl.utils.Dictionary;
 typedef MenuItem =
 {
 	var text:String;
+	var enabled:Bool;
 	var event:Menu->Void;
 };
 
@@ -91,7 +92,7 @@ class Menu extends FlxGroup
 
 			item.text = items[i].text;
 			item.useTextColor = true;
-			item.setBorderStyle(FlxTextBorderStyle.OUTLINE, accent);
+			item.setBorderStyle(FlxTextBorderStyle.OUTLINE, items[i].enabled ? accent : FlxColor.GRAY);
 
 			optionsText.add(item);
 		}
@@ -118,7 +119,7 @@ class Menu extends FlxGroup
 		{
 			for (i in 0...optionsText.length)
 			{
-				if (touch.getPosition().inRect(optionsText.members[i].getHitbox()))
+				if (touch.getPosition().inRect(optionsText.members[i].getHitbox()) && options.get(actualPage)[selectedIndex].enabled)
 				{
 					selectedIndex = i;
 					options.get(actualPage)[selectedIndex].event(this);
@@ -145,7 +146,7 @@ class Menu extends FlxGroup
 			cursor.y = optionsText.members[selectedIndex].y;
 			FlxG.sound.play(Paths.getSound("blip"));
 		}
-		if (Input.SELECT || Input.SELECT_ALT)
+		if ((Input.SELECT || Input.SELECT_ALT) && options.get(actualPage)[selectedIndex].enabled)
 			options.get(actualPage)[selectedIndex].event(this);
 		#end
 	}

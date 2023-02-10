@@ -50,6 +50,7 @@ class MenuState extends BaseState
 		// Main Menu
 		var newGame:MenuItem = {
 			text: "Story mode",
+			enabled: false,
 			event: (menu) ->
 			{
 				menu.kill();
@@ -61,11 +62,13 @@ class MenuState extends BaseState
 
 		var editor:MenuItem = {
 			text: "Editor",
+			enabled: true,
 			event: (menu) -> menu.gotoPage("editor")
 		}
 
 		var donate:MenuItem = {
 			text: "Donate",
+			enabled: true,
 			event: (menu) -> {
 				#if linux
 				Sys.command('xdg-open', ["https://ko-fi.com/savandev"]);
@@ -77,11 +80,13 @@ class MenuState extends BaseState
 
 		var options:MenuItem = {
 			text: "Options",
+			enabled: true,
 			event: (menu) -> menu.gotoPage("options")
 		}
 
 		var exit:MenuItem = {
 			text: "Exit",
+			enabled: true,
 			event: (menu) -> System.exit(0)
 		}
 
@@ -89,6 +94,7 @@ class MenuState extends BaseState
 		// Editor Menu
 		var editorNew:MenuItem = {
 			text: "New level",
+			enabled: true,
 			event: (menu) ->
 			{
 				menu.kill();
@@ -98,6 +104,7 @@ class MenuState extends BaseState
 
 		var editorLoad:MenuItem = {
 			text: "Load level",
+			enabled: true,
 			event: (menu) ->
 			{
 				menu.kill();
@@ -109,6 +116,7 @@ class MenuState extends BaseState
 		// Options Menu
 		var optFullWindow:MenuItem = {
 			text: FlxG.fullscreen ? "Window mode" : "Fullscreen",
+			enabled: true,
 			event: (menu) ->
 			{
 				FlxG.fullscreen = !FlxG.fullscreen;
@@ -119,6 +127,7 @@ class MenuState extends BaseState
 
 		var optMusicOff:MenuItem = {
 			text: 'Sound: ${FlxG.sound.muted ? "OFF" : "ON"}',
+			enabled: true,
 			event: (menu) ->
 			{
 				FlxG.sound.toggleMuted();
@@ -129,6 +138,7 @@ class MenuState extends BaseState
 
 		var optGamepad:MenuItem = {
 			text: 'Gamepad: ${FlxG.save.data.detectGamepad ? "ON" : "OFF"}',
+			enabled: true,
 			event: (menu) ->
 			{
 				FlxG.save.data.detectGamepad = !FlxG.save.data.detectGamepad;
@@ -139,6 +149,7 @@ class MenuState extends BaseState
 
 		var optBack:MenuItem = {
 			text: "Back",
+			enabled: true,
 			event: (menu) -> menu.gotoPage("main")
 		}
 
@@ -152,6 +163,7 @@ class MenuState extends BaseState
 
 				var menuLevel:MenuItem = {
 					text: levelName,
+					enabled: true,
 					event: (menu) ->
 					{
 						menu.kill();
@@ -172,6 +184,7 @@ class MenuState extends BaseState
 
 		var customLevelsMenu:MenuItem = {
 			text: "Custom levels",
+			enabled: true,
 			event: (menu) -> menu.gotoPage("levels")
 		}
 
