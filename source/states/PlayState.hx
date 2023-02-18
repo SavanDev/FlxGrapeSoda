@@ -6,6 +6,7 @@ import flixel.FlxSprite;
 import flixel.group.FlxGroup;
 import flixel.group.FlxSpriteGroup;
 import flixel.math.FlxPoint;
+import flixel.math.FlxRect;
 import flixel.text.FlxBitmapText;
 import flixel.tile.FlxTilemap;
 import flixel.util.FlxColor;
@@ -43,9 +44,6 @@ class PlayState extends BaseState
 	var pickyEnemy:FlxTypedGroup<Enemy>;
 	var flag:Flag;
 	var signs:FlxTypedGroup<Sign>;
-
-	var breakableBlockSelected:BreakableBlock;
-	var breakBlockCollision:Bool;
 
 	var backgroundSign:FlxSprite;
 	var signText:FlxBitmapText;
@@ -201,8 +199,17 @@ class PlayState extends BaseState
 
 		player.punchCallback = () ->
 		{
-			if (breakableBlockSelected != null)
-				breakableBlockSelected.hurt(1);
+			var playerX = (player.facing == LEFT) ? player.x - 6 : player.x;
+			var playerWidth = (player.facing == RIGHT) ? player.width + 6 : player.width;
+			var punchRay:FlxRect = new FlxRect(playerX, player.y, playerWidth, player.height);
+
+			breakableBlocks.forEachAlive((block) ->
+			{
+				if (punchRay.overlaps(block.getHitbox()))
+					new FlxTimer().start(.25, (timer:FlxTimer) -> block.hurt(1));
+			});
+
+			punchRay.destroy();
 		};
 
 		signUI = new FlxSpriteGroup();
@@ -219,12 +226,6 @@ class PlayState extends BaseState
 		signUI.add(signText);
 	}
 
-	function breakableBlockWithPlayer(player:Player, breakableBlock:BreakableBlock)
-	{
-		if (breakableBlockSelected == null)
-			breakableBlockSelected = breakableBlock;
-	}
-
 	function signHandle(player:Player, sign:Sign)
 	{
 		signUI.visible = true;
@@ -237,13 +238,9 @@ class PlayState extends BaseState
 
 		FlxG.collide(player, staticObjectsMap);
 		FlxG.collide(player, groundMap);
-		breakBlockCollision = FlxG.collide(player, breakableBlocks, breakableBlockWithPlayer);
 
 		if (!FlxG.overlap(player, signs, signHandle) && signUI.visible)
 			signUI.visible = false;
-
-		if (!breakBlockCollision && breakableBlockSelected != null)
-			breakableBlockSelected = null;
 
 		if (player.x < 0)
 			player.x = 0;
@@ -264,7 +261,7 @@ class PlayState extends BaseState
 		else
 			player.velocity.x = Player.SPEED / 2;
 
-		if (player.y > groundMap.height && !offLimits)
+		if (player.y > Game.HEIGHT && !offLimits)
 		{
 			FlxG.camera.shake(.01, .25);
 			player.canMove = false;
