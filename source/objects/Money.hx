@@ -1,6 +1,5 @@
 package objects;
 
-import Discord.State;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.tweens.FlxEase;
@@ -38,20 +37,16 @@ class Money extends FlxSprite
 		switch (style)
 		{
 			case Coin:
-				PlayState.MONEY += 2;
+				Gameplay.MONEY += 2;
 			case Dollar:
-				PlayState.MONEY += 100;
+				Gameplay.MONEY += 100;
 		}
-
-		#if (cpp && desktop)
-		Discord.changePresence(State.Level, PlayState.discordPlayer, PlayState.discordTime);
-		#end
 
 		alive = false;
 		FlxG.sound.play(Paths.getSound("coin"));
 
-		if (PlayState.HUD != null)
-			PlayState.HUD.updateMoneyCounter(PlayState.MONEY);
+		if (Gameplay.HUD != null)
+			Gameplay.HUD.updateMoneyCounter(Gameplay.MONEY);
 
 		FlxTween.tween(this, {alpha: 0, y: y - 16}, .33, {
 			ease: FlxEase.circOut,

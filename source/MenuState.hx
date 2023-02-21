@@ -3,26 +3,21 @@ package;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.addons.display.FlxBackdrop;
-import flixel.addons.editors.ogmo.FlxOgmo3Loader;
 import flixel.group.FlxSpriteGroup;
 import flixel.text.FlxBitmapText;
-import flixel.tile.FlxTilemap;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import lime.app.Application;
 import lime.system.System;
 import objects.Player;
+import sys.FileSystem;
 import util.Menu;
-#if desktop
-import Discord.State;
-#end
 
 class MenuState extends BaseState
 {
-	var map:FlxOgmo3Loader;
-	var tileMap:FlxTilemap;
 	var player:Player;
+	var levels:Array<String>;
 
 	var logo:FlxSpriteGroup;
 	var playText:FlxBitmapText;
@@ -31,12 +26,6 @@ class MenuState extends BaseState
 
 	static inline var LOGO_X = 63;
 	static inline var LOGO_Y = 20;
-
-	function entitiesPos(entity:EntityData)
-	{
-		if (entity.name == "Player")
-			player.setPosition(FlxG.width / 2, entity.y - 4);
-	}
 
 	function playBlink(timer:FlxTimer)
 	{
@@ -60,17 +49,26 @@ class MenuState extends BaseState
 
 		// Main Menu
 		var newGame:MenuItem = {
-			text: "New Game",
+			text: "Story mode",
+			enabled: false,
 			event: (menu) ->
 			{
 				menu.kill();
 				FlxG.sound.play(Paths.getSound("select"));
+				Gameplay.resetGlobalVariables();
 				FlxG.camera.fade(0xFF111111, () -> FlxG.switchState(new ReadyState()));
 			}
 		}
 
+		var editor:MenuItem = {
+			text: "Editor",
+			enabled: true,
+			event: (menu) -> menu.gotoPage("editor")
+		}
+
 		var donate:MenuItem = {
 			text: "Donate",
+			enabled: true,
 			event: (menu) -> {
 				#if linux
 				Sys.command('xdg-open', ["https://ko-fi.com/savandev"]);
@@ -82,17 +80,43 @@ class MenuState extends BaseState
 
 		var options:MenuItem = {
 			text: "Options",
+			enabled: true,
 			event: (menu) -> menu.gotoPage("options")
 		}
 
 		var exit:MenuItem = {
 			text: "Exit",
+			enabled: true,
 			event: (menu) -> System.exit(0)
 		}
+
+		#if EDITOR
+		// Editor Menu
+		var editorNew:MenuItem = {
+			text: "New level",
+			enabled: true,
+			event: (menu) ->
+			{
+				menu.kill();
+				FlxG.camera.fade(0xFF111111, () -> FlxG.switchState(new editor.EditorState()));
+			}
+		}
+
+		var editorLoad:MenuItem = {
+			text: "Load level",
+			enabled: true,
+			event: (menu) ->
+			{
+				menu.kill();
+				FlxG.camera.fade(0xFF111111, () -> FlxG.switchState(new editor.EditorState(true)));
+			}
+		}
+		#end
 
 		// Options Menu
 		var optFullWindow:MenuItem = {
 			text: FlxG.fullscreen ? "Window mode" : "Fullscreen",
+			enabled: true,
 			event: (menu) ->
 			{
 				FlxG.fullscreen = !FlxG.fullscreen;
@@ -103,6 +127,7 @@ class MenuState extends BaseState
 
 		var optMusicOff:MenuItem = {
 			text: 'Sound: ${FlxG.sound.muted ? "OFF" : "ON"}',
+			enabled: true,
 			event: (menu) ->
 			{
 				FlxG.sound.toggleMuted();
@@ -113,6 +138,7 @@ class MenuState extends BaseState
 
 		var optGamepad:MenuItem = {
 			text: 'Gamepad: ${FlxG.save.data.detectGamepad ? "ON" : "OFF"}',
+			enabled: true,
 			event: (menu) ->
 			{
 				FlxG.save.data.detectGamepad = !FlxG.save.data.detectGamepad;
@@ -123,17 +149,58 @@ class MenuState extends BaseState
 
 		var optBack:MenuItem = {
 			text: "Back",
+			enabled: true,
 			event: (menu) -> menu.gotoPage("main")
 		}
 
+		var customLevels:Array<MenuItem> = new Array<MenuItem>();
+
+		for (level in levels)
+		{
+			if (level.indexOf(".json") != -1)
+			{
+				var levelName = level.split(".json")[0];
+
+				var menuLevel:MenuItem = {
+					text: levelName,
+					enabled: true,
+					event: (menu) ->
+					{
+						menu.kill();
+						FlxG.sound.play(Paths.getSound("select"));
+						Gameplay.resetGlobalVariables();
+						Gameplay.STORY_MODE = false;
+						Gameplay.LEVELNAME = levelName;
+						FlxG.camera.fade(0xFF111111, () -> FlxG.switchState(new ReadyState()));
+					}
+				}
+
+				customLevels.push(menuLevel);
+			}
+		}
+
+		customLevels.push(optBack);
+		menu.addPage("levels", customLevels);
+
+		var customLevelsMenu:MenuItem = {
+			text: "Custom levels",
+			enabled: true,
+			event: (menu) -> menu.gotoPage("levels")
+		}
+
 		#if desktop
+		#if EDITOR
+		menu.addPage("main", [newGame, customLevelsMenu, editor, options, donate, exit]);
+		menu.addPage("editor", [editorNew, editorLoad, optBack]);
+		#else
 		menu.addPage("main", [newGame, options, donate, exit]);
+		#end
 		menu.addPage("options", [optFullWindow, optMusicOff, optGamepad, optBack]);
 		#elseif web
 		menu.addPage("main", [newGame, options, donate]);
 		menu.addPage("options", [optFullWindow, optMusicOff, optBack]);
 		#elseif android
-		menu.addPage("main", [newGame, donate]);
+		menu.addPage("main", [newGame, customLevelsMenu, donate, exit]);
 		#end
 
 		menu.gotoPage("main");
@@ -145,19 +212,6 @@ class MenuState extends BaseState
 	override public function create()
 	{
 		super.create();
-
-		#if (desktop && cpp)
-		if (!Discord.hasStarted)
-		{
-			Discord.init();
-			Application.current.onExit.add((exitCode) ->
-			{
-				Discord.close();
-			});
-		}
-		else
-			Discord.changePresence(State.Title);
-		#end
 
 		// start!
 		var startText:String;
@@ -191,7 +245,7 @@ class MenuState extends BaseState
 		logoText2.setPosition(0, 5);
 
 		var logoSoda = new FlxSprite(100, 0);
-		logoSoda.loadGraphic(Paths.getImage("items/grapesoda"), false, 12, 14);
+		logoSoda.loadGraphic(Paths.getImage("menu/grapeSodaLogo"), false, 12, 14);
 		logoSoda.setGraphicSize(24, 28);
 		logoSoda.updateHitbox();
 		logoSoda.angle = -10;
@@ -207,22 +261,28 @@ class MenuState extends BaseState
 		FlxG.camera.bgColor = 0xFF64A5FF;
 
 		// fondo
-		var parallax = new FlxBackdrop(Paths.getImage("parallax/mountain"), 1, 1, true, false);
+		var parallax = new FlxBackdrop(Paths.getImage("parallax/mountain"), X);
 		parallax.y = 65;
 		add(parallax);
 
 		// mini nivel
-		map = new FlxOgmo3Loader(Paths.getOgmoData(), Paths.getMap("menuMap"));
-		tileMap = map.loadTilemap(Paths.getImage("legacy/tileMap"), "Blocks");
-		add(tileMap);
+		var grassParallax = new FlxBackdrop(Paths.getImage("menu/grassMenu"), X);
+		grassParallax.y = 120;
+		add(grassParallax);
 		player = new Player(0, 0, true);
-		map.loadEntities(entitiesPos, "Entities");
+		player.setPosition(FlxG.width / 2, grassParallax.y - (player.height + player.offset.y));
 		add(player);
 
 		// musica
 		if (FlxG.sound.music != null)
 			FlxG.camera.fade(.5, true);
 		FlxG.sound.playMusic(Paths.getMusic("effervesce"));
+
+		var musicCredits = new FlxBitmapText(Fonts.TOY);
+		musicCredits.text = 'Music by Retro Indie Josh';
+		musicCredits.alignment = RIGHT;
+		musicCredits.setPosition(FlxG.width - musicCredits.getStringWidth(musicCredits.text) - 10, FlxG.height - 23);
+		add(musicCredits);
 
 		// texto de la versión
 		versionText = new FlxBitmapText(Fonts.TOY);
@@ -237,6 +297,9 @@ class MenuState extends BaseState
 
 		// FIXME: Pequeño arreglo temporal. Luego voy a tener que estudiar un poco más el sistema de sonidos.
 		FlxG.sound.defaultSoundGroup.volume = .5;
+
+		// Custom levels
+		levels = FileSystem.exists("maps") ? FileSystem.readDirectory("maps") : [];
 	}
 
 	override public function update(elapsed:Float)

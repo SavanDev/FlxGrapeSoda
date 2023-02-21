@@ -5,7 +5,6 @@ import flixel.FlxSprite;
 import flixel.FlxSubState;
 import flixel.text.FlxBitmapText;
 import flixel.util.FlxColor;
-import objects.Player;
 import util.Timer;
 
 class Pause extends FlxSubState
@@ -78,11 +77,7 @@ class Pause extends FlxSubState
 			FlxG.camera.fade(.5, () ->
 			{
 				// TODO: Hasta que haya algún sistema de guardado
-				PlayState.MONEY = 0;
-				Timer.restart();
-				PlayState.LEVEL = 1;
-				PlayState.DEMO_END = false;
-				Player.LIVES = 5;
+				Gameplay.resetGlobalVariables();
 
 				FlxG.switchState(new MenuState());
 			});

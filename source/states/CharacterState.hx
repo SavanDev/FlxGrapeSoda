@@ -79,35 +79,35 @@ class CharacterState extends BaseState
 		// animaciones
 		if (FlxG.keys.justPressed.RIGHT)
 		{
-			playerViewer.facing = FlxObject.RIGHT;
+			playerViewer.facing = RIGHT;
 			playerViewer.animation.play("walk");
 			animState.text = "Walk (RIGHT)";
 		}
 
 		if (FlxG.keys.justPressed.LEFT)
 		{
-			playerViewer.facing = FlxObject.LEFT;
+			playerViewer.facing = LEFT;
 			playerViewer.animation.play("walk");
 			animState.text = "Walk (LEFT)";
 		}
 
 		if (FlxG.keys.justPressed.UP)
 		{
-			playerViewer.facing = FlxObject.RIGHT;
+			playerViewer.facing = RIGHT;
 			playerViewer.animation.play("jump");
 			animState.text = "JUMP";
 		}
 
 		if (FlxG.keys.justPressed.DOWN)
 		{
-			playerViewer.facing = FlxObject.RIGHT;
+			playerViewer.facing = RIGHT;
 			playerViewer.animation.play("default");
 			animState.text = "DEFAULT";
 		}
 
 		if (FlxG.keys.justPressed.END)
 		{
-			playerViewer.facing = FlxObject.RIGHT;
+			playerViewer.facing = RIGHT;
 			playerViewer.animation.play("sad");
 			animState.text = "SAD";
 		}

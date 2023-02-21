@@ -4,6 +4,7 @@ class Game
 {
 	public static inline var PIXEL_PERFECT:Bool = false;
 	public static inline var TILE_SIZE:Int = 12;
+	public static inline var MAX_MULTIPLIER_WIDTH:Int = 6;
 
 	public static inline var MAP_WIDTH:Int = 21;
 	public static inline var MAP_HEIGHT:Int = 12;
@@ -11,7 +12,8 @@ class Game
 	public static inline var WIDTH:Int = TILE_SIZE * MAP_WIDTH;
 	public static inline var HEIGHT:Int = TILE_SIZE * MAP_HEIGHT;
 
-	public static inline var MAX_LIVES:Int = 3;
+	public static inline var MAX_LIVES:Int = 5;
+	public static inline var INITIAL_LEVEL:Int = 0;
 
 	public static function initialize()
 	{

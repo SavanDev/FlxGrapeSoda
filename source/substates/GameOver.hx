@@ -34,11 +34,7 @@ class GameOver extends FlxSubState
 		new FlxTimer().start(5, (_) ->
 		{
 			// TODO: Hasta que haya algún sistema de guardado
-			PlayState.MONEY = 0;
-			Timer.restart();
-			PlayState.LEVEL = 1;
-			PlayState.DEMO_END = false;
-			Player.LIVES = 5;
+			Gameplay.resetGlobalVariables();
 
 			FlxG.switchState(new MenuState());
 		});

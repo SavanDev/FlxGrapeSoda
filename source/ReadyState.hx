@@ -1,3 +1,4 @@
+import Gameplay;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.text.FlxBitmapText;
@@ -6,12 +7,9 @@ import haxe.Json;
 import lime.utils.Assets;
 import objects.Player;
 import states.ComicState;
-
-typedef PlayerData =
-{
-	var player:String;
-	var cutscene:String;
-}
+import states.PlayState;
+import sys.FileSystem;
+import sys.io.File;
 
 class ReadyState extends BaseState
 {
@@ -19,23 +17,21 @@ class ReadyState extends BaseState
 
 	var loadCutscene:Bool = false;
 
-	function startCallback(timer:FlxTimer):Void
-	{
-		SHOW_CUTSCENE = true;
-		FlxG.switchState(new PlayState());
-	}
-
 	override public function create()
 	{
 		super.create();
 		FlxG.camera.bgColor = 0xFF111111;
-		var levelExists = Assets.exists(Paths.getLevel(PlayState.LEVEL));
+		var level = Gameplay.STORY_MODE ? Paths.getLevel(Gameplay.LEVEL) : Paths.getCustomLevel(Gameplay.LEVELNAME);
+		var levelExists = FileSystem.exists(level);
+		trace(levelExists);
 
 		if (levelExists)
 		{
-			var level:PlayerData = Json.parse(Assets.getText(Paths.getLevel(PlayState.LEVEL)));
+			var level:MinimalLevelData = Json.parse(File.getContent(level));
 
-			if (level.cutscene != null && Assets.exists('assets/data/cutscenes/${level.cutscene}.json') && SHOW_CUTSCENE)
+			if (level.cutscene != null
+				&& Assets.exists('assets/data/cutscenes/${level.cutscene}.json')
+				&& SHOW_CUTSCENE) // TODO: Custom Cutscenes
 			{
 				SHOW_CUTSCENE = false;
 				loadCutscene = true;
@@ -44,24 +40,22 @@ class ReadyState extends BaseState
 
 			switch (level.player)
 			{
-				case "dylan":
+				case 0:
 					Player.CHARACTER = Dylan;
-				case "luka":
+				case 1:
 					Player.CHARACTER = Luka;
-				case "watanoge":
+				case 2:
 					Player.CHARACTER = Watanoge;
-				case "asdonaur":
+				case 3:
 					Player.CHARACTER = Asdonaur;
 			}
 		}
-		else
-			PlayState.DEMO_END = true;
 
 		if (!loadCutscene)
 		{
 			// mostrar nivel
 			var levelText = new FlxBitmapText(Fonts.DEFAULT_16);
-			levelText.text = !PlayState.DEMO_END ? 'Level ${PlayState.LEVEL}' : 'Demo End';
+			levelText.text = Gameplay.STORY_MODE ? (levelExists ? 'Level ${Gameplay.LEVEL}' : 'BAD END') : 'Freeplay';
 			levelText.screenCenter();
 			levelText.y -= 35;
 			add(levelText);
@@ -81,7 +75,7 @@ class ReadyState extends BaseState
 
 			var moneyCount = new FlxBitmapText(Fonts.DEFAULT);
 			moneyCount.screenCenter();
-			moneyCount.text = 'x ${PlayState.MONEY}';
+			moneyCount.text = 'x ${Gameplay.MONEY}';
 			moneyCount.y++;
 			moneyCount.x += 15;
 			add(moneyCount);
@@ -94,7 +88,11 @@ class ReadyState extends BaseState
 			getReadyText.y += 15;
 			add(getReadyText);
 
-			new FlxTimer().start(2, startCallback);
+			new FlxTimer().start(2, (tmr) ->
+			{
+				SHOW_CUTSCENE = true;
+				FlxG.switchState(levelExists ? new PlayState() : new MenuState());
+			});
 		}
 
 		if (FlxG.sound.music != null)

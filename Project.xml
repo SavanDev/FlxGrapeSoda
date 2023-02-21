@@ -2,7 +2,7 @@
 <project>
 	<!-- _________________________ Application Settings _________________________ -->
 
-	<app title="Grape Soda!" file="GrapeSoda" main="Main" version="0.1.3" company="SavanDev" package="com.savandev.grapesoda" />
+	<app title="Grape Soda!" file="GrapeSoda" main="Main" version="0.1.5" company="SavanDev" package="com.savandev.grapesoda" />
 
 	<!--The flixel preloader is not accurate in Chrome. You can use it regularly if you embed the swf into a html file
 		or you can set the actual size of your file manually at "FlxPreloaderBase-onUpdate-bytesTotal"-->
@@ -12,6 +12,9 @@
 
 	<!--These window settings apply to all targets-->
 	<window width="1260" height="720" fps="60" background="#000000" hardware="true" vsync="true" />
+
+	<!--Legacy-x86-specific-->
+	<windows if="legacyPC" hardware="false" />
 
 	<!--HTML5-specific-->
 	<window if="html5" resizable="true" />
@@ -29,6 +32,9 @@
 	<set name="BUILD_DIR" value="export/x86" if="legacyPC" />
 
 	<source name="source" />
+	
+	<!-- Legacy files -->
+	<!--assets path="assets/legacy" rename="assets" /-->
 
 	<section if="mobile">
 		<assets path="assets/base" rename="assets" />
@@ -42,7 +48,9 @@
 
 	<section unless="mobile|web">
 		<assets path="assets/base" rename="assets" />
-		<assets path="misc/readme.txt" rename="readme.txt" if="desktop" />
+		<assets path="misc/readme.txt" rename="readme.txt" />
+		<assets path="assets/editor" rename="assets" />
+		<assets path="exampleMaps" rename="maps" />
 		<assets path="LICENSE" rename="license.txt" />
 	</section>
 	<!-- _______________________________ Libraries ______________________________ -->
@@ -55,11 +63,14 @@
 	<!--In case you want to use the ui package-->
 	<haxelib name="flixel-ui" if="desktop"/>
 
+	<!--For expand text libraries-->
+	<!--haxelib name="texter" if="desktop"/-->
+
 	<!--In case you want to use nape with flixel-->
 	<!--<haxelib name="nape-haxe4" />-->
 
 	<!--Discord RPC-->
-	<haxelib name="discord_rpc" if="desktop"/>
+	<!--haxelib name="discord_rpc" if="desktop"/-->
 
 	<!-- ______________________________ Haxedefines _____________________________ -->
 
@@ -86,6 +97,9 @@
 
 	<!--Enable this for Nape release builds for a serious peformance improvement-->
 	<haxedef name="NAPE_RELEASE_BUILD" unless="debug" />
+
+	<!--Enable editor on game -->
+	<haxedef name="EDITOR" if="desktop" />
 
 	<!-- _________________________________ Custom _______________________________ -->
 

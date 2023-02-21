@@ -2,13 +2,13 @@
 
 # Latin America needs... GRAPE SODA!
 
-[![nightly](https://github.com/SavanDev/FlxGrapeSoda/actions/workflows/nightly.yml/badge.svg)](https://github.com/SavanDev/FlxGrapeSoda/actions/workflows/nightly.yml)
+<!-- [![nightly](https://github.com/SavanDev/FlxGrapeSoda/actions/workflows/nightly.yml/badge.svg)](https://github.com/SavanDev/FlxGrapeSoda/actions/workflows/nightly.yml) -->
 
 Repository of the game _"Latin America needs... GRAPE SODA!"_ created by [SavanDev (me!)](https://twitter.com/dylnavas36).
 
-## Nightly (Development version)
+<!-- ## Nightly (Development version)
 
-### [Web](https://savandev.github.io/games/2021/grapesoda/) - [Windows](https://nightly.link/SavanDev/FlxGrapeSoda/workflows/nightly/main/Windows-Nightly.zip) - [Linux](https://nightly.link/SavanDev/FlxGrapeSoda/workflows/nightly/main/Linux-Nightly.zip) - [macOS](https://nightly.link/SavanDev/FlxGrapeSoda/workflows/nightly/main/macOS-Nightly.zip) - [Android](https://nightly.link/SavanDev/FlxGrapeSoda/workflows/nightly/main/Android-Nightly.zip)
+### [Web](https://savandev.github.io/games/2021/grapesoda/) - [Windows](https://nightly.link/SavanDev/FlxGrapeSoda/workflows/nightly/main/Windows-Nightly.zip) - [Linux](https://nightly.link/SavanDev/FlxGrapeSoda/workflows/nightly/main/Linux-Nightly.zip) - [macOS](https://nightly.link/SavanDev/FlxGrapeSoda/workflows/nightly/main/macOS-Nightly.zip) - [Android](https://nightly.link/SavanDev/FlxGrapeSoda/workflows/nightly/main/Android-Nightly.zip) -->
 
 ## Context
 
