@@ -11,8 +11,6 @@ import objects.Player;
 
 class ShopState extends BaseState
 {
-	static final GRAPESODA_PRICE:Int = 500;
-
 	var player:Player;
 	var cajera:FlxSprite;
 
@@ -43,6 +41,7 @@ class ShopState extends BaseState
 		cajera.loadGraphic(Paths.getImage("cashier"), true, 12, 24);
 		cajera.animation.add("default", [0, 1], 4);
 		cajera.animation.add("angry", [3, 4], 4);
+		cajera.animation.add("money", [6, 7], 4);
 		cajera.animation.play("default");
 		add(cajera);
 
@@ -101,12 +100,15 @@ class ShopState extends BaseState
 
 	function counterEnd(tween:FlxTween)
 	{
+		if (Gameplay.MONEY >= Gameplay.GRAPESODA_PRICE)
+			FlxG.sound.music.stop();
+
 		new FlxTimer().start(1.5, shopEnding);
 	}
 
 	function shopEnding(timer:FlxTimer)
 	{
-		if (Gameplay.MONEY < GRAPESODA_PRICE)
+		if (Gameplay.MONEY < Gameplay.GRAPESODA_PRICE)
 		{
 			trace("tas pobre bro :P");
 			FlxG.sound.play(Paths.getSound("failed"));
@@ -134,6 +136,43 @@ class ShopState extends BaseState
 				Gameplay.LEVEL += 1;
 				FlxG.switchState(Gameplay.STORY_MODE ? new ReadyState() : new MenuState());
 			});
+		}
+		else
+		{
+			cajera.animation.play("money");
+			player.animated = false;
+			player.animation.play("happy");
+			FlxG.sound.playMusic(Paths.getMusic("deities-get-takeout-too"));
+
+			// Muchas muertes :'(
+			moneyIcon.kill();
+			moneyCounter.kill();
+			scoreGet.kill();
+
+			var youDid:FlxBitmapText = new FlxBitmapText(Fonts.DEFAULT_16);
+			youDid.setPosition(0, 30);
+			youDid.text = "YOU DID IT!";
+			youDid.useTextColor = true;
+			youDid.textColor = FlxColor.YELLOW;
+			youDid.alignment = CENTER;
+			youDid.screenCenter(X);
+			add(youDid);
+
+			new FlxTimer().start(.1, (tmr) -> youDid.textColor = youDid.textColor == FlxColor.YELLOW ? FlxColor.WHITE : FlxColor.YELLOW, 0);
+			FlxTween.shake(youDid, .05, 1, {type: LOOPING});
+
+			var destello:FlxSprite = new FlxSprite();
+			destello.loadGraphic(Paths.getImage("hud/win"), true, 24, 24);
+			destello.animation.add("default", [0, 1], 4);
+			destello.animation.play("default");
+			destello.setPosition(player.x + player.width / 2 - destello.width / 2, player.y - 5 - destello.height);
+			add(destello);
+
+			var grapesoda:FlxSprite = new FlxSprite(destello.x + 6, destello.y + 6, Paths.getImage("items/grapesoda"));
+			add(grapesoda);
+
+			if (!Gameplay.STORY_MODE)
+				new FlxTimer().start(3.5, (tmr) -> FlxG.switchState(new MenuState()));
 		}
 	}
 

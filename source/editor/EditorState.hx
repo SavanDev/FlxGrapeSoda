@@ -663,7 +663,12 @@ class EditorState extends BaseState
 		// Load entities
 		for (entity in entities)
 		{
-			levelEntities.add(new FlxSpriteEditor(entity.type, entity.x, entity.y));
+			var newEntity = new FlxSpriteEditor(entity.type, entity.x, entity.y);
+
+			if (entity.msg != null)
+				newEntity.message = entity.msg;
+
+			levelEntities.add(newEntity);
 			entitiesPositions.push('${entity.x}-${entity.y}');
 
 			if (entity.type == 0 && !levelHasPlayer)
@@ -1053,12 +1058,14 @@ class EditorState extends BaseState
 		{
 			readJSONLevel();
 			changeState(Tilemap);
+			inputText.hasFocus = false;
 			new FlxTimer().start((tmr) -> canChangeState = true);
 		}
 
 		if (FlxG.keys.justPressed.ESCAPE)
 		{
 			changeState(Tilemap);
+			inputText.hasFocus = false;
 			new FlxTimer().start((tmr) -> canChangeState = true);
 		}
 	}

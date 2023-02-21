@@ -41,6 +41,8 @@ class FlxSpriteEditor extends FlxSprite
 				return "BREAKABLE BLOCK";
 			case 5:
 				return "SIGN";
+			case 6:
+				return "CHECKPOINT";
 			default:
 				return "NULL";
 		}
@@ -59,6 +61,7 @@ class FlxSpriteEditor extends FlxSprite
 		3 -> Flag
 		4 -> Breakable block
 		5 -> Sign
+		6 -> Checkpoint
 	 */
 	function set_entityType(value:Int):Int
 	{
@@ -76,6 +79,8 @@ class FlxSpriteEditor extends FlxSprite
 				loadGraphic(Paths.getImage('objects/breakableBlock'), true, 12, 24);
 			case 5:
 				loadGraphic(Paths.getImage('objects/sign'), false, 12, 12);
+			case 6:
+				loadGraphic(Paths.getImage('objects/check'), true, 12, 12);
 		}
 		return entityType = value;
 	}

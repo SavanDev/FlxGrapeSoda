@@ -52,5 +52,8 @@ class Enemy extends FlxSprite
 
 		if (alive)
 			velocity.x = speed * direction;
+
+		if (y > FlxG.height)
+			destroy();
 	}
 }

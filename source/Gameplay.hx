@@ -33,6 +33,7 @@ class Gameplay
 	public static var HUD:HUD;
 
 	public static var GRAVITY:Float = 300;
+	public static var GRAPESODA_PRICE:Int = 500;
 
 	public static function resetGlobalVariables()
 	{

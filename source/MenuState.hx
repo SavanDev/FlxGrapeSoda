@@ -200,7 +200,7 @@ class MenuState extends BaseState
 		menu.addPage("main", [newGame, options, donate]);
 		menu.addPage("options", [optFullWindow, optMusicOff, optBack]);
 		#elseif android
-		menu.addPage("main", [newGame, donate]);
+		menu.addPage("main", [newGame, customLevelsMenu, donate, exit]);
 		#end
 
 		menu.gotoPage("main");
@@ -277,6 +277,12 @@ class MenuState extends BaseState
 		if (FlxG.sound.music != null)
 			FlxG.camera.fade(.5, true);
 		FlxG.sound.playMusic(Paths.getMusic("effervesce"));
+
+		var musicCredits = new FlxBitmapText(Fonts.TOY);
+		musicCredits.text = 'Music by Retro Indie Josh';
+		musicCredits.alignment = RIGHT;
+		musicCredits.setPosition(FlxG.width - musicCredits.getStringWidth(musicCredits.text) - 10, FlxG.height - 23);
+		add(musicCredits);
 
 		// texto de la versión
 		versionText = new FlxBitmapText(Fonts.TOY);

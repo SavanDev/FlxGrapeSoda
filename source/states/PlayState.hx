@@ -12,8 +12,8 @@ import flixel.tile.FlxTilemap;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import haxe.Json;
-import lime.utils.Assets;
 import objects.BreakableBlock;
+import objects.Checkpoint;
 import objects.Enemy;
 import objects.Flag;
 import objects.Money;
@@ -44,6 +44,7 @@ class PlayState extends BaseState
 	var pickyEnemy:FlxTypedGroup<Enemy>;
 	var flag:Flag;
 	var signs:FlxTypedGroup<Sign>;
+	var checkpoints:FlxTypedGroup<Checkpoint>;
 
 	var backgroundSign:FlxSprite;
 	var signText:FlxBitmapText;
@@ -73,6 +74,8 @@ class PlayState extends BaseState
 					breakableBlocks.add(new BreakableBlock(entity.x, entity.y));
 				case 5:
 					signs.add(new Sign(entity.x, entity.y, entity.msg));
+				case 6:
+					checkpoints.add(new Checkpoint(entity.x, entity.y));
 			}
 		}
 	}
@@ -172,6 +175,7 @@ class PlayState extends BaseState
 		pickyEnemy = new FlxTypedGroup<Enemy>();
 		flag = new Flag();
 		signs = new FlxTypedGroup<Sign>();
+		checkpoints = new FlxTypedGroup<Checkpoint>();
 		player = new Player();
 
 		initializeEntities(Json.parse(level.entities));
@@ -180,6 +184,7 @@ class PlayState extends BaseState
 		add(flag);
 		add(coins);
 		add(signs);
+		add(checkpoints);
 		add(pickyEnemy);
 		add(player);
 		add(breakableBlocks);
@@ -224,6 +229,9 @@ class PlayState extends BaseState
 		signText = new FlxBitmapText(Fonts.DEFAULT);
 		signText.setPosition(5, backgroundSign.y + 5);
 		signUI.add(signText);
+
+		if (!Gameplay.STORY_MODE)
+			Gameplay.GRAPESODA_PRICE = coins.length;
 	}
 
 	function signHandle(player:Player, sign:Sign)
@@ -232,12 +240,24 @@ class PlayState extends BaseState
 		signText.text = sign.message;
 	}
 
+	function checkpointTouch(player:Player, check:Checkpoint)
+	{
+		if (!check.checked)
+		{
+			check.animation.frameIndex++;
+			checkpoint.set(check.x, player.y - (player.height / 2));
+			FlxG.sound.play(Paths.getSound("checkpoint"));
+			check.checked = true;
+		}
+	}
+
 	override public function update(elapsed:Float)
 	{
 		super.update(elapsed);
 
 		FlxG.collide(player, staticObjectsMap);
 		FlxG.collide(player, groundMap);
+		FlxG.collide(player, breakableBlocks);
 
 		if (!FlxG.overlap(player, signs, signHandle) && signUI.visible)
 			signUI.visible = false;
@@ -252,6 +272,8 @@ class PlayState extends BaseState
 		if (!player.invencible)
 			FlxG.collide(player, pickyEnemy, playerHitEnemy);
 		FlxG.overlap(player, coins, playerTouchCoin);
+
+		FlxG.overlap(player, checkpoints, checkpointTouch);
 
 		if (!finished)
 		{

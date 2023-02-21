@@ -62,7 +62,7 @@ class Player extends FlxSprite
 		animation.add("walk", [3, 4, 3, 5], 5);
 		animation.add("jump", [6], 0);
 		animation.add("sad", [7], 0);
-		animation.add("sadness", [8], 0);
+		animation.add("happy", [8], 0);
 		animation.add("punch", [9, 10, 11, 11, 10, 9], 12, false);
 	}
 
