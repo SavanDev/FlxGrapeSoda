@@ -79,7 +79,7 @@ class Pause extends FlxSubState
 				// TODO: Hasta que haya algún sistema de guardado
 				Gameplay.resetGlobalVariables();
 
-				FlxG.switchState(new MenuState());
+				FlxG.switchState(MenuState.new);
 			});
 		}
 	}

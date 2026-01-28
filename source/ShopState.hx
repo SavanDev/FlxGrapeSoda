@@ -134,7 +134,7 @@ class ShopState extends BaseState
 			FlxG.camera.shake(0.025, 2, () ->
 			{
 				Gameplay.LEVEL += 1;
-				FlxG.switchState(Gameplay.STORY_MODE ? new ReadyState() : new MenuState());
+				FlxG.switchState(Gameplay.STORY_MODE ? ReadyState.new : MenuState.new);
 			});
 		}
 		else
@@ -172,7 +172,7 @@ class ShopState extends BaseState
 			add(grapesoda);
 
 			if (!Gameplay.STORY_MODE)
-				new FlxTimer().start(3.5, (tmr) -> FlxG.switchState(new MenuState()));
+				new FlxTimer().start(3.5, (tmr) -> FlxG.switchState(MenuState.new));
 		}
 	}
 

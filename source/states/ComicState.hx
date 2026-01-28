@@ -146,7 +146,7 @@ class ComicState extends BaseState
 		if (comicState >= comic.states.length)
 		{
 			FlxTween.num(1, 0, 3, {onComplete: (_) -> FlxG.sound.music.stop()}, (v) -> FlxG.sound.music.volume = v);
-			FlxG.camera.fade(4, () -> FlxG.switchState(new MenuState()));
+			FlxG.camera.fade(4, () -> FlxG.switchState(MenuState.new));
 			tmr.cancel();
 			return;
 		}
@@ -179,7 +179,7 @@ class ComicState extends BaseState
 
 		if (!skipped && (Input.SELECT || Input.SELECT_ALT))
 		{
-			FlxG.camera.fade(2, () -> FlxG.switchState(Type.createInstance(finalState, [])));
+			FlxG.camera.fade(2, () -> FlxG.switchState(() -> Type.createInstance(finalState, [])));
 			skipped = true;
 		}
 	}

@@ -65,17 +65,21 @@ typedef Shortcut =
 
 class EditorState extends BaseState
 {
+	// Level editor state: manages tilemap painting, entity placement,
+	// player selection, background setup, save/load and auxiliary UI.
 	static inline var UI_ZOOM:Float = .1;
 	static inline var MAX_WIDTH:Int = Game.WIDTH * Game.MAX_MULTIPLIER_WIDTH;
 	static inline var SCROLL_SPEED:Int = 3;
 	static inline var PLAYERS_SEPARATION:Int = 20;
 
+	// Current editor mode and helpers for UI/state transitions.
 	var editorState:EditorMode;
 	var lastEditorState:EditorMode;
 	var lastShortcut:Array<Shortcut>;
 	var canChangeState:Bool = true;
 	var canScroll:Bool = true;
 
+	// Mode-specific UI containers, toggled in changeState().
 	var tilemapUI:FlxGroup;
 	var entityUI:FlxGroup;
 	var playerUI:FlxGroup;
@@ -87,45 +91,55 @@ class EditorState extends BaseState
 	var musicUI:FlxGroup;
 	var signUI:FlxGroup;
 
+	// Persistent UI elements.
 	var uiBorder:FlxSprite;
 	var sprLayers:FlxSprite;
 
+	// Tilemap layers and selection. Layer index here is editor-facing.
 	var levelMap:FlxTypedGroup<FlxTilemap>;
 	var selectedTile(default, set):Int = 1;
 	var selectedLayer(default, set):Int = 2;
 
+	// Global editor visuals and state.
 	var editorText:FlxText;
 	var backParallax:BackParallax;
 	var entities:FlxGroup;
 	var actualPlayer:FlxSprite;
 
+	// Mouse position on the tile grid, and editor bounds.
 	var mouseX:Int;
 	var mouseY:Int;
 	var levelSize:FlxRect;
 
 	// Player selector
+	// Player selector UI and current selection.
 	var players:FlxSpriteGroup;
 	var playerSelected:Int = 0;
 	var playerCursor:FlxSprite;
 
 	// Tilemap
+	// Tile painting helpers and position display.
 	var highlightBox:FlxSprite;
 	var tileSelectedSprite:FlxSprite;
 	var textPos:FlxBitmapText;
 	var posBackground:FlxSprite;
 
 	// Entities
+	// Entity preview while placing.
 	var currentEntity:FlxSpriteEditor;
 	var currentEntityName:FlxText;
 
+	// Placed entities and fast lookup by "x-y" string key.
 	var levelEntities:FlxTypedGroup<FlxSpriteEditor>;
 	var entitiesPositions:Array<String>;
 
+	// Current entity type id, plus constraints for unique entities.
 	var actualEntity:Int = 0;
 	var levelHasPlayer:Bool = false;
 	var levelHasFlag:Bool = false;
 
 	// Background
+	// Background editor state and UI for RGB channels.
 	var redBack:FlxSprite;
 	var greenBack:FlxSprite;
 	var blueBack:FlxSprite;
@@ -141,14 +155,17 @@ class EditorState extends BaseState
 	var backgroundClouds:Bool = true;
 
 	// Export
+	// Export UI for save/load.
 	var inputText:FlxInputText;
 	var messageExport:FlxBitmapText;
 	var saveTextUI:FlxBitmapText;
 
 	// Music
+	// Music selector UI.
 	var inputMusic:FlxInputText;
 
 	// Sign
+	// Sign editor UI and current sign entity.
 	var inputSign:FlxInputText;
 	var inputCounter:FlxText;
 	var inputEntity:FlxSpriteEditor;
@@ -163,7 +180,7 @@ class EditorState extends BaseState
 		loadLevelAtStart = loadLevel;
 	}
 
-	// Shortcuts!
+	// Shortcut definitions shown on the right side of the UI.
 	var shortcutsGeneral:Array<Shortcut> = [
 		{
 			name: "Tilemap",
@@ -251,12 +268,14 @@ class EditorState extends BaseState
 	// Map Editor functions!
 	function set_selectedTile(_newTile)
 	{
+		// Update preview sprite and store selected tile id.
 		tileSelectedSprite.animation.frameIndex = _newTile;
 		return selectedTile = _newTile;
 	}
 
 	function set_selectedLayer(_newLayer)
 	{
+		// Force a safe tile id and refresh the preview for the new layer.
 		selectedLayer = _newLayer;
 		selectedTile = 1;
 		setLayerTilePreview();
@@ -269,6 +288,7 @@ class EditorState extends BaseState
 
 		switch (selectedLayer)
 		{
+			// Editor layer index maps to tile sheet and UI icon.
 			case 0:
 				path = Paths.getImage("tilemaps/backtiles");
 				sprLayers.animation.frameIndex = 2;
@@ -286,12 +306,14 @@ class EditorState extends BaseState
 
 	public function createMap()
 	{
+		// Initialize a blank map and (re)create all tilemap layers.
 		var blankMap = [for (i in 0...MAX_WIDTH * Game.MAP_HEIGHT) 0];
 
 		if (levelMap != null)
 		{
 			levelMap.forEach((tilemap) ->
 			{
+				// Remove old layers to avoid duplicates and leaks.
 				levelMap.remove(tilemap);
 				tilemap.destroy();
 			});
@@ -303,6 +325,7 @@ class EditorState extends BaseState
 			add(levelMap);
 		}
 
+		// Layer order: 0 = backtiles, 1 = objects, 2 = grass (front).
 		var layer2 = new FlxTilemap();
 		layer2.loadMapFromArray(blankMap, MAX_WIDTH, Game.MAP_HEIGHT, Paths.getImage("tilemaps/backtiles"), Game.TILE_SIZE, Game.TILE_SIZE);
 		levelMap.add(layer2);
@@ -324,6 +347,7 @@ class EditorState extends BaseState
 	 */
 	function onEditorCreate()
 	{
+		// Tilemap mode UI setup.
 		tilemapUI = new FlxGroup();
 
 		tileSelectedSprite = new FlxSprite(2, FlxG.height - 14);
@@ -345,6 +369,7 @@ class EditorState extends BaseState
 	function onEditorUpdate()
 	{
 		#if desktop
+		// Highlight the current tile under the mouse when inside bounds.
 		if (FlxG.mouse.getPosition().inRect(levelSize))
 		{
 			highlightBox.x = mouseX * Game.TILE_SIZE;
@@ -354,15 +379,16 @@ class EditorState extends BaseState
 		else
 			highlightBox.visible = false;
 
+		// Paint or erase tiles with mouse buttons.
 		if (FlxG.mouse.pressed && highlightBox.visible)
-			levelMap.members[selectedLayer].setTile(mouseX, mouseY, selectedTile);
+			levelMap.members[selectedLayer].setTileIndex(mouseX, mouseY, selectedTile, true);
 		if (FlxG.mouse.pressedRight && highlightBox.visible)
-			levelMap.members[selectedLayer].setTile(mouseX, mouseY, 0);
+			levelMap.members[selectedLayer].setTileIndex(mouseX, mouseY, 0, true);
 
 		// Cambiar "tile" seleccionado
 		if (selectedLayer != 2)
 		{
-			if (FlxG.mouse.wheel < 0 && selectedTile < tileSelectedSprite.animation.frames - 1)
+			if (FlxG.mouse.wheel < 0 && selectedTile < tileSelectedSprite.frames.numFrames - 1)
 				selectedTile++;
 
 			if (FlxG.mouse.wheel > 0 && selectedTile > 1)
@@ -386,6 +412,7 @@ class EditorState extends BaseState
 	 */
 	function onEntityCreate()
 	{
+		// Entity placement UI setup.
 		entityUI = new FlxGroup();
 		entitiesPositions = new Array<String>();
 
@@ -407,6 +434,7 @@ class EditorState extends BaseState
 	function onEntityUpdate()
 	{
 		#if desktop
+		// Snap preview entity to grid while inside level bounds.
 		if (FlxG.mouse.getPosition().inRect(levelSize))
 		{
 			currentEntity.x = Std.int(mouseX * Game.TILE_SIZE);
@@ -425,6 +453,7 @@ class EditorState extends BaseState
 			changeEntityPreview();
 		}
 
+		// Prevent placing duplicate player/flag entities.
 		if (FlxG.mouse.pressed && !(actualEntity == 0 && levelHasPlayer) && !(actualEntity == 3 && levelHasFlag))
 			addEntityToMap();
 
@@ -435,6 +464,7 @@ class EditorState extends BaseState
 
 	function addEntityToMap()
 	{
+		// Positions are tracked by a string key to avoid duplicates.
 		var entityPos:String = '${currentEntity.x}-${currentEntity.y}';
 		var newEntityCopy = new FlxSpriteEditor(currentEntity.getEntityType(), currentEntity.x, currentEntity.y);
 
@@ -449,6 +479,7 @@ class EditorState extends BaseState
 			if (actualEntity == 3)
 				levelHasFlag = true;
 
+			// Auto-open sign editor when a sign entity is placed.
 			if (actualEntity == 5)
 			{
 				inputEntity = newEntityCopy;
@@ -460,6 +491,7 @@ class EditorState extends BaseState
 			var entityIndex:Int = entitiesPositions.indexOf(entityPos);
 			var entity:FlxSpriteEditor = levelEntities.members[entityIndex];
 
+			// If a sign is already here, open the editor with its text.
 			if (entity.getEntityType() == 5)
 			{
 				if (entity.message != null)
@@ -475,6 +507,7 @@ class EditorState extends BaseState
 
 	function removeEntityToMap()
 	{
+		// Remove entity at the grid cell under the cursor.
 		var entityPos:String = '${currentEntity.x}-${currentEntity.y}';
 		if (entitiesPositions.contains(entityPos))
 		{
@@ -495,6 +528,7 @@ class EditorState extends BaseState
 
 	function changeEntityPreview()
 	{
+		// Wrap around entity list when cycling with mouse wheel.
 		if (actualEntity >= MAX_ENTITIES)
 			actualEntity = 0;
 
@@ -508,6 +542,7 @@ class EditorState extends BaseState
 	// Player selector
 	function onPlayersCreate()
 	{
+		// Player selection UI (uses animated portraits).
 		playerUI = new FlxGroup();
 
 		var names = ["dylan", "luka", "watanoge", "asdonaur"];
@@ -557,6 +592,7 @@ class EditorState extends BaseState
 	function onPlayersUpdate()
 	{
 		#if desktop
+		// Quick number keys to select a player.
 		if (FlxG.keys.justPressed.ONE)
 			changePlayerCursor(0);
 
@@ -573,6 +609,7 @@ class EditorState extends BaseState
 
 	function changePlayerCursor(index:Int)
 	{
+		// Update selection and show cursor, or exit if re-selecting.
 		if (index != playerSelected)
 		{
 			playerSelected = index;
@@ -588,6 +625,7 @@ class EditorState extends BaseState
 	 */
 	function getEntitiesData()
 	{
+		// Serialize placed entities into a JSON array.
 		var entities:Array<Entity> = new Array<Entity>();
 		levelEntities.forEach((entity) ->
 		{
@@ -608,6 +646,7 @@ class EditorState extends BaseState
 
 	function getMapData(layer:Int)
 	{
+		// Convert editor-layer index to map-layer index and stringify.
 		/*
 			0 => layer 2
 			1 => layer 1
@@ -626,6 +665,7 @@ class EditorState extends BaseState
 
 	function generateJSONLevel()
 	{
+		// Build a LevelData structure and output formatted JSON.
 		var result:LevelData = {
 			layers: [getMapData(0), getMapData(1), getMapData(2)],
 			entities: getEntitiesData(),
@@ -647,6 +687,7 @@ class EditorState extends BaseState
 	 */
 	function setEntitiesData(entitiesJSON:String)
 	{
+		// Clear scene entities and rebuild from JSON.
 		var entities:Array<Entity> = Json.parse(entitiesJSON);
 
 		// Clear entities in the scene
@@ -660,7 +701,7 @@ class EditorState extends BaseState
 		while (entitiesPositions.length > 0)
 			entitiesPositions.pop();
 
-		// Load entities
+		// Load entities and track unique ones.
 		for (entity in entities)
 		{
 			var newEntity = new FlxSpriteEditor(entity.type, entity.x, entity.y);
@@ -681,6 +722,7 @@ class EditorState extends BaseState
 
 	function setMapData(layers:Array<String>)
 	{
+		// Hard-coded layer order in file: [front, mid, back].
 		// hard code layers
 		levelMap.members[0].loadMapFromArray(Json.parse(layers[2]), MAX_WIDTH, Game.MAP_HEIGHT, Paths.getImage("tilemaps/backtiles"), Game.TILE_SIZE,
 			Game.TILE_SIZE);
@@ -692,6 +734,7 @@ class EditorState extends BaseState
 
 	function readJSONLevel()
 	{
+		// Load a level file from maps/<name>.json and apply its data.
 		var level:LevelData = Json.parse(File.getContent('maps/${inputText.text}.json'));
 		trace(level);
 
@@ -711,6 +754,7 @@ class EditorState extends BaseState
 	 */
 	function generateShortcutViewer(shortcuts:Array<Shortcut>)
 	{
+		// Build or refresh the shortcut UI list depending on active mode.
 		if (shortcutUI == null)
 		{
 			shortcutUI = new FlxGroup();
@@ -753,6 +797,7 @@ class EditorState extends BaseState
 	 */
 	function onBackgroundCreate()
 	{
+		// Background editor UI: RGB sliders and background type.
 		backgroundUI = new FlxGroup();
 
 		var topBack:FlxSprite = new FlxSprite();
@@ -814,6 +859,7 @@ class EditorState extends BaseState
 
 	function changeBackType(value:Int)
 	{
+		// Cycle through available parallax backgrounds.
 		backgroundType = value;
 
 		if (backgroundType < 0)
@@ -835,6 +881,7 @@ class EditorState extends BaseState
 
 	function changeBackValue(value:Int)
 	{
+		// Change the selected RGB channel by delta.
 		switch (selectedColor)
 		{
 			case Red:
@@ -850,6 +897,7 @@ class EditorState extends BaseState
 
 	function changeBackgroundColorValues(red:Int, green:Int, blue:Int)
 	{
+		// Set all channels at once (used on level load).
 		redValue = red;
 		greenValue = green;
 		blueValue = blue;
@@ -859,6 +907,7 @@ class EditorState extends BaseState
 
 	function updateBackColors()
 	{
+		// Clamp color values and update UI + camera background.
 		// Comprobemos que los valores sean válidos
 		if (redValue < 0)
 			redValue = 0;
@@ -888,6 +937,7 @@ class EditorState extends BaseState
 
 	function changeSelectedColor(color:Colors)
 	{
+		// Highlight the active channel in the UI.
 		switch (color)
 		{
 			case Red:
@@ -908,6 +958,7 @@ class EditorState extends BaseState
 
 	function onBackgroundUpdate()
 	{
+		// Keyboard controls for RGB and background options.
 		if (FlxG.keys.justPressed.R)
 			changeSelectedColor(Red);
 
@@ -947,6 +998,7 @@ class EditorState extends BaseState
 	 */
 	function onExitCreate()
 	{
+		// Modal confirmation before leaving the editor.
 		exitUI = new FlxGroup();
 
 		var exitBackground = new FlxSprite();
@@ -967,10 +1019,11 @@ class EditorState extends BaseState
 
 	function onExitUpdate()
 	{
+		// ESC confirms exit, ENTER cancels.
 		if (FlxG.keys.justPressed.ESCAPE)
 		{
 			FlxG.mouse.visible = false;
-			FlxG.switchState(new MenuState());
+			FlxG.switchState(MenuState.new);
 		}
 		if (FlxG.keys.justPressed.ENTER)
 		{
@@ -984,6 +1037,7 @@ class EditorState extends BaseState
 	 */
 	function onExportCreate()
 	{
+		// Export dialog for save name and status.
 		exportUI = new FlxGroup();
 
 		var width:Int = Std.int(Game.WIDTH / 2);
@@ -1022,6 +1076,7 @@ class EditorState extends BaseState
 
 	function onExportUpdate()
 	{
+		// ENTER saves, ESC returns to last state.
 		if (FlxG.keys.justPressed.ENTER)
 			exportLevel();
 
@@ -1035,6 +1090,7 @@ class EditorState extends BaseState
 
 	function exportLevel()
 	{
+		// Ensure maps directory exists and write the JSON file.
 		if (!FileSystem.exists("maps"))
 			FileSystem.createDirectory("maps");
 
@@ -1048,12 +1104,14 @@ class EditorState extends BaseState
 	 */
 	function onLoadCreate()
 	{
+		// Reuse export UI for load, just adjust labels.
 		messageExport.text = 'The level should be at:\n"maps/*"';
 		saveTextUI.text = "Load";
 	}
 
 	function onLoadUpdate()
 	{
+		// ENTER loads and returns to tilemap mode.
 		if (FlxG.keys.justPressed.ENTER)
 		{
 			readJSONLevel();
@@ -1075,6 +1133,7 @@ class EditorState extends BaseState
 	 */
 	function onMusicCreate()
 	{
+		// Music picker and preview UI.
 		musicUI = new FlxGroup();
 
 		var width:Int = Std.int(Game.WIDTH / 2);
@@ -1113,6 +1172,7 @@ class EditorState extends BaseState
 
 	function onMusicUpdate()
 	{
+		// ENTER plays, S stops, ESC returns.
 		if (FlxG.keys.justPressed.ENTER)
 			FlxG.sound.playMusic(Paths.getMusic(inputMusic.text));
 
@@ -1131,6 +1191,7 @@ class EditorState extends BaseState
 	 */
 	function onSignCreate()
 	{
+		// Sign editor UI with character counter.
 		signUI = new FlxGroup();
 
 		var signBackground = new FlxSprite(Paths.getImage("hud/sign"));
@@ -1151,6 +1212,7 @@ class EditorState extends BaseState
 
 	function onSignUpdate()
 	{
+		// Update counter and persist message on exit.
 		inputCounter.text = '${inputSign.text.length}/${inputSign.maxLength}';
 
 		if (FlxG.keys.justPressed.ESCAPE)
@@ -1233,6 +1295,7 @@ class EditorState extends BaseState
 		textPos.cameras = [uiCamera];
 		actualPlayer.cameras = [uiCamera];
 
+		// Force UI refresh for background colors.
 		changeBackValue(0);
 		changeState(!loadLevelAtStart ? Tilemap : Load);
 	}
@@ -1269,6 +1332,7 @@ class EditorState extends BaseState
 				onSignUpdate();
 		}
 
+		// Fade bottom UI when mouse overlaps the border region.
 		if (FlxG.mouse.getPosition().y >= sprLayers.y)
 		{
 			if (uiBorder.alpha > .5)
@@ -1280,12 +1344,14 @@ class EditorState extends BaseState
 				uiBorder.alpha = posBackground.alpha = sprLayers.alpha += .1;
 		}
 
+		// Allow hiding UI during editing modes.
 		if (editorState == Tilemap || editorState == Entity)
 		{
 			if (FlxG.keys.justPressed.H)
 				uiCamera.visible = !uiCamera.visible;
 		}
 
+		// Global shortcuts to switch modes.
 		if (canChangeState)
 		{
 			if (FlxG.keys.justPressed.E)
@@ -1334,6 +1400,7 @@ class EditorState extends BaseState
 
 	function changeState(state:EditorMode)
 	{
+		// Centralized mode toggle: show/hide UI and update shortcuts.
 		switch (state)
 		{
 			case Tilemap:

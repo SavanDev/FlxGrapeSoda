@@ -123,7 +123,7 @@ class PlayState extends BaseState
 		FlxG.camera.fade(FlxColor.BLACK, 1.5, false, () ->
 		{
 			trace('Level ${Gameplay.LEVEL} finished!');
-			FlxG.switchState(new ShopState());
+			FlxG.switchState(ShopState.new);
 		});
 
 		finished = true;
@@ -304,7 +304,7 @@ class PlayState extends BaseState
 			finishLevel();
 
 		if (FlxG.keys.justPressed.EIGHT)
-			FlxG.switchState(new CharacterState());
+			FlxG.switchState(CharacterState.new);
 
 		if (FlxG.keys.justPressed.PAGEUP)
 			FlxG.camera.zoom += .1;

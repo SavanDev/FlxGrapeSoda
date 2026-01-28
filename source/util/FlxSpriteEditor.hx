@@ -5,13 +5,17 @@ import flixel.FlxSprite;
 
 class FlxSpriteEditor extends FlxSprite
 {
+	// Editor-only sprite that knows which entity type it represents.
+	// The setter swaps graphics based on the type id.
 	var entityType(default, set):Int;
 
+	// Optional message for sign entities (type 5).
 	public var message:String;
 
 	public function new(Type:Int, ?X:Float = 0, ?Y:Float = 0)
 	{
 		super(X, Y);
+		// Trigger setter to load the correct graphic.
 		entityType = Type;
 	}
 
@@ -50,6 +54,7 @@ class FlxSpriteEditor extends FlxSprite
 
 	public function setEntityType(value:Int)
 	{
+		// Simple wrapper to reuse external calls without exposing setter.
 		entityType = value;
 	}
 
@@ -65,6 +70,7 @@ class FlxSpriteEditor extends FlxSprite
 	 */
 	function set_entityType(value:Int):Int
 	{
+		// Load the sprite sheet for the requested entity type.
 		switch (value)
 		{
 			case 0:

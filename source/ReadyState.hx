@@ -35,7 +35,7 @@ class ReadyState extends BaseState
 			{
 				SHOW_CUTSCENE = false;
 				loadCutscene = true;
-				FlxG.switchState(new ComicState(level.cutscene, ReadyState));
+				FlxG.switchState(() -> new ComicState(level.cutscene, ReadyState));
 			}
 
 			switch (level.player)
@@ -91,7 +91,7 @@ class ReadyState extends BaseState
 			new FlxTimer().start(2, (tmr) ->
 			{
 				SHOW_CUTSCENE = true;
-				FlxG.switchState(levelExists ? new PlayState() : new MenuState());
+				FlxG.switchState(levelExists ? PlayState.new : MenuState.new);
 			});
 		}
 

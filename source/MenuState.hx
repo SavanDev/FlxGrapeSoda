@@ -1,5 +1,6 @@
 package;
 
+import editor.EditorState;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.addons.display.FlxBackdrop;
@@ -51,13 +52,13 @@ class MenuState extends BaseState
 		var newGame:MenuItem = {
 			text: "Story mode",
 			enabled: false,
-			event: (menu) ->
-			{
-				menu.kill();
-				FlxG.sound.play(Paths.getSound("select"));
-				Gameplay.resetGlobalVariables();
-				FlxG.camera.fade(0xFF111111, () -> FlxG.switchState(new ReadyState()));
-			}
+				event: (menu) ->
+				{
+					menu.kill();
+					FlxG.sound.play(Paths.getSound("select"));
+					Gameplay.resetGlobalVariables();
+					FlxG.camera.fade(0xFF111111, () -> FlxG.switchState(ReadyState.new));
+				}
 		}
 
 		var editor:MenuItem = {
@@ -95,21 +96,21 @@ class MenuState extends BaseState
 		var editorNew:MenuItem = {
 			text: "New level",
 			enabled: true,
-			event: (menu) ->
-			{
-				menu.kill();
-				FlxG.camera.fade(0xFF111111, () -> FlxG.switchState(new editor.EditorState()));
-			}
+				event: (menu) ->
+				{
+					menu.kill();
+				FlxG.camera.fade(0xFF111111, () -> FlxG.switchState(() -> new EditorState()));
+				}
 		}
 
 		var editorLoad:MenuItem = {
 			text: "Load level",
 			enabled: true,
-			event: (menu) ->
-			{
-				menu.kill();
-				FlxG.camera.fade(0xFF111111, () -> FlxG.switchState(new editor.EditorState(true)));
-			}
+				event: (menu) ->
+				{
+					menu.kill();
+				FlxG.camera.fade(0xFF111111, () -> FlxG.switchState(() -> new EditorState(true)));
+				}
 		}
 		#end
 
@@ -171,7 +172,7 @@ class MenuState extends BaseState
 						Gameplay.resetGlobalVariables();
 						Gameplay.STORY_MODE = false;
 						Gameplay.LEVELNAME = levelName;
-						FlxG.camera.fade(0xFF111111, () -> FlxG.switchState(new ReadyState()));
+						FlxG.camera.fade(0xFF111111, () -> FlxG.switchState(ReadyState.new));
 					}
 				}
 

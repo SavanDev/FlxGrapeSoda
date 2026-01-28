@@ -1,10 +1,10 @@
 package states;
 
 import flixel.FlxG;
-import flixel.FlxObject;
 import flixel.FlxSprite;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
+import flixel.util.FlxDirectionFlags;
 
 class CharacterState extends BaseState
 {
@@ -41,8 +41,8 @@ class CharacterState extends BaseState
 		playerViewer.offset.set(3, 6);
 
 		// para las animaciones
-		playerViewer.setFacingFlip(FlxObject.LEFT, true, false);
-		playerViewer.setFacingFlip(FlxObject.RIGHT, false, false);
+		playerViewer.setFacingFlip(FlxDirectionFlags.LEFT, true, false);
+		playerViewer.setFacingFlip(FlxDirectionFlags.RIGHT, false, false);
 		playerViewer.animation.add("default", [1, 2], 3);
 		playerViewer.animation.add("walk", [3, 4, 3, 5], 5);
 		playerViewer.animation.add("jump", [6], 0);
@@ -79,28 +79,28 @@ class CharacterState extends BaseState
 		// animaciones
 		if (FlxG.keys.justPressed.RIGHT)
 		{
-			playerViewer.facing = RIGHT;
+			playerViewer.facing = FlxDirectionFlags.RIGHT;
 			playerViewer.animation.play("walk");
 			animState.text = "Walk (RIGHT)";
 		}
 
 		if (FlxG.keys.justPressed.LEFT)
 		{
-			playerViewer.facing = LEFT;
+			playerViewer.facing = FlxDirectionFlags.LEFT;
 			playerViewer.animation.play("walk");
 			animState.text = "Walk (LEFT)";
 		}
 
 		if (FlxG.keys.justPressed.UP)
 		{
-			playerViewer.facing = RIGHT;
+			playerViewer.facing = FlxDirectionFlags.RIGHT;
 			playerViewer.animation.play("jump");
 			animState.text = "JUMP";
 		}
 
 		if (FlxG.keys.justPressed.DOWN)
 		{
-			playerViewer.facing = RIGHT;
+			playerViewer.facing = FlxDirectionFlags.RIGHT;
 			playerViewer.animation.play("default");
 			animState.text = "DEFAULT";
 		}
@@ -114,7 +114,7 @@ class CharacterState extends BaseState
 
 		if (FlxG.keys.justPressed.HOME)
 		{
-			playerViewer.facing = FlxObject.RIGHT;
+			playerViewer.facing = FlxDirectionFlags.RIGHT;
 			playerViewer.animation.play("sadness");
 			animState.text = "SADNESS";
 		}
@@ -146,7 +146,7 @@ class CharacterState extends BaseState
 
 		// para salir
 		if (FlxG.keys.justPressed.ESCAPE)
-			FlxG.switchState(new PlayState());
+			FlxG.switchState(PlayState.new);
 		#end
 	}
 }
